@@ -1,0 +1,19 @@
+# Build & deps
+.next/
+out/
+build/
+coverage/
+node_modules/
+next-env.d.ts
+package-lock.json
+
+# Supabase (SQL migrations, generated types)
+supabase/
+
+# Contrat produit — documents de spécification : ne jamais reformater
+# (les tables/formatage font partie du contrat, PRD ↔ Specs ↔ DESIGN).
+CLAUDE.md
+DESIGN.md
+PRD_Microfinance_v2.1.md
+ROADMAP.md
+SPECIFICATIONS_TECHNIQUES_Microfinance_v2.1.md

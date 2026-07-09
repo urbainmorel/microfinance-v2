@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tokens — DESIGN.md §4.3 (mapping Shadcn, format HSL espacé pour `hsl(var(--x))`).
+ * Palette de base §4.1 exposée en variables ; aucun hex en dur dans les composants.
+ * La palette ne contient AUCUN rouge (PRD §3) : `--destructive` = encre (§4.2).
+ */
+@layer base {
+  :root {
+    /* Surfaces */
+    --background: 44 25% 95%; /* #F6F4EF — surface viewport */
+    --app-bg: 42 26% 89%; /* #E9E6DF — fond PWA / radial extérieur */
+    --background-radial: 42 33% 93%; /* #F2EFE8 — radial intérieur */
+    --foreground: 150 20% 11%; /* #16211B */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 150 20% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 20% 11%;
+    --muted: 45 30% 92%; /* #F0EDE4 */
+    --muted-foreground: 140 7% 45%; /* #6C7A70 */
+    --border: 43 26% 90%; /* #ECE8DF */
+    --separator: 45 33% 92%; /* #F0EDE4 — lignes internes */
+    --input: 43 26% 90%;
+    --ring: 152 63% 33%; /* #1F8A5B (focus) */
+
+    /* Actions */
+    --primary: 150 20% 11%; /* #16211B — CTA encre */
+    --primary-foreground: 44 25% 95%;
+    --secondary: 108 34% 94%; /* #EEF5EA — vert pastel */
+    --secondary-foreground: 150 20% 11%;
+    --accent: 152 63% 33%; /* #1F8A5B — vert marque */
+    --accent-foreground: 0 0% 100%;
+
+    /* Statuts sémantiques (§4.2) */
+    --success: 152 63% 33%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 62% 46%; /* doré #B08A3E */
+    --warning-foreground: 0 0% 100%;
+    --info: 210 27% 40%; /* bleu virement #4A6580 */
+    --info-foreground: 0 0% 100%;
+
+    /* Rouge neutralisé — encre, jamais de rouge (PRD §3, DESIGN §4.2) */
+    --destructive: 150 20% 11%;
+    --destructive-foreground: 44 25% 95%;
+
+    /* Palette de marque (§4.1) */
+    --brand-green: 152 63% 33%; /* #1F8A5B */
+    --brand-green-deep: 156 59% 11%; /* #0B2B1E — héros foncé */
+    --brand-green-mid: 151 60% 23%; /* #175C3B — héros clair */
+    --gold: 38 62% 46%; /* #B08A3E — texte doré */
+    --gold-bright: 39 67% 55%; /* #D9A441 — accent doré */
+    --blue: 210 27% 40%; /* #4A6580 */
+    --ink: 150 20% 11%; /* #16211B */
+
+    /* Fonds pastel (§4.1) */
+    --pastel-green: 108 34% 94%; /* #EEF5EA */
+    --pastel-gold: 41 74% 93%; /* #FBF3E2 */
+    --pastel-blue: 210 29% 95%; /* #EDF1F5 */
+
+    --radius: 0.875rem; /* 14px base (inputs) */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Focus clavier — anneau 2px accent, offset 2px (DESIGN §17). */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
