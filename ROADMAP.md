@@ -62,6 +62,18 @@ sur réseau correct ; voir mémoire `local-dev-setup`).
   HTTP 400) ; upsert `kyc_documents` idempotent (1 ligne au ré-upload) ; `submit_kyc` refusé si
   incomplet ; PIN posé/accepté puis **verrouillé (423) après 5 échecs**. + 47 tests pgTAP verts.
 
+**Lot 3 — TERMINÉ + vérifié au navigateur.** Portefeuille en lecture (la vérité comptable), PWA client.
+- **Dashboard** : carte héros portefeuille rendant les **4 formules uniques** via `get_wallet_summary`
+  → `computeWalletSummary` (aucun calcul local) ; header (bonjour + badge KYC + cloche compteur non-lu) ;
+  carte « Mon prêt » **État 1** ; boutons Retirer/Déposer ; états skeleton/erreur (DESIGN §15).
+- **Écrans** : épargne (sous-comptes), notifications (liste lu/non-lu + « tout marquer lu », `read_at`),
+  opérations & prêts & profil (déconnexion) ; **nav basse 4 onglets** (masquée pendant le KYC).
+- **TanStack Query** : `queryKey ['wallet', uid]`, revalidation **10 s** (Specs §A Écran 3). Hooks
+  sans `any` ni `!`. UI en tokens (héros `hero-green`, doré = bloqué/réservé, jamais de rouge).
+- **Vérifié navigateur** (wallet semé PRD §7.2) : dashboard affiche exactement **95 000 / 15 000 /
+  30 000 / 140 000 FCFA** ; notifications lu/non-lu + mutation persistée (unread 0) ; épargne
+  25 000 / 10 000 / 5 000. + data-path RLS vérifié e2e (6 checks) ; `next build` 16 routes.
+
 ---
 
 ## Lot 0 — Socle projet
