@@ -1,4 +1,11 @@
-import type { KycField, KycInput } from "@/lib/schemas/kyc";
+import {
+  KYC_BUCKET,
+  kycDocumentSchema,
+  type KycDocType,
+  type KycField,
+  type KycInput,
+} from "@/lib/schemas/kyc";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 function pick(values: KycInput, fields: readonly KycField[]): Record<string, unknown> {
@@ -13,18 +20,44 @@ function pick(values: KycInput, fields: readonly KycField[]): Record<string, unk
 /** Enregistre une étape via la RPC serveur adéquate (PRD §6.4, sauvegarde auto). */
 export async function saveKycStep(
   supabase: SupabaseClient,
-  target: "profile" | "financials" | "none",
+  target: "profile" | "financials",
   fields: readonly KycField[],
   values: KycInput,
 ): Promise<void> {
   const p_data = pick(values, fields);
-  if (target === "profile") {
-    const { error } = await supabase.rpc("save_kyc_profile", { p_data });
-    if (error) throw error;
-  } else if (target === "financials") {
-    const { error } = await supabase.rpc("save_kyc_financials", { p_data });
-    if (error) throw error;
-  }
+  const rpc = target === "profile" ? "save_kyc_profile" : "save_kyc_financials";
+  const { error } = await supabase.rpc(rpc, { p_data });
+  if (error) throw error;
+}
+
+/** Téléverse une pièce dans le bucket privé puis enregistre sa métadonnée (upsert idempotent). */
+export async function uploadKycDocument(
+  supabase: SupabaseClient,
+  docType: KycDocType,
+  file: File,
+): Promise<void> {
+  const parsed = kycDocumentSchema.safeParse(file);
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Fichier invalide");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Non authentifié");
+
+  // Chemin déterministe `<uid>/<docType>` : premier segment = uid (RLS own-folder).
+  const path = `${user.id}/${docType}`;
+  const { error: uploadError } = await supabase.storage
+    .from(KYC_BUCKET)
+    .upload(path, file, { upsert: true, contentType: file.type });
+  if (uploadError) throw uploadError;
+
+  const { error: rowError } = await supabase
+    .from("kyc_documents")
+    .upsert(
+      { client_id: user.id, doc_type: docType, url: path, verified: false },
+      { onConflict: "client_id,doc_type" },
+    );
+  if (rowError) throw rowError;
 }
 
 /** Recharge les données KYC existantes pour reprendre le wizard (PRD §6.4). */
@@ -46,4 +79,14 @@ export async function loadKyc(supabase: SupabaseClient): Promise<Partial<KycInpu
     .eq("client_id", user.id)
     .maybeSingle();
   return { ...(profile ?? {}), ...(financials ?? {}) } as Partial<KycInput>;
+}
+
+/** Liste les types de pièces déjà téléversées, pour restaurer l'état du wizard. */
+export async function loadKycDocuments(supabase: SupabaseClient): Promise<KycDocType[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data } = await supabase.from("kyc_documents").select("doc_type").eq("client_id", user.id);
+  return (data ?? []).map((r) => r.doc_type as KycDocType);
 }
