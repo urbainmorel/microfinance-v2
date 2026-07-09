@@ -1,0 +1,12 @@
+# Fins de ligne normalisées en LF (cohérent avec Prettier ; évite les faux diffs sous Windows).
+* text=auto eol=lf
+
+# Binaires
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
