@@ -1,0 +1,7 @@
+-- Seed de développement local UNIQUEMENT (jamais exécuté en production).
+-- Renseigné au fil des lots :
+--   • Lot 6b : produit de prêt synthétique de référence (décision D5) pour les tests
+--     d'amortissement — paramètres à FAIRE VALIDER par le métier (PRD §22).
+--   • Lot 7  : templates d'emails de développement.
+-- Les taux, frais et textes juridiques réels relèvent du métier et ne sont jamais
+-- inventés ici (CLAUDE.md § Escalate business decisions).
