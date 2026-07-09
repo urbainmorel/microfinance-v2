@@ -1,11 +1,13 @@
--- Lot 2 — Tests KYC : sauvegarde par étape + soumission (pgTAP).
+-- Lot 2 — Tests KYC : sauvegarde par étape, complétude des pièces, soumission (pgTAP).
 
 begin;
-select plan(6);
+select plan(11);
 
 insert into auth.users (id, email, raw_user_meta_data)
-values ('77777777-7777-7777-7777-777777777777', 'kyc@test.dev', '{"firstname":"Koffi","lastname":"K"}');
+values ('77777777-7777-7777-7777-777777777777', 'kyc@test.dev', '{"firstname":"Koffi","lastname":"K"}'),
+       ('88888888-8888-8888-8888-888888888888', 'kyc2@test.dev', '{"firstname":"Ama","lastname":"P"}');
 
+-- ── Utilisateur 1 : pièce CNI (recto + verso + selfie obligatoires) ───────────
 select set_config('request.jwt.claims', json_build_object(
   'sub', '77777777-7777-7777-7777-777777777777', 'role', 'authenticated',
   'app_metadata', json_build_object('user_role', 'client'))::text, true);
@@ -25,9 +27,36 @@ select is((select city from public.profiles where id = auth.uid()), 'Abidjan', '
 select public.save_kyc_financials('{"income_source":"Commerce","momo_operator":"MTN","momo_number":"+2250700000000"}'::jsonb);
 select is((select momo_operator from public.kyc_financials where client_id = auth.uid()), 'MTN', 'infos financières upsert');
 
--- Soumission → PENDING.
-select public.submit_kyc();
-select is((select kyc_status from public.profiles where id = auth.uid()), 'PENDING', 'KYC soumis (statut PENDING)');
+-- Soumission refusée tant qu'aucune pièce n'est téléversée (SQLSTATE P0001).
+select throws_ok('select public.submit_kyc()', 'P0001');
+
+-- Recto + selfie seulement : le verso reste obligatoire pour une CNI.
+insert into public.kyc_documents (client_id, doc_type, url)
+values (auth.uid(), 'ID_FRONT', auth.uid()::text || '/ID_FRONT'),
+       (auth.uid(), 'SELFIE', auth.uid()::text || '/SELFIE');
+select throws_ok('select public.submit_kyc()', 'P0001');
+
+-- Unicité (client_id, doc_type) : une seule pièce par type et par client.
+select throws_ok(
+  $$ insert into public.kyc_documents (client_id, doc_type, url)
+     values ('77777777-7777-7777-7777-777777777777', 'ID_FRONT', 'dup/ID_FRONT') $$,
+  '23505');
+
+-- Verso ajouté : dossier complet → soumission acceptée → PENDING.
+insert into public.kyc_documents (client_id, doc_type, url)
+values (auth.uid(), 'ID_BACK', auth.uid()::text || '/ID_BACK');
+select lives_ok('select public.submit_kyc()', 'soumission acceptée (CNI complète)');
+select is((select kyc_status from public.profiles where id = auth.uid()), 'PENDING', 'KYC CNI soumis (PENDING)');
+
+-- ── Utilisateur 2 : passeport (recto + selfie suffisent, pas de verso) ────────
+select set_config('request.jwt.claims', json_build_object(
+  'sub', '88888888-8888-8888-8888-888888888888', 'role', 'authenticated',
+  'app_metadata', json_build_object('user_role', 'client'))::text, true);
+select public.save_kyc_profile('{"id_type":"PASSPORT","id_number":"P-999"}'::jsonb);
+insert into public.kyc_documents (client_id, doc_type, url)
+values (auth.uid(), 'ID_FRONT', auth.uid()::text || '/ID_FRONT'),
+       (auth.uid(), 'SELFIE', auth.uid()::text || '/SELFIE');
+select lives_ok('select public.submit_kyc()', 'soumission acceptée (passeport sans verso)');
 
 reset role;
 select * from finish();
