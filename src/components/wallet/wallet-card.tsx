@@ -13,7 +13,7 @@ type Props = { summary: WalletSummary; subAccounts: WalletSubAccounts };
 export function WalletCard({ summary, subAccounts }: Props) {
   const stats = [
     { key: "blocked", Icon: Lock, label: "Montant bloqué", value: summary.blocked },
-    { key: "reserved", Icon: Clock, label: "Montant réservé", value: summary.reserved },
+    { key: "reserved", Icon: Clock, label: "Retrait en attente", value: summary.reserved },
   ] as const;
 
   return (
@@ -43,9 +43,6 @@ export function WalletCard({ summary, subAccounts }: Props) {
           </div>
         ))}
       </div>
-      <p className="mt-1 text-[10px] text-white/50">
-        Le montant réservé est retenu sur le disponible, jamais compté deux fois.
-      </p>
 
       <div className="mt-4 flex items-center justify-between border-t border-white/15 pt-4">
         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/60">

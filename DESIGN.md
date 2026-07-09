@@ -322,7 +322,7 @@ Carte héros dégradé vert profond. Données via `RPC get_wallet_summary` (`Spe
 - **Solde disponible** (dominant, 40px) = `free_savings + disbursed_loan − reserved_amount`.
   - sous-lignes discrètes : *Dont épargne libre*, *Dont prêt décaissé disponible*.
 - **Montant bloqué** = `blocked_guarantee + mandatory_savings` (doré, `lock`).
-- **Montant réservé** = `reserved_amount` (doré atténué, `clock`, « retenu sur le disponible, jamais compté deux fois »).
+- **Retrait en attente** (libellé client de `reserved_amount`, doré atténué, `clock`). Invariant dev, non affiché dans l'UI : retenu sur le disponible, jamais compté deux fois dans le patrimoine.
 - **Solde total / patrimoine** = `free_savings + disbursed_loan + blocked_guarantee + mandatory_savings` (le réservé n'est **jamais** ré-additionné).
 - **Boutons sous la carte** : `Retirer` · `Déposer` (`PRD §7.2`).
 

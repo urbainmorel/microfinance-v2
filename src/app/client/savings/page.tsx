@@ -17,7 +17,7 @@ export default function SavingsPage() {
           key: "free",
           icon: PiggyBank,
           label: "Épargne libre",
-          hint: "Retirable, sous réserve du montant réservé",
+          hint: "Retirable, hors retraits en attente",
           value: s.free_savings,
         },
         {
