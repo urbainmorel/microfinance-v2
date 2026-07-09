@@ -40,10 +40,17 @@ Ces choix conditionnent le socle et sont désormais fixés. Ils s'appliquent dè
   restitution). Idempotent (garde `PENDING`). 15 tests (dont anti double-engagement + débit ordonné).
 - **Lot 6b** — `amortization_rows` (annuités/dégressif ; dernière échéance absorbe l'arrondi ;
   Σ capital = P). 9 tests — **ancre de non-régression D5**.
-- **Edge Functions** `set-pin` / `verify-pin` (bcrypt serveur, anti-forçage) écrites ; à tester au Lot 2.
+- **Edge Functions** `set-pin` / `verify-pin` (bcrypt serveur, anti-forçage) écrites ; test runtime au réétablissement d'`edge_runtime`.
 
-**Frontend / Lot 0** — scaffold Next 16 + Tailwind v3 + Shadcn + qualité mécanisée écrits ;
-install pnpm contrainte par le réseau local (D9), contournée via `vendor/` (tarballs `curl -C -`).
+**Lot 0 — VÉRIFIÉ + commité** : `tsc` / `eslint` / `prettier` / `vitest` verts, `next build` OK,
+`/auth/login` rendu conforme au design, hook pre-commit rejette un commit fautif. Install pnpm
+débloquée (réseau local contourné via `vendor/` + overrides `pnpm-workspace.yaml` — à régénérer
+sur réseau correct ; voir mémoire `local-dev-setup`).
+
+**Lot 2 (en cours)** — pages auth (inscription, connexion, vérification email, création PIN) via
+RHF + Zod ; routage post-auth §4.2 (`get_onboarding_state`, sans exposer le pin_hash).
+**Vérifié runtime** : inscription → `signUp` → trigger → `profiles` + `wallets` créés (0 erreur).
+Reste : wizard KYC 9 étapes (+ Storage), câblage/test e2e des Edge Functions PIN.
 
 ---
 
