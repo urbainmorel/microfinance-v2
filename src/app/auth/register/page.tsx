@@ -10,43 +10,56 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
-import { resolvePostAuthPath } from "@/lib/auth-flow";
-import { loginSchema, type LoginInput } from "@/lib/schemas/auth";
+import { registerSchema, type RegisterInput } from "@/lib/schemas/auth";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
+  } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
 
-  async function onSubmit(values: LoginInput) {
+  async function onSubmit(values: RegisterInput) {
     setServerError(null);
     const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
+      options: { data: { firstname: values.firstname, lastname: values.lastname } },
     });
     if (error) {
-      setServerError("Email ou mot de passe incorrect.");
+      setServerError(error.message);
       return;
     }
-    router.push(await resolvePostAuthPath(supabase));
+    router.push("/auth/verify-email");
   }
 
   return (
-    <AuthCard title="Espace client" subtitle="Connectez-vous pour accéder à vos opérations.">
+    <AuthCard title="Créer un compte" subtitle="Ouvrez votre espace client en quelques étapes.">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
         <FormError message={serverError} />
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            id="firstname"
+            label="Prénom"
+            {...register("firstname")}
+            error={errors.firstname?.message}
+          />
+          <FormField
+            id="lastname"
+            label="Nom"
+            {...register("lastname")}
+            error={errors.lastname?.message}
+          />
+        </div>
         <FormField
           id="email"
           label="Adresse email"
           type="email"
           autoComplete="email"
-          placeholder="vous@exemple.com"
           {...register("email")}
           error={errors.email?.message}
         />
@@ -54,27 +67,28 @@ export default function LoginPage() {
           id="password"
           label="Mot de passe"
           type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
+          autoComplete="new-password"
           {...register("password")}
           error={errors.password?.message}
         />
+        <FormField
+          id="confirm"
+          label="Confirmer le mot de passe"
+          type="password"
+          autoComplete="new-password"
+          {...register("confirm")}
+          error={errors.confirm?.message}
+        />
         <Button type="submit" className="mt-2 w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Connexion…" : "Se connecter"}
+          {isSubmitting ? "Création…" : "Créer mon compte"}
         </Button>
       </form>
-
-      <div className="mt-6 flex flex-col items-center gap-2 text-sm">
-        <Link href="/auth/forgot-password" className="font-medium text-accent hover:underline">
-          Mot de passe oublié ?
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Déjà client ?{" "}
+        <Link href="/auth/login" className="font-semibold text-accent hover:underline">
+          Se connecter
         </Link>
-        <p className="text-muted-foreground">
-          Nouveau client ?{" "}
-          <Link href="/auth/register" className="font-semibold text-accent hover:underline">
-            Créer un compte
-          </Link>
-        </p>
-      </div>
+      </p>
     </AuthCard>
   );
 }
