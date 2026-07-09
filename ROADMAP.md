@@ -21,13 +21,13 @@ Ces choix conditionnent le socle et sont désormais fixés. Ils s'appliquent dè
 | D7 | Version Tailwind | **Tailwind v3 (épinglé)** | `create-next-app` livre Tailwind v4 (config CSS-first). On épingle **v3** pour réutiliser tel quel le bloc `:root` HSL de DESIGN §4.3 (convention `hsl(var(--x))`) et `tailwind.config.ts`/`theme.extend`. Sert l'invariant « une seule source des tokens » ; chemin Shadcn le plus éprouvé. Stabilité > nouveauté (système financier). Appliqué au Lot 0. | DESIGN §4.3 |
 | D8 | Versions socle | **Next.js 16.2 · React 19.2 · Node ≥ 20** | Versions résolues par le scaffold (App Router, RSC). `tsconfig` strict + extras (`noUncheckedIndexedAccess`, `noImplicitOverride`). Appliqué au Lot 0. | Specs §2.2 |
 | D9 | Gestionnaire de paquets | **pnpm** (`pnpm-lock.yaml`) | npm bloquait de façon répétée en résolution/reify sur cette machine (réseau ~25 KiB/s instable, cache volumineux, SAT des peers React 19). pnpm — store persistant/reprise, hardlinks, peers permissifs — fiabilise l'install. `.npmrc` : `strict-peer-dependencies=false`, faible `network-concurrency`, timeouts longs. Appliqué au Lot 0. | — |
-| D10 | Stack Supabase locale | **Ports 55xxx ; `analytics` + `storage` désactivés en dev** | Un autre projet Supabase (KWABOR) occupe les ports 54xxx par défaut ⇒ remappage en 55xxx (`config.toml`) pour ne pas le perturber. Sur Windows, `analytics` (exige Docker sur `tcp://2375`) et le conteneur `storage` (unhealthy) font échouer `supabase start` ⇒ désactivés en local ; `storage` réactivé au Lot 2 (upload KYC). | Specs §2.2 |
+| D10 | Stack Supabase locale | **Ports 55xxx ; `analytics` désactivé en dev** | Un autre projet Supabase (KWABOR) occupe les ports 54xxx par défaut ⇒ remappage en 55xxx (`config.toml`) pour ne pas le perturber. `analytics` reste désactivé (exige Docker sur `tcp://2375`). `storage`, `edge_runtime` et `inbucket` **réactivés et sains au Lot 2** (upload KYC + Edge Functions PIN + emails) — l'ancien souci de conteneur `storage` unhealthy ne se reproduit plus. | Specs §2.2 |
 
 ---
 
 ## État d'avancement (journal)
 
-**Socle comptable vérifié — 36 tests pgTAP verts** contre une base Supabase locale
+**Socle comptable vérifié — 47 tests pgTAP verts** contre une base Supabase locale
 (`supabase test db`), migrations rejouables de zéro (`supabase db reset`) :
 
 - **Lot 1** — 14 tables + `app_settings`, RLS partout, garde des colonnes privilégiées,
@@ -40,17 +40,27 @@ Ces choix conditionnent le socle et sont désormais fixés. Ils s'appliquent dè
   restitution). Idempotent (garde `PENDING`). 15 tests (dont anti double-engagement + débit ordonné).
 - **Lot 6b** — `amortization_rows` (annuités/dégressif ; dernière échéance absorbe l'arrondi ;
   Σ capital = P). 9 tests — **ancre de non-régression D5**.
-- **Edge Functions** `set-pin` / `verify-pin` (bcrypt serveur, anti-forçage) écrites ; test runtime au réétablissement d'`edge_runtime`.
+- **Edge Functions** `set-pin` / `verify-pin` (bcrypt serveur, anti-forçage) — **vérifiées e2e**
+  sur `edge_runtime` : PIN posé, bon PIN accepté, verrouillage (HTTP 423) après 5 échecs.
 
 **Lot 0 — VÉRIFIÉ + commité** : `tsc` / `eslint` / `prettier` / `vitest` verts, `next build` OK,
 `/auth/login` rendu conforme au design, hook pre-commit rejette un commit fautif. Install pnpm
 débloquée (réseau local contourné via `vendor/` + overrides `pnpm-workspace.yaml` — à régénérer
 sur réseau correct ; voir mémoire `local-dev-setup`).
 
-**Lot 2 (en cours)** — pages auth (inscription, connexion, vérification email, création PIN) via
-RHF + Zod ; routage post-auth §4.2 (`get_onboarding_state`, sans exposer le pin_hash).
-**Vérifié runtime** : inscription → `signUp` → trigger → `profiles` + `wallets` créés (0 erreur).
-Reste : wizard KYC 9 étapes (+ Storage), câblage/test e2e des Edge Functions PIN.
+**Lot 2 — TERMINÉ + vérifié e2e.** Parcours d'entrée complet inscription → PIN → KYC → dashboard.
+- Pages auth (inscription, connexion, vérification email, création PIN) via RHF + Zod ; routage
+  post-auth §4.2 (`get_onboarding_state`, sans exposer le pin_hash).
+- **Wizard KYC 9 sous-étapes** (PRD §6.4, 4.1→4.9) : saisie + **upload recto/verso/selfie**
+  (verso facultatif si passeport), sauvegarde auto par étape, reprise (rechargement champs + pièces),
+  case de certification. UI découpée (hook + sous-composants) sous les seuils ESLint.
+- **Storage** : bucket privé `kyc-documents` (5 Mo, jpg/png/pdf), RLS « chacun son dossier »
+  (chemin `<uid>/<docType>`) + lecture personnel ; migration **gardée** (`to_regclass`) donc
+  rejouable même storage désactivé. `submit_kyc` durci : recto + selfie obligatoires, verso sauf
+  passeport, `id_type` requis — le wizard ne peut être court-circuité (invariant serveur-autoritatif).
+- **Vérifié e2e** (12 checks, API locale) : upload dans son dossier OK / dossier d'autrui refusé (RLS,
+  HTTP 400) ; upsert `kyc_documents` idempotent (1 ligne au ré-upload) ; `submit_kyc` refusé si
+  incomplet ; PIN posé/accepté puis **verrouillé (423) après 5 échecs**. + 47 tests pgTAP verts.
 
 ---
 
