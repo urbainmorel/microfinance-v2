@@ -1,0 +1,9 @@
+# Configuration pnpm portable pour les installations locales et GitHub Actions.
+# Les scripts natifs nécessaires à Next.js sont autorisés explicitement par pnpm 11.
+packages:
+  - "."
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
