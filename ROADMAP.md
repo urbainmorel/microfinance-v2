@@ -12,7 +12,7 @@ Ces choix conditionnent le socle et sont désormais fixés. Ils s'appliquent dè
 
 | # | Décision | Choix verrouillé | Détail / impact | Réf |
 |---|---|---|---|---|
-| D1 | Environnement Supabase | **CLI locale + migrations** | Dev local (`supabase start`), schéma versionné dans le dépôt ; projet hébergé réservé à la préprod | Specs §2.2 |
+| D1 | Environnement Supabase | **Migrations versionnées + CI GitHub** | Aucun Docker/Supabase local sur le poste ; les tests pgTAP lancent Supabase dans GitHub Actions ; le projet hébergé sera raccordé plus tard | Specs §2.2 |
 | D2 | Fournisseur email | **Resend** | Envoi derrière une Edge Function | Specs §2.2 |
 | D3 | Bibliothèque i18n | **next-intl** | Natif App Router, formatage devise/date par locale | PRD §19 |
 | D4 | Stratégie de test | **Vitest + Playwright** | Vitest = comptable/amortissement/arrondi (unitaire) ; Playwright = E2E des parcours | PRD §22 |
@@ -21,7 +21,7 @@ Ces choix conditionnent le socle et sont désormais fixés. Ils s'appliquent dè
 | D7 | Version Tailwind | **Tailwind v3 (épinglé)** | `create-next-app` livre Tailwind v4 (config CSS-first). On épingle **v3** pour réutiliser tel quel le bloc `:root` HSL de DESIGN §4.3 (convention `hsl(var(--x))`) et `tailwind.config.ts`/`theme.extend`. Sert l'invariant « une seule source des tokens » ; chemin Shadcn le plus éprouvé. Stabilité > nouveauté (système financier). Appliqué au Lot 0. | DESIGN §4.3 |
 | D8 | Versions socle | **Next.js 16.2 · React 19.2 · Node ≥ 20** | Versions résolues par le scaffold (App Router, RSC). `tsconfig` strict + extras (`noUncheckedIndexedAccess`, `noImplicitOverride`). Appliqué au Lot 0. | Specs §2.2 |
 | D9 | Gestionnaire de paquets | **pnpm** (`pnpm-lock.yaml`) | npm bloquait de façon répétée en résolution/reify sur cette machine (réseau ~25 KiB/s instable, cache volumineux, SAT des peers React 19). pnpm — store persistant/reprise, hardlinks, peers permissifs — fiabilise l'install. `.npmrc` : `strict-peer-dependencies=false`, faible `network-concurrency`, timeouts longs. Appliqué au Lot 0. | — |
-| D10 | Stack Supabase locale | **Ports 55xxx ; `analytics` désactivé en dev** | Un autre projet Supabase (KWABOR) occupe les ports 54xxx par défaut ⇒ remappage en 55xxx (`config.toml`) pour ne pas le perturber. `analytics` reste désactivé (exige Docker sur `tcp://2375`). `storage`, `edge_runtime` et `inbucket` **réactivés et sains au Lot 2** (upload KYC + Edge Functions PIN + emails) — l'ancien souci de conteneur `storage` unhealthy ne se reproduit plus. | Specs §2.2 |
+| D10 | Stack Supabase de test | **Runner GitHub Actions** | `supabase/config.toml` reste versionné pour les tests pgTAP ; `supabase start` et Docker sont interdits localement et autorisés uniquement dans le runner GitHub | Specs §2.2 |
 
 ---
 

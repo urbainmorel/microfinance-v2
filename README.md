@@ -23,9 +23,23 @@ React Hook Form + Zod · TanStack Query · Supabase (Auth, PostgreSQL, Storage, 
 
 ```bash
 pnpm install
-supabase start          # base locale (Lot 1) — reporter les clés dans .env.local
-pnpm dev                # http://localhost:3000 → redirige vers /auth/login
+copy .env.example .env.local  # puis renseigner les variables Supabase quand le Cloud sera choisi
+pnpm dev                     # http://localhost:3000 → redirige vers /auth/login
 ```
+
+Le poste développeur n'exécute ni Docker ni `supabase start`. Tant que Supabase Cloud n'est pas
+choisi, l'application peut être compilée avec les valeurs d'exemple, mais ses appels backend ne
+seront pas fonctionnels.
+
+## CI GitHub
+
+Le dépôt est prévu pour le compte GitHub `urbainmorel`, mais aucun remote GitHub n'est encore
+configuré dans ce checkout. Les contrôles frontend sont exécutés par `.github/workflows/ci.yml`.
+
+Les migrations et tests pgTAP sont exécutés par `.github/workflows/supabase-tests.yml` dans un
+runner GitHub Ubuntu. Cette stack Supabase locale et son Docker restent confinés au runner GitHub;
+aucun secret Supabase Cloud n'est requis pour les tests. Le déploiement vers Supabase Cloud sera
+ajouté plus tard, après choix du projet hébergé.
 
 ## Scripts
 
