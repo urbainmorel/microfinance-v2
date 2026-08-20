@@ -57,3 +57,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Durcissement des privilèges par défaut afin que les futures migrations ne réintroduisent pas silencieusement ce droit.
 - Réaffirmation explicite des seuls accès techniques nécessaires à Auth et aux Edge Functions utilisant `service_role`.
 - Extension de la suite pgTAP à 20 assertions, dont la preuve qu'une RPC client autorisée reste accessible.
+
+### Stockage documentaire privé — terminé
+
+- Pièces KYC modifiables uniquement par leur propriétaire actif tant que le dossier est `NONE` ou `INFO_REQUESTED`, puis immuables après soumission.
+- Noms d'objets KYC limités aux trois pièces attendues : `ID_FRONT`, `ID_BACK` et `SELFIE`.
+- Lecture agent unifiée sur l'unique rôle V1 `admin` pour les quatre buckets privés.
+- Téléversement des justificatifs financiers réservé aux comptes actifs et à leur propre dossier Storage.
+- Suppression client limitée aux fichiers financiers orphelins, afin que le nettoyage après échec d'une commande fonctionne sans permettre d'effacer une preuve déjà rattachée à une opération.
