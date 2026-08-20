@@ -320,3 +320,12 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   la décision KYC globale reste désactivée jusqu'à la fin du contrôle obligatoire.
 - Test pgTAP de non-régression ajouté ; son exécution reste confiée à GitHub Actions conformément
   à la règle du projet qui réserve Docker à la CI.
+
+### Références des paiements électroniques — corrigées
+
+- Validation client alignée sur l'Edge Function : la référence opérateur est obligatoire pour
+  Mobile Money et virement bancaire, mais reste facultative pour les espèces en agence.
+- Libellé et attribut d'accessibilité du champ s'adaptent immédiatement au moyen de paiement.
+- Rejet effectué avant tout téléversement de justificatif, évitant les objets Storage temporaires
+  et les allers-retours serveur inutiles.
+- Trois tests unitaires couvrent dépôt électronique, dépôt en espèces et remboursement bancaire.

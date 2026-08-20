@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { withdrawalRequestSchema } from "@/lib/schemas/operations";
+import {
+  depositRequestSchema,
+  repaymentRequestSchema,
+  withdrawalRequestSchema,
+} from "@/lib/schemas/operations";
 
 const base = {
   amount: 50_000,
@@ -65,5 +69,50 @@ describe("withdrawalRequestSchema", () => {
         phone: "+2250701020304",
       }).success,
     ).toBe(true);
+  });
+});
+
+const proof = new File(["preuve"], "preuve.pdf", { type: "application/pdf" });
+
+describe("référence des paiements électroniques", () => {
+  it("refuse un dépôt Mobile Money sans référence avant le téléversement", () => {
+    const result = depositRequestSchema.safeParse({
+      amount: 10_000,
+      motif: "FREE_SAVINGS",
+      paymentMethod: "MOBILE_MONEY",
+      reference: "",
+      proof,
+      certified: true,
+      pin: "123456",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues[0]?.path).toEqual(["reference"]);
+  });
+
+  it("autorise un dépôt en espèces sans référence", () => {
+    expect(
+      depositRequestSchema.safeParse({
+        amount: 10_000,
+        motif: "FREE_SAVINGS",
+        paymentMethod: "CASH",
+        reference: "",
+        proof,
+        certified: true,
+        pin: "123456",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("refuse un remboursement électronique sans référence", () => {
+    const result = repaymentRequestSchema.safeParse({
+      loanId: "11111111-1111-4111-8111-111111111111",
+      amount: 10_000,
+      paymentMethod: "BANK_TRANSFER",
+      reference: "",
+      proof,
+      pin: "123456",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues[0]?.path).toEqual(["reference"]);
   });
 });

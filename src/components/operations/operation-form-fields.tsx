@@ -14,12 +14,20 @@ import type {
 } from "@/lib/schemas/operations";
 import type { UseFormReturn } from "react-hook-form";
 
+const PAYMENT_OPTIONS = [
+  { value: "MOBILE_MONEY", label: "Mobile Money" },
+  { value: "BANK_TRANSFER", label: "Virement bancaire" },
+  { value: "CASH", label: "Espèces en agence" },
+];
+
 export function DepositFields({ form }: { form: UseFormReturn<DepositRequestInput> }) {
   const {
     register,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = form;
+  const electronicPayment = watch("paymentMethod") !== "CASH";
   return (
     <>
       <FormField
@@ -46,17 +54,14 @@ export function DepositFields({ form }: { form: UseFormReturn<DepositRequestInpu
       <SelectField
         id="deposit-method"
         label="Moyen de paiement"
-        options={[
-          { value: "MOBILE_MONEY", label: "Mobile Money" },
-          { value: "BANK_TRANSFER", label: "Virement bancaire" },
-          { value: "CASH", label: "Espèces en agence" },
-        ]}
+        options={PAYMENT_OPTIONS}
         error={errors.paymentMethod?.message}
         {...register("paymentMethod")}
       />
       <FormField
         id="deposit-reference"
-        label="Référence du paiement (facultatif)"
+        label={`Référence${electronicPayment ? "" : " (facultative)"}`}
+        required={electronicPayment}
         autoComplete="off"
         error={errors.reference?.message}
         {...register("reference")}
@@ -156,8 +161,10 @@ export function RepaymentFields({
   const {
     register,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = form;
+  const electronicPayment = watch("paymentMethod") !== "CASH";
   return (
     <>
       <SelectField
@@ -184,17 +191,14 @@ export function RepaymentFields({
       <SelectField
         id="repayment-method"
         label="Moyen de paiement"
-        options={[
-          { value: "MOBILE_MONEY", label: "Mobile Money" },
-          { value: "BANK_TRANSFER", label: "Virement bancaire" },
-          { value: "CASH", label: "Espèces en agence" },
-        ]}
+        options={PAYMENT_OPTIONS}
         error={errors.paymentMethod?.message}
         {...register("paymentMethod")}
       />
       <FormField
         id="repayment-reference"
-        label="Référence du paiement (facultatif)"
+        label={`Référence du paiement${electronicPayment ? "" : " (facultatif)"}`}
+        required={electronicPayment}
         autoComplete="off"
         error={errors.reference?.message}
         {...register("reference")}

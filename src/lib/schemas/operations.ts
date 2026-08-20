@@ -25,19 +25,34 @@ const amountSchema = z.coerce
 
 const optionalReferenceSchema = z.string().trim().max(100, "100 caractères maximum").optional();
 
-export const depositRequestSchema = z.object({
-  amount: amountSchema,
-  motif: z.enum(["FREE_SAVINGS", "GUARANTEE", "REPAYMENT"], {
-    message: "Choisissez la destination du dépôt",
-  }),
-  paymentMethod: z.enum(["CASH", "MOBILE_MONEY", "BANK_TRANSFER"], {
-    message: "Choisissez un moyen de paiement",
-  }),
-  reference: optionalReferenceSchema,
-  proof: operationDocumentSchema,
-  certified: z.boolean().refine(Boolean, "Vous devez certifier l'authenticité du justificatif"),
-  pin: pinSchema,
-});
+function requireElectronicReference(
+  value: { paymentMethod: string; reference?: string },
+  context: z.RefinementCtx,
+) {
+  if (value.paymentMethod !== "CASH" && !value.reference?.trim()) {
+    context.addIssue({
+      code: "custom",
+      path: ["reference"],
+      message: "La référence est requise pour un paiement électronique",
+    });
+  }
+}
+
+export const depositRequestSchema = z
+  .object({
+    amount: amountSchema,
+    motif: z.enum(["FREE_SAVINGS", "GUARANTEE", "REPAYMENT"], {
+      message: "Choisissez la destination du dépôt",
+    }),
+    paymentMethod: z.enum(["CASH", "MOBILE_MONEY", "BANK_TRANSFER"], {
+      message: "Choisissez un moyen de paiement",
+    }),
+    reference: optionalReferenceSchema,
+    proof: operationDocumentSchema,
+    certified: z.boolean().refine(Boolean, "Vous devez certifier l'authenticité du justificatif"),
+    pin: pinSchema,
+  })
+  .superRefine(requireElectronicReference);
 
 export type DepositRequestInput = z.infer<typeof depositRequestSchema>;
 
@@ -111,15 +126,17 @@ export const withdrawalRequestSchema = withdrawalRequestBaseSchema.superRefine((
 
 export type WithdrawalRequestInput = z.infer<typeof withdrawalRequestSchema>;
 
-export const repaymentRequestSchema = z.object({
-  loanId: z.string().uuid("Sélectionnez un prêt actif"),
-  amount: amountSchema,
-  paymentMethod: z.enum(["CASH", "MOBILE_MONEY", "BANK_TRANSFER"], {
-    message: "Choisissez un moyen de paiement",
-  }),
-  reference: optionalReferenceSchema,
-  proof: operationDocumentSchema,
-  pin: pinSchema,
-});
+export const repaymentRequestSchema = z
+  .object({
+    loanId: z.string().uuid("Sélectionnez un prêt actif"),
+    amount: amountSchema,
+    paymentMethod: z.enum(["CASH", "MOBILE_MONEY", "BANK_TRANSFER"], {
+      message: "Choisissez un moyen de paiement",
+    }),
+    reference: optionalReferenceSchema,
+    proof: operationDocumentSchema,
+    pin: pinSchema,
+  })
+  .superRefine(requireElectronicReference);
 
 export type RepaymentRequestInput = z.infer<typeof repaymentRequestSchema>;
