@@ -711,6 +711,16 @@ export type Database = {
         Args: { p_external_reference?: string | null; p_request: string };
         Returns: string;
       };
+      effective_annual_cost: {
+        Args: {
+          p_duration: number;
+          p_method: string;
+          p_monthly_rate: number;
+          p_principal: number;
+          p_total_fees: number;
+        };
+        Returns: number;
+      };
       get_active_loan_status: {
         Args: Record<PropertyKey, never>;
         Returns: Json;

@@ -83,3 +83,12 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Échec fermé lorsque l'état d'onboarding ne peut pas être chargé.
 - Conservation des cookies Supabase rafraîchis lors des redirections du proxy.
 - Ajout de huit cas unitaires couvrant les statuts KYC et la priorité du PIN.
+
+### Plafond de coût effectif et mensualités — terminés
+
+- Calcul du coût effectif annualisé par taux de rendement interne sur les flux réels de remboursement.
+- Inclusion des intérêts, frais de dossier, frais de gestion et assurance ; exclusion documentée de la garantie et de l'épargne obligatoire récupérables.
+- Blocage en base de tout produit ou demande dépassant le plafond interne validé de 20 %.
+- Désactivation conservatoire des anciens produits actifs hors plafond lors de la migration.
+- Méthode V1 limitée aux mensualités constantes sur capital restant dû ; la méthode dégressive est désormais refusée.
+- Ajout de cinq tests pgTAP couvrant le coût nul, l'annualisation, l'acceptation et les deux blocages métier.
