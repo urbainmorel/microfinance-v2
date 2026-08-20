@@ -25,8 +25,8 @@ export function BottomNav() {
   if (pathname.startsWith("/client/kyc")) return null;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-white/95 backdrop-blur-md">
-      <ul className="mx-auto flex max-w-[560px] items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-white/95 backdrop-blur-md lg:sticky lg:inset-auto lg:top-6 lg:h-fit lg:rounded-2xl lg:border lg:bg-card lg:p-3 lg:shadow-card">
+      <ul className="mx-auto flex max-w-[560px] items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)] lg:flex-col lg:gap-1 lg:p-0">
         {TABS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
           return (
@@ -35,14 +35,17 @@ export function BottomNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-[56px] flex-col items-center justify-center gap-1 pt-2 text-[10px] font-semibold",
+                  "flex min-h-[56px] flex-col items-center justify-center gap-1 pt-2 text-[10px] font-semibold lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-3 lg:pt-0 lg:text-sm",
                   active ? "text-accent" : "text-muted-foreground",
                 )}
               >
-                <Icon className="size-5" strokeWidth={active ? 2.2 : 1.8} aria-hidden />
+                <Icon className="size-5 shrink-0" strokeWidth={active ? 2.2 : 1.8} aria-hidden />
                 {t(label)}
                 <span
-                  className={cn("h-1 w-1 rounded-full", active ? "bg-accent" : "bg-transparent")}
+                  className={cn(
+                    "h-1 w-1 rounded-full lg:ml-auto",
+                    active ? "bg-accent" : "bg-transparent",
+                  )}
                   aria-hidden
                 />
               </Link>

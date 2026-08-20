@@ -220,3 +220,9 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Préférence persistée un an par cookie, changement instantané et attribut `lang` synchronisé.
 - Sélecteur accessible dans le profil ; navigation, salutation et profil traduits.
 - Administration laissée exclusivement en français conformément à la décision métier.
+
+### Coque client responsive — terminée
+
+- Largeur de travail étendue sur tablette et ordinateur au lieu du conteneur mobile de 560 px.
+- Navigation basse conservée sur mobile et transformée en navigation latérale fixe sur grand écran.
+- Zone métier plafonnée pour garder des formulaires lisibles, avec espace disponible pour les tableaux et échéanciers.
