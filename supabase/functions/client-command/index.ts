@@ -225,10 +225,32 @@ function validatePayload(
           name: requiredString(payload.recipient.name, 120),
         };
       } else {
-        assertExactKeys(payload.recipient, ["bank", "account", "name"]);
+        assertExactKeys(payload.recipient, [
+          "bank",
+          "bankCode",
+          "account",
+          "country",
+          "iban",
+          "motif",
+          "name",
+        ]);
+        const country = enumValue(payload.recipient.country, [
+          "BJ",
+          "BF",
+          "CI",
+          "GW",
+          "ML",
+          "NE",
+          "SN",
+          "TG",
+        ] as const);
         recipient = {
           bank: requiredString(payload.recipient.bank, 120),
+          bankCode: requiredString(payload.recipient.bankCode, 32),
           account: requiredString(payload.recipient.account, 64),
+          country,
+          iban: optionalString(payload.recipient.iban, 64),
+          motif: requiredString(payload.recipient.motif, 200),
           name: requiredString(payload.recipient.name, 120),
         };
       }

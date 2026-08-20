@@ -38,7 +38,12 @@ export function DepositRequestForm() {
   const [pendingProof, setPendingProof] = useState<PendingProof | null>(null);
   const form = useForm<DepositRequestInput>({
     resolver: zodResolver(depositRequestSchema),
-    defaultValues: { motif: "FREE_SAVINGS", paymentMethod: "MOBILE_MONEY", reference: "" },
+    defaultValues: {
+      certified: false,
+      motif: "FREE_SAVINGS",
+      paymentMethod: "MOBILE_MONEY",
+      reference: "",
+    },
   });
 
   async function submit(values: DepositRequestInput) {

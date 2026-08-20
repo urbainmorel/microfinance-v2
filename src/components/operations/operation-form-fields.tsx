@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { DocumentField } from "@/components/operations/document-field";
+import { RecipientFields } from "@/components/operations/recipient-fields";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { SelectField } from "@/components/ui/select-field";
@@ -68,6 +69,15 @@ export function DepositFields({ form }: { form: UseFormReturn<DepositRequestInpu
           setValue("proof", files[0] as File, { shouldDirty: true, shouldValidate: true })
         }
       />
+      <label className="flex min-h-11 items-start gap-3 text-sm">
+        <input type="checkbox" className="mt-0.5 size-5" {...register("certified")} />
+        <span>
+          Je certifie que ce justificatif est authentique et correspond au paiement déclaré.
+        </span>
+      </label>
+      {errors.certified ? (
+        <p className="text-xs font-medium text-warning">{errors.certified.message}</p>
+      ) : null}
       <FormField
         id="deposit-pin"
         label="Code PIN de confirmation"
@@ -81,64 +91,6 @@ export function DepositFields({ form }: { form: UseFormReturn<DepositRequestInpu
       <Button type="submit" variant="accent" disabled={isSubmitting} aria-busy={isSubmitting}>
         {isSubmitting ? "Envoi en cours…" : "Envoyer la demande"}
       </Button>
-    </>
-  );
-}
-
-function RecipientFields({
-  form,
-  isMomo,
-}: {
-  form: UseFormReturn<WithdrawalRequestInput>;
-  isMomo: boolean;
-}) {
-  const {
-    register,
-    formState: { errors },
-  } = form;
-  if (isMomo)
-    return (
-      <>
-        <SelectField
-          id="withdrawal-operator"
-          label="Opérateur Mobile Money"
-          placeholder="Choisir un opérateur"
-          options={[
-            { value: "MTN", label: "MTN Mobile Money" },
-            { value: "MOOV", label: "Moov Money" },
-            { value: "ORANGE", label: "Orange Money" },
-            { value: "WAVE", label: "Wave" },
-          ]}
-          error={errors.operator?.message}
-          {...register("operator")}
-        />
-        <FormField
-          id="withdrawal-phone"
-          label="Numéro Mobile Money"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          error={errors.phone?.message}
-          {...register("phone")}
-        />
-      </>
-    );
-  return (
-    <>
-      <FormField
-        id="withdrawal-bank"
-        label="Banque du bénéficiaire"
-        autoComplete="organization"
-        error={errors.bank?.message}
-        {...register("bank")}
-      />
-      <FormField
-        id="withdrawal-account"
-        label="Numéro de compte ou IBAN"
-        autoComplete="off"
-        error={errors.account?.message}
-        {...register("account")}
-      />
     </>
   );
 }

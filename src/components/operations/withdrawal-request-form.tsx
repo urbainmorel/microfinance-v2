@@ -19,7 +19,15 @@ import { withdrawalRequestSchema, type WithdrawalRequestInput } from "@/lib/sche
 function recipient(values: WithdrawalRequestInput) {
   if (values.type === "MOBILE_MONEY")
     return { name: values.recipientName, operator: values.operator, phone: values.phone };
-  return { name: values.recipientName, bank: values.bank, account: values.account };
+  return {
+    name: values.recipientName,
+    bank: values.bank,
+    bankCode: values.bankCode,
+    account: values.account,
+    country: values.country,
+    iban: values.iban || null,
+    motif: values.motif,
+  };
 }
 
 export function WithdrawalRequestForm({ type }: { type: "MOBILE_MONEY" | "BANK_TRANSFER" }) {
@@ -30,7 +38,7 @@ export function WithdrawalRequestForm({ type }: { type: "MOBILE_MONEY" | "BANK_T
   const isMomo = type === "MOBILE_MONEY";
   const form = useForm<WithdrawalRequestInput>({
     resolver: zodResolver(withdrawalRequestSchema),
-    defaultValues: { type },
+    defaultValues: { type, country: "CI", iban: "", motif: "" },
   });
 
   async function submit(values: WithdrawalRequestInput) {
@@ -60,8 +68,9 @@ export function WithdrawalRequestForm({ type }: { type: "MOBILE_MONEY" | "BANK_T
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-[14px] border border-warning/30 bg-pastel-gold px-4 py-3 text-sm text-warning">
-        Les retraits sont traités par un agent entre 8 h et 19 h. Le montant est réservé dès l’envoi
-        de la demande.
+        {isMomo
+          ? "Les retraits sont traités par un agent entre 8 h et 19 h. Le montant est réservé dès l’envoi de la demande."
+          : "Les virements sont confirmés manuellement puis exécutés sous 24 à 48 heures ouvrées. Le montant est réservé dès l’envoi."}
       </div>
       <Card>
         <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(submit)} noValidate>

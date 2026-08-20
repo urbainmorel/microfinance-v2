@@ -367,9 +367,13 @@ export type Database = {
           processed_by: string | null;
           recipient_account: string | null;
           recipient_bank: string | null;
+          recipient_bank_code: string | null;
+          recipient_country: string | null;
+          recipient_iban: string | null;
           recipient_name: string;
           recipient_operator: string | null;
           recipient_phone: string | null;
+          motif: string | null;
           rejected_reason: string | null;
           status: string | null;
           type: string;

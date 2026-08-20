@@ -157,3 +157,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Annulation des dépôts, retraits et remboursements `PENDING` via la commande Edge sécurisée par PIN et idempotence.
 - Retour automatique vers l'historique et invalidation du cache après succès.
 - L'annulation d'un retrait rappelle et applique la libération atomique de la somme réservée.
+
+### Formulaires financiers complets — terminés
+
+- Certification obligatoire de l'authenticité du justificatif avant toute demande de dépôt.
+- Virement bancaire enrichi avec pays UMOA, code banque, compte, IBAN distinct et motif.
+- Validation cohérente dans Zod, l'Edge Function et la fonction SQL de réservation.
+- Persistance structurée des nouvelles coordonnées bancaires avec contraintes UMOA côté base.
+- Information explicite du délai manuel de 24 à 48 heures ouvrées pour les virements.
