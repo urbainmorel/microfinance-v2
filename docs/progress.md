@@ -115,3 +115,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Suppression de la dépendance fragile au dernier état implicite `FOUND` de PL/pgSQL.
 - Clôture d'un prêt uniquement lorsque capital, intérêts, frais, pénalités et épargne obligatoire sont intégralement payés.
 - Ajout de tests pgTAP de non-régression sur ces deux gardes critiques.
+
+### Récupération du mot de passe — terminée
+
+- Ajout de la route de demande avec réponse non énumérante, lien de retour et état de confirmation.
+- Ajout de la route sécurisée de définition du nouveau mot de passe avec échange du code PKCE, détection des liens invalides et déconnexion après succès.
+- Politique forte factorisée et identique entre inscription et réinitialisation.
+- Ajout de tests unitaires pour l'email, la robustesse du mot de passe et sa confirmation.
