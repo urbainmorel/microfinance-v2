@@ -284,3 +284,14 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Action « Nouveau produit » masquée lorsque les deux familles sont présentes ; les révisions des
   produits existants restent autorisées.
 - Migration appliquée au projet distant et test pgTAP ajouté.
+
+### E2E authentifiés — couverture client et administrateur
+
+- Compte client pilote amené à l'état KYC approuvé pour tester les routes post-onboarding.
+- Navigation validée sur 11 pages client et 13 pages administrateur, en desktop et mobile.
+- Budget global des scénarios porté à 180 secondes tout en conservant les attentes élémentaires
+  strictes, afin de couvrir les appels au projet distant sans faux échec.
+- Terminologie E2E alignée sur le rôle unique `admin`, avec compatibilité temporaire des anciennes
+  variables `E2E_STAFF_*`.
+- Job GitHub Actions dédié sur les pushes `main`, avec échec explicite si un secret manque.
+- Six secrets E2E configurés dans GitHub ; aucun identifiant n'est versionné dans le dépôt.

@@ -10,9 +10,9 @@ const clientCredentials: Credentials = {
   password: process.env.E2E_CLIENT_PASSWORD,
 };
 
-const staffCredentials: Credentials = {
-  email: process.env.E2E_STAFF_EMAIL,
-  password: process.env.E2E_STAFF_PASSWORD,
+const adminCredentials: Credentials = {
+  email: process.env.E2E_ADMIN_EMAIL ?? process.env.E2E_STAFF_EMAIL,
+  password: process.env.E2E_ADMIN_PASSWORD ?? process.env.E2E_STAFF_PASSWORD,
 };
 
 function hasCredentials(
@@ -41,6 +41,7 @@ async function expectRoute(page: Page, path: string, heading: string) {
 }
 
 test.describe("navigation client authentifiée", () => {
+  test.describe.configure({ timeout: 180_000 });
   test.skip(
     !hasCredentials(clientCredentials),
     "E2E_CLIENT_EMAIL et E2E_CLIENT_PASSWORD sont requis.",
@@ -49,28 +50,42 @@ test.describe("navigation client authentifiée", () => {
   test("parcourt les opérations critiques sans aucune soumission financière", async ({ page }) => {
     await login(page, clientCredentials as { email: string; password: string });
 
+    await expectRoute(page, "/client/dashboard", "Client");
     await expectRoute(page, "/client/deposit/request", "Faire un dépôt");
     await expectRoute(page, "/client/withdraw/momo", "Retrait Mobile Money");
     await expectRoute(page, "/client/withdraw/bank", "Virement bancaire");
     await expectRoute(page, "/client/loans/request", "Demander un prêt");
+    await expectRoute(page, "/client/loans", "Mes prêts");
+    await expectRoute(page, "/client/repay/request", "Rembourser mon prêt");
+    await expectRoute(page, "/client/savings", "Mon épargne");
     await expectRoute(page, "/client/operations", "Mes opérations");
+    await expectRoute(page, "/client/notifications", "Notifications");
+    await expectRoute(page, "/client/profile", "Profil");
   });
 });
 
-test.describe("navigation staff authentifiée", () => {
+test.describe("navigation administrateur authentifiée", () => {
+  test.describe.configure({ timeout: 180_000 });
   test.skip(
-    !hasCredentials(staffCredentials),
-    "E2E_STAFF_EMAIL et E2E_STAFF_PASSWORD sont requis.",
+    !hasCredentials(adminCredentials),
+    "E2E_ADMIN_EMAIL et E2E_ADMIN_PASSWORD sont requis.",
   );
 
   test("parcourt les files du back-office en lecture seule", async ({ page }) => {
-    await login(page, staffCredentials as { email: string; password: string });
+    await login(page, adminCredentials as { email: string; password: string });
 
+    await expectRoute(page, "/admin", "Tableau de bord");
     await expectRoute(page, "/admin/kyc", "File KYC");
     await expectRoute(page, "/admin/deposits", "File des dépôts");
     await expectRoute(page, "/admin/withdrawals", "File des retraits");
     await expectRoute(page, "/admin/repayments", "File des remboursements");
     await expectRoute(page, "/admin/loans", "Demandes de prêt");
+    await expectRoute(page, "/admin/products", "Produits de prêt");
+    await expectRoute(page, "/admin/users", "Utilisateurs");
+    await expectRoute(page, "/admin/privacy", "Demandes d’effacement");
     await expectRoute(page, "/admin/audit", "Journal d’audit");
+    await expectRoute(page, "/admin/settings", "Paramètres généraux");
+    await expectRoute(page, "/admin/templates", "Modèles de notification");
+    await expectRoute(page, "/admin/reports", "Rapports financiers");
   });
 });
