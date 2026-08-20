@@ -239,3 +239,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Validation SQL des slugs, langues, tailles, variables et correspondance des placeholders.
 - Rejet des scripts, gestionnaires d'événements et URL HTML actives.
 - Aperçu rendu dans une iframe sans permissions et attribution automatique de l'administrateur auteur.
+
+### Rapports financiers administrateur — terminés
+
+- Synthèse filtrable des dépôts, retraits, remboursements, décaissements et encours.
+- Nombre de prêts actifs et en défaut, avec ventilation des flux par pays client.
+- Période contrôlée côté SQL, limitée à 366 jours et accessible au seul administrateur actif.
+- Export CSV UTF-8 compatible tableur, couvert par un test unitaire d'échappement.

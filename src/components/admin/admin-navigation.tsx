@@ -2,6 +2,7 @@
 
 import {
   BadgeDollarSign,
+  BarChart3,
   BookOpenCheck,
   ChevronLeft,
   ClipboardCheck,
@@ -36,6 +37,7 @@ const navigation = [
   { href: "/admin/audit", label: "Audit", icon: FileClock },
   { href: "/admin/settings", label: "Paramètres", icon: Settings },
   { href: "/admin/templates", label: "Notifications", icon: Mail },
+  { href: "/admin/reports", label: "Rapports", icon: BarChart3 },
 ];
 
 function Brand() {

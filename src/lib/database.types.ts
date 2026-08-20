@@ -789,6 +789,10 @@ export type Database = {
         };
         Returns: string;
       };
+      get_admin_financial_report: {
+        Args: { p_from: string; p_to: string };
+        Returns: Json;
+      };
       disburse_loan: {
         Args: { p_external_reference?: string | null; p_request: string };
         Returns: string;
