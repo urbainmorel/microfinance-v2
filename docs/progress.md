@@ -107,3 +107,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Refus immédiat d'une demande lorsqu'un prêt `ACTIVE` ou `DEFAULTED` existe déjà.
 - Correction de la priorité d'affichage : prêt vivant, puis demande récente, puis ancien prêt clôturé.
 - Ajout de tests pgTAP pour le blocage, la réouverture après clôture et la priorité de la nouvelle demande.
+
+### Annulation et clôture financières atomiques — terminées
+
+- Annulation d'un retrait validée uniquement si le montant réservé est libéré dans la même transaction.
+- Détection explicite d'une incohérence de réserve avec rollback complet de l'annulation et de son reçu d'idempotence.
+- Suppression de la dépendance fragile au dernier état implicite `FOUND` de PL/pgSQL.
+- Clôture d'un prêt uniquement lorsque capital, intérêts, frais, pénalités et épargne obligatoire sont intégralement payés.
+- Ajout de tests pgTAP de non-régression sur ces deux gardes critiques.
