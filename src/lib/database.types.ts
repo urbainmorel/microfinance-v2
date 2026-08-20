@@ -492,6 +492,7 @@ export type Database = {
           id: string;
           language: string;
           last_error: string | null;
+          locked_at: string | null;
           next_attempt_at: string;
           payload: Json;
           sent_at: string | null;
@@ -761,6 +762,10 @@ export type Database = {
       replace_pin_hash: {
         Args: { p_pin_hash: string; p_user_id: string };
         Returns: boolean;
+      };
+      run_daily_loan_jobs: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
       };
       get_wallet_summary: {
         Args: { p_client: string };

@@ -139,3 +139,13 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Déclenchement manuel conservé mais rendu autonome : reconstruction, lint, pgTAP et contrôles Deno précèdent toute mutation distante.
 - Docker reste exclusivement exécuté dans GitHub Actions conformément aux instructions du dépôt.
 - Imports Deno centralisés et figés dans `supabase/functions/deno.json`, supprimant la résolution flottante de `@supabase/supabase-js@2`.
+
+### Reprise et terminaison des notifications — terminées
+
+- Bail de traitement de 15 minutes avec récupération automatique après interruption d'un worker.
+- Maximum de cinq tentatives, backoff borné et état terminal `DEAD_LETTER`.
+- Effacement du payload OTP après succès comme après échec terminal.
+- Absence de création d'email lorsqu'aucun modèle ne couvre l'événement ; la notification applicative reste disponible.
+- Correction des deux modèles KYC dont une variable obligatoire n'était jamais fournie.
+- Le worker quotidien exécute désormais réellement la maintenance des prêts via une RPC réservée à `service_role` avant l'envoi des emails.
+- Ajout de quatre assertions pgTAP couvrant récupération du bail, terminaison et purge du secret.

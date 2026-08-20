@@ -1,4 +1,5 @@
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { adminClient } from "../_shared/supabase.ts";
 
 const INTERNAL_SECRET_HEADER = "x-outbox-dispatch-secret";
 
@@ -49,6 +50,9 @@ Deno.serve(async (req: Request) => {
     const projectUrl = requiredEnv("SUPABASE_URL");
     const serviceRoleKey = requiredEnv("SUPABASE_SERVICE_ROLE_KEY");
     const dispatchSecret = requiredEnv("OUTBOX_DISPATCH_SECRET");
+    const admin = adminClient();
+    const { error: dailyJobsError } = await admin.rpc("run_daily_loan_jobs");
+    if (dailyJobsError) throw new Error("DAILY_LOAN_JOBS_FAILED");
     const response = await fetch(`${projectUrl}/functions/v1/send-notification-email`, {
       method: "POST",
       headers: {
@@ -64,8 +68,7 @@ Deno.serve(async (req: Request) => {
     return jsonResponse(
       {
         dailyLoanJobs: {
-          status: "PUBLIC_WRAPPER_REQUIRED",
-          privateFunction: "app_private.run_daily_loan_jobs",
+          status: "COMPLETED",
         },
         notificationDispatch: {
           status: response.ok ? "COMPLETED" : "FAILED",
@@ -78,10 +81,7 @@ Deno.serve(async (req: Request) => {
     return jsonResponse(
       {
         error: "DISPATCH_FAILED",
-        dailyLoanJobs: {
-          status: "PUBLIC_WRAPPER_REQUIRED",
-          privateFunction: "app_private.run_daily_loan_jobs",
-        },
+        dailyLoanJobs: { status: "FAILED" },
       },
       500,
     );
