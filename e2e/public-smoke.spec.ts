@@ -21,10 +21,26 @@ test.describe("parcours publics", () => {
     const response = await page.goto("/auth/login");
 
     expect(response?.ok()).toBeTruthy();
-    await expect(page.getByRole("heading", { name: "Espace client" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Connexion" })).toBeVisible();
     await expect(page.getByLabel("Adresse email")).toBeVisible();
     await expect(page.getByLabel("Mot de passe")).toBeVisible();
     await expect(page.getByRole("button", { name: "Se connecter" })).toBeVisible();
+  });
+
+  test("expose un manifeste PWA installable et une page hors ligne", async ({ page, request }) => {
+    const manifestResponse = await request.get("/manifest.webmanifest");
+    expect(manifestResponse.ok()).toBeTruthy();
+    expect(manifestResponse.headers()["content-type"]).toContain("application/manifest+json");
+
+    const manifest = await manifestResponse.json();
+    expect(manifest).toMatchObject({ display: "standalone", lang: "fr", start_url: "/" });
+    expect(manifest.icons).toEqual(
+      expect.arrayContaining([expect.objectContaining({ sizes: "192x192" })]),
+    );
+
+    const response = await page.goto("/offline");
+    expect(response?.ok()).toBeTruthy();
+    await expect(page.getByRole("heading", { name: "Connexion indisponible" })).toBeVisible();
   });
 
   test("affiche la politique de confidentialité", async ({ page }) => {

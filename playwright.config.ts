@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const externalBaseUrl = process.env.WEB_E2E_BASE_URL;
-const baseURL = externalBaseUrl ?? "http://127.0.0.1:3000";
+const baseURL = externalBaseUrl ?? "http://127.0.0.1:3100";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -29,9 +29,9 @@ export default defineConfig({
   webServer: externalBaseUrl
     ? undefined
     : {
-        command: "pnpm exec next start -H 127.0.0.1 -p 3000",
+        command: "pnpm exec next start -H 127.0.0.1 -p 3100",
         url: baseURL,
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: false,
         timeout: 120_000,
       },
 });

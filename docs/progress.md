@@ -246,3 +246,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Nombre de prêts actifs et en défaut, avec ventilation des flux par pays client.
 - Période contrôlée côté SQL, limitée à 366 jours et accessible au seul administrateur actif.
 - Export CSV UTF-8 compatible tableur, couvert par un test unitaire d'échappement.
+
+### Fiabilisation PWA et E2E public — terminée
+
+- Ajout d'icônes PNG 192 px, 512 px et maskable pour une installation PWA fiable.
+- Smoke tests synchronisés avec les libellés réels de connexion et de mode hors ligne.
+- Vérification automatisée du manifeste, de ses icônes et de la page hors ligne.
+- Serveur E2E isolé sur le port 3100 et réutilisation silencieuse d'un autre projet interdite.
+- Parcours publics validés sur Chromium desktop et mobile : 8 scénarios réussis.
