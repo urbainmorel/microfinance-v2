@@ -1,5 +1,7 @@
 import { Instrument_Sans, Sora } from "next/font/google";
 
+import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+
 import { Providers } from "./providers";
 
 import type { Metadata, Viewport } from "next";
@@ -23,6 +25,9 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   title: "Microfinance — Espace client",
   description: "Portail de requêtes et de suivi : épargne, prêts et opérations.",
+  applicationName: "Microfinance UMOA",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Microfinance" },
 };
 
 export const viewport: Viewport = {
@@ -36,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${sora.variable} ${instrumentSans.variable}`}>
       <body className="min-h-dvh">
         <Providers>{children}</Providers>
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );

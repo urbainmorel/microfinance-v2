@@ -206,3 +206,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Historique relié par identifiant logique, numéro de révision et référence de remplacement.
 - Mutation directe des conditions financières interdite au niveau SQL.
 - Méthode dégressive retirée du back-office : seules les mensualités constantes sont proposées.
+
+### Application web installable (PWA) — terminée
+
+- Manifest autonome, identité visuelle, icône standard et icône adaptative.
+- Service Worker enregistré uniquement en production avec repli explicite hors connexion.
+- Cache limité à la coque hors-ligne et aux ressources statiques publiques.
+- Routes client/admin, réponses Supabase, documents et données financières toujours servis par le réseau.
