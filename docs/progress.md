@@ -266,3 +266,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Rejet HTTP 400 d'une commande client inconnue vérifié sans écriture financière.
 - L'envoi d'e-mails réel reste conditionné à la configuration opérateur de `RESEND_API_KEY` et
   `EMAIL_FROM`.
+
+### Dépendances — audit sans vulnérabilité connue
+
+- Remplacement forcé de la dépendance transitive `@babel/core` 7.29.0 par la version corrigée
+  7.29.7 via la configuration racine pnpm.
+- `pnpm audit --prod --audit-level=low` ne remonte désormais aucune vulnérabilité connue.
+- Installation figée, 35 tests unitaires et lint global validés après mise à jour du lockfile.
