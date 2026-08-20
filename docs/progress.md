@@ -295,3 +295,12 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   variables `E2E_STAFF_*`.
 - Job GitHub Actions dédié sur les pushes `main`, avec échec explicite si un secret manque.
 - Six secrets E2E configurés dans GitHub ; aucun identifiant n'est versionné dans le dépôt.
+
+### Déploiement Supabase — configuration GitHub complétée
+
+- Secret `SUPABASE_ACCESS_TOKEN` configuré dans GitHub.
+- Référence, nom exact et organisation du projet ajoutés comme variables GitHub contrôlées.
+- Suppression de la dépendance inutile à un mot de passe PostgreSQL absent : la CLI utilise la
+  liaison API temporaire, validée avec le même jeton opérateur.
+- Le workflow vérifie toujours l'identité exacte du projet avant le dry-run, les migrations et le
+  déploiement parallèle des fonctions Edge.

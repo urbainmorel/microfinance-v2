@@ -37,7 +37,6 @@ jobs:
       EXPECTED_PROJECT_NAME: ${{ vars.SUPABASE_PROJECT_NAME }}
       EXPECTED_ORGANIZATION_ID: ${{ vars.SUPABASE_ORGANIZATION_ID }}
       DEPLOYMENT_TARGET: ${{ inputs.target || 'staging' }}
-      DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,7 +73,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for variable in PROJECT_REF EXPECTED_PROJECT_NAME EXPECTED_ORGANIZATION_ID DB_PASSWORD; do
+          for variable in PROJECT_REF EXPECTED_PROJECT_NAME EXPECTED_ORGANIZATION_ID; do
             if [ -z "${!variable:-}" ]; then
               echo "Missing required GitHub environment configuration: $variable" >&2
               exit 1
@@ -99,13 +98,13 @@ jobs:
           echo "Verified Supabase $DEPLOYMENT_TARGET target: $actual_name ($PROJECT_REF)"
 
       - name: Link project
-        run: supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
+        run: supabase link --project-ref "$PROJECT_REF"
 
       - name: Review pending migrations
-        run: supabase db push --linked --password "$DB_PASSWORD" --dry-run
+        run: supabase db push --linked --dry-run
 
       - name: Apply migrations
-        run: supabase db push --linked --password "$DB_PASSWORD"
+        run: supabase db push --linked
 
       - name: Deploy Edge Functions through API
         run: supabase functions deploy --project-ref "$PROJECT_REF" --use-api --jobs 4
