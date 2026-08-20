@@ -199,3 +199,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Lecture strictement limitée au client concerné et à l'administrateur actif par RLS.
 - Consentement explicite et signature par PIN via Edge Function ; rejeu rendu idempotent.
 - Garantie et décaissement techniquement impossibles tant que le contrat n'est pas signé.
+
+### Versionnement du catalogue de prêts — terminé
+
+- Toute modification métier crée une nouvelle révision et archive atomiquement la précédente.
+- Historique relié par identifiant logique, numéro de révision et référence de remplacement.
+- Mutation directe des conditions financières interdite au niveau SQL.
+- Méthode dégressive retirée du back-office : seules les mensualités constantes sont proposées.

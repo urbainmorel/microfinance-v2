@@ -25,10 +25,12 @@ export function ProductForm({
     >
       <div className="mb-5">
         <h2 className="font-display text-xl font-bold">
-          {product ? "Modifier le produit" : "Nouveau produit"}
+          {product ? "Créer une nouvelle révision" : "Nouveau produit"}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Les nouveaux produits restent inactifs jusqu’à validation métier.
+          {product
+            ? "L’ancienne révision sera archivée sans modifier les demandes existantes."
+            : "Les nouveaux produits restent inactifs jusqu’à validation métier."}
         </p>
       </div>
       <ProductFormFields value={form.value} setValue={form.setField} />

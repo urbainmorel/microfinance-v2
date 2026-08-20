@@ -30,10 +30,10 @@ export async function createLoanProduct(input: LoanProductInput): Promise<void> 
 }
 
 export async function updateLoanProduct(id: string, input: LoanProductInput): Promise<void> {
-  const { error } = await adminSupabase
-    .from("loan_products")
-    .update(productPayload(input))
-    .eq("id", id);
+  const { error } = await adminSupabase.rpc("revise_loan_product", {
+    p_product: id,
+    p_values: input,
+  });
   if (error) throw new Error(error.message);
 }
 

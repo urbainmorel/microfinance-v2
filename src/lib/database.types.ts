@@ -151,6 +151,7 @@ export type Database = {
           interest_rate: number;
           is_active: boolean;
           late_penalty_rate: number;
+          logical_product_id: string;
           management_fee_flat: number;
           management_fee_percent: number;
           mandatory_savings_rate: number;
@@ -161,6 +162,9 @@ export type Database = {
           name: string;
           processing_fee_flat: number;
           processing_fee_percent: number;
+          retired_at: string | null;
+          revision: number;
+          supersedes_id: string | null;
         },
         | "name"
         | "min_amount"
@@ -168,6 +172,8 @@ export type Database = {
         | "min_duration_months"
         | "max_duration_months"
         | "interest_rate"
+        | "logical_product_id"
+        | "revision"
       >;
       loan_requests: Table<
         {
@@ -766,6 +772,10 @@ export type Database = {
           p_idempotency_key: string;
           p_request: string;
         };
+        Returns: string;
+      };
+      revise_loan_product: {
+        Args: { p_product: string; p_values: Json };
         Returns: string;
       };
       disburse_loan: {

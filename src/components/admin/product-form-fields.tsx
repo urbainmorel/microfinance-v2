@@ -47,7 +47,6 @@ export function ProductFormFields({
           className="h-[52px] w-full rounded-[14px] border border-border bg-card px-4"
         >
           <option value="CONSTANT_INSTALLMENT">Échéance constante</option>
-          <option value="DEGRESSIVE">Dégressif</option>
         </select>
       </label>
       <label className="space-y-2 md:col-span-2 xl:col-span-3">
