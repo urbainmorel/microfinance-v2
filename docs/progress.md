@@ -226,3 +226,9 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Largeur de travail étendue sur tablette et ordinateur au lieu du conteneur mobile de 560 px.
 - Navigation basse conservée sur mobile et transformée en navigation latérale fixe sur grand écran.
 - Zone métier plafonnée pour garder des formulaires lisibles, avec espace disponible pour les tableaux et échéanciers.
+
+### Paramétrage général administrateur — terminé
+
+- Écran de gestion des horaires de retrait, frais fixes, délai de défaut et rétentions KYC/audit.
+- Validations cohérentes dans le formulaire et via les contraintes SQL existantes.
+- Commande réservée à l'administrateur actif et chaque modification inscrite dans le journal d'audit.

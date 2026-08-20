@@ -12,6 +12,7 @@ import {
   PackageOpen,
   ReceiptText,
   ShieldCheck,
+  Settings,
   UserRoundCog,
 } from "lucide-react";
 import Link from "next/link";
@@ -32,6 +33,7 @@ const navigation = [
   { href: "/admin/users", label: "Utilisateurs", icon: UserRoundCog },
   { href: "/admin/privacy", label: "Données", icon: DatabaseZap },
   { href: "/admin/audit", label: "Audit", icon: FileClock },
+  { href: "/admin/settings", label: "Paramètres", icon: Settings },
 ];
 
 function Brand() {

@@ -778,6 +778,7 @@ export type Database = {
         Args: { p_product: string; p_values: Json };
         Returns: string;
       };
+      update_app_settings: { Args: { p_values: Json }; Returns: undefined };
       disburse_loan: {
         Args: { p_external_reference?: string | null; p_request: string };
         Returns: string;
