@@ -184,3 +184,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Recto, verso et selfie accessibles à l'administrateur via des URL signées privées de cinq minutes.
 - Documents regroupés avec chaque dossier de la file KYC et ouverts dans un contexte isolé.
 - Action de validation désactivée lorsque le dossier ne contient aucune pièce vérifiable.
+
+### Instantané contractuel des produits — terminé
+
+- Copie immuable de tous les taux, frais, plafonds, garanties et pénalités dans chaque demande.
+- Identifiant de version contractuelle unique créé à la soumission.
+- Devise XOF, plafond de coût effectif à 20 % et remboursement anticipé sans frais inscrits dans l'instantané.
+- Protection SQL contre toute modification rétroactive, y compris lors d'un changement de produit.

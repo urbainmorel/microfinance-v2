@@ -187,13 +187,20 @@ export type Database = {
           idempotency_key: string | null;
           monthly_income_estimate: number | null;
           product_id: string;
+          product_terms: Json;
+          product_terms_version: string;
           purpose: string | null;
           rejected_reason: string | null;
           requested_disbursement_method: string | null;
           status: LoanStatus | null;
           updated_at: string | null;
         },
-        "client_id" | "product_id" | "amount" | "duration_months",
+        | "client_id"
+        | "product_id"
+        | "product_terms"
+        | "product_terms_version"
+        | "amount"
+        | "duration_months",
         never,
         [
           {
