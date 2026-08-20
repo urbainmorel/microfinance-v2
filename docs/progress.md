@@ -273,3 +273,14 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   7.29.7 via la configuration racine pnpm.
 - `pnpm audit --prod --audit-level=low` ne remonte désormais aucune vulnérabilité connue.
 - Installation figée, 35 tests unitaires et lint global validés après mise à jour du lockfile.
+
+### Catalogue initial V1 — deux produits actifs
+
+- Amorçage idempotent de « Prêt Essentiel » et « Prêt Croissance » avec les montants, durées et
+  taux recommandés dans les décisions métier validées.
+- Garantie initiale à 10 %, épargne obligatoire à 5 % et pénalité journalière à 0,03 %.
+- Coûts effectifs annualisés vérifiés à 12,678291 % et 16,077845 %, sous le plafond interne de 20 %.
+- Invariant SQL empêchant la création d'une troisième famille de produits en V1.
+- Action « Nouveau produit » masquée lorsque les deux familles sont présentes ; les révisions des
+  produits existants restent autorisées.
+- Migration appliquée au projet distant et test pgTAP ajouté.

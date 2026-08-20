@@ -15,6 +15,10 @@ import { ProductList } from "@/components/admin/product-list";
 import { Button } from "@/components/ui/button";
 import { useProductManagement } from "@/lib/admin/use-product-management";
 
+function canCreateProduct(editable: boolean, editing: boolean, productCount?: number) {
+  return editable && !editing && (productCount ?? 2) < 2;
+}
+
 export default function AdminProductsPage() {
   const manager = useProductManagement();
   const { can } = useAdminRole();
@@ -26,7 +30,7 @@ export default function AdminProductsPage() {
         title="Produits de prêt"
         description="Configurez les bornes, frais et garanties. Un produit utilisé est désactivé, jamais supprimé."
         action={
-          editable && !manager.editing ? (
+          canCreateProduct(editable, Boolean(manager.editing), manager.query.data?.length) ? (
             <Button type="button" size="sm" onClick={() => manager.setEditing("new")}>
               <Plus className="size-4" /> Nouveau produit
             </Button>

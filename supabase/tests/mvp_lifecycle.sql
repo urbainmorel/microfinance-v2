@@ -1,6 +1,7 @@
 -- MVP waves 0-4: privileges, RBAC and financial lifecycle invariants (pgTAP).
 
 begin;
+delete from public.loan_products;
 select plan(94);
 
 create temporary table mvp_test_state (

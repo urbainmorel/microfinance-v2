@@ -1,4 +1,5 @@
 begin;
+delete from public.loan_products;
 select plan(4);
 insert into auth.users (id, email, raw_user_meta_data)
 values ('20202020-2020-2020-2020-202020202020', 'product-admin@test.dev', '{"firstname":"Admin","lastname":"Produit"}');

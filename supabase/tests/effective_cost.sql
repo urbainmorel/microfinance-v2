@@ -1,4 +1,5 @@
 begin;
+delete from public.loan_products;
 select plan(5);
 
 select is(
