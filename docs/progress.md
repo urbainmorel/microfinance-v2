@@ -122,3 +122,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Ajout de la route sécurisée de définition du nouveau mot de passe avec échange du code PKCE, détection des liens invalides et déconnexion après succès.
 - Politique forte factorisée et identique entre inscription et réinitialisation.
 - Ajout de tests unitaires pour l'email, la robustesse du mot de passe et sa confirmation.
+
+### Confirmation automatique de l'email — terminée
+
+- Définition explicite du callback email lors de l'inscription et de chaque renvoi.
+- Route serveur échangeant le code PKCE contre une session avant de reprendre le routage PIN/KYC.
+- Conservation temporaire de l'adresse uniquement dans `sessionStorage` pour permettre un renvoi lorsque l'inscription n'a pas encore créé de session.
+- Détection d'une session déjà confirmée et redirection automatique sans nouvelle connexion manuelle.
+- Échec fermé vers la connexion lorsque le code est absent, invalide ou expiré.

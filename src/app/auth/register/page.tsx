@@ -95,6 +95,7 @@ function RegisterForm() {
       email: values.email,
       password: values.password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/confirm`,
         data: {
           firstname: values.firstname,
           lastname: values.lastname,
@@ -104,6 +105,7 @@ function RegisterForm() {
       },
     });
     if (error) return setServerError(error.message);
+    window.sessionStorage.setItem("pending-verification-email", values.email);
     router.push("/auth/verify-email");
   }
 

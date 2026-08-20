@@ -1,16 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { AuthCard } from "@/components/auth/auth-card";
 import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
+import { resolvePostAuthPath } from "@/lib/auth-flow";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function VerifyEmailPage() {
+  const router = useRouter();
   const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    async function continueIfVerified() {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (active && user?.email_confirmed_at) {
+        window.sessionStorage.removeItem("pending-verification-email");
+        router.replace(await resolvePostAuthPath(supabase));
+        router.refresh();
+      }
+    }
+    void continueIfVerified();
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   async function resend() {
     setPending(true);
@@ -19,12 +41,17 @@ export default function VerifyEmailPage() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user?.email) {
+    const email = user?.email ?? window.sessionStorage.getItem("pending-verification-email");
+    if (!email) {
       setStatus("error");
       setPending(false);
       return;
     }
-    const { error } = await supabase.auth.resend({ type: "signup", email: user.email });
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/confirm` },
+    });
     setStatus(error ? "error" : "sent");
     setPending(false);
   }
@@ -33,7 +60,8 @@ export default function VerifyEmailPage() {
     <AuthCard title="Vérifiez votre email" subtitle="Un lien de vérification vous a été envoyé.">
       <div className="flex flex-col items-center gap-4 text-center">
         <p className="text-sm text-muted-foreground">
-          Cliquez sur le lien reçu pour activer votre compte, puis revenez vous connecter.
+          Cliquez sur le lien reçu pour activer votre compte. Vous reprendrez automatiquement la
+          création de votre espace sécurisé.
         </p>
         {status === "sent" ? (
           <p className="text-sm font-medium text-accent">Email de vérification renvoyé.</p>
