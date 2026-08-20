@@ -17,6 +17,9 @@ export const registerSchema = z
       .regex(/[A-Z]/, "Au moins une majuscule")
       .regex(/[0-9]/, "Au moins un chiffre"),
     confirm: z.string(),
+    consentAccepted: z.literal(true, {
+      errorMap: () => ({ message: "Vous devez accepter la politique de confidentialité" }),
+    }),
   })
   .refine((d) => d.password === d.confirm, {
     message: "Les mots de passe ne correspondent pas",

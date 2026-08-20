@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/output/
+/playwright-report/
+/test-results/
+/.playwright-cli/
 
 # next.js
 /.next/
@@ -23,6 +27,7 @@
 # misc
 .DS_Store
 *.pem
+*.lnk
 
 # debug
 npm-debug.log*
@@ -38,13 +43,9 @@ yarn-error.log*
 install.log
 supabase_start.log
 
-# Contournement réseau local (tarballs vendorés, non commités)
+# Contournement réseau local (tarballs vendorés, non commités).
+# Le lockfile et pnpm-workspace.yaml restent versionnés pour une CI reproductible.
 /vendor/
-
-# Artefacts du contournement réseau (overrides file: + lockfile pollué) :
-# À RÉGÉNÉRER sur une machine à réseau correct (`pnpm install`) puis à commiter. Voir README.
-/pnpm-workspace.yaml
-/pnpm-lock.yaml
 
 # Supabase (état local)
 /supabase/.branches
@@ -52,6 +53,9 @@ supabase_start.log
 
 # vercel
 .vercel
+
+# Netlify (liaison locale à un compte/site)
+.netlify/
 
 # typescript
 *.tsbuildinfo

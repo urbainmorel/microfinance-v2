@@ -6,10 +6,10 @@ import {
   type KycInput,
 } from "@/lib/schemas/kyc";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { DatabaseClient, Json } from "@/lib/database.types";
 
-function pick(values: KycInput, fields: readonly KycField[]): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
+function pick(values: KycInput, fields: readonly KycField[]): Json {
+  const out: { [key: string]: Json | undefined } = {};
   for (const f of fields) {
     const v = values[f];
     if (v !== undefined && v !== "" && v !== null) out[f] = v;
@@ -19,7 +19,7 @@ function pick(values: KycInput, fields: readonly KycField[]): Record<string, unk
 
 /** Enregistre une étape via la RPC serveur adéquate (PRD §6.4, sauvegarde auto). */
 export async function saveKycStep(
-  supabase: SupabaseClient,
+  supabase: DatabaseClient,
   target: "profile" | "financials",
   fields: readonly KycField[],
   values: KycInput,
@@ -32,7 +32,7 @@ export async function saveKycStep(
 
 /** Téléverse une pièce dans le bucket privé puis enregistre sa métadonnée (upsert idempotent). */
 export async function uploadKycDocument(
-  supabase: SupabaseClient,
+  supabase: DatabaseClient,
   docType: KycDocType,
   file: File,
 ): Promise<void> {
@@ -61,7 +61,7 @@ export async function uploadKycDocument(
 }
 
 /** Recharge les données KYC existantes pour reprendre le wizard (PRD §6.4). */
-export async function loadKyc(supabase: SupabaseClient): Promise<Partial<KycInput>> {
+export async function loadKyc(supabase: DatabaseClient): Promise<Partial<KycInput>> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -82,7 +82,7 @@ export async function loadKyc(supabase: SupabaseClient): Promise<Partial<KycInpu
 }
 
 /** Liste les types de pièces déjà téléversées, pour restaurer l'état du wizard. */
-export async function loadKycDocuments(supabase: SupabaseClient): Promise<KycDocType[]> {
+export async function loadKycDocuments(supabase: DatabaseClient): Promise<KycDocType[]> {
   const {
     data: { user },
   } = await supabase.auth.getUser();

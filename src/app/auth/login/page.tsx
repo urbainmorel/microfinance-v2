@@ -26,7 +26,7 @@ export default function LoginPage() {
   async function onSubmit(values: LoginInput) {
     setServerError(null);
     const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
     });
@@ -34,11 +34,16 @@ export default function LoginPage() {
       setServerError("Email ou mot de passe incorrect.");
       return;
     }
+    if (data.user?.app_metadata?.account_active === false) {
+      await supabase.auth.signOut();
+      setServerError("Ce compte est désactivé. Contactez le chef d’agence.");
+      return;
+    }
     router.push(await resolvePostAuthPath(supabase));
   }
 
   return (
-    <AuthCard title="Espace client" subtitle="Connectez-vous pour accéder à vos opérations.">
+    <AuthCard title="Connexion" subtitle="Accédez à votre espace sécurisé.">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
         <FormError message={serverError} />
         <FormField

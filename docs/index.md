@@ -8,6 +8,8 @@ Ce portail oriente vers les sources de vérité produit, techniques et opératio
 | --------------------------------------------- | ------------------------------------------------------------------------------------ |
 | Comprendre les règles métier validées         | [`business-rules-v1.md`](business-rules-v1.md)                                       |
 | Comprendre le contrat de prêt dynamique       | [`contracts/dynamic-loan-contract-v1.md`](contracts/dynamic-loan-contract-v1.md)     |
+| Suivre la finalisation                        | [`progress.md`](progress.md)                                                         |
+| Comprendre la méthode de livraison            | [`development-strategy.md`](development-strategy.md)                                 |
 | Comprendre les deux rôles                     | [`adr/0001-modele-acces-deux-roles.md`](adr/0001-modele-acces-deux-roles.md)         |
 | Comprendre le cadre crédit UMOA               | [`adr/0002-cadre-metier-credit-v1-umoa.md`](adr/0002-cadre-metier-credit-v1-umoa.md) |
 | Amorcer ou remplacer l'administrateur         | [`runbooks/amorcer-chef-agence.md`](runbooks/amorcer-chef-agence.md)                 |

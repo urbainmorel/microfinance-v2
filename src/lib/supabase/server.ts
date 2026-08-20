@@ -3,12 +3,14 @@ import { cookies } from "next/headers";
 
 import { getPublicEnv } from "@/lib/env";
 
+import type { Database, DatabaseClient } from "@/lib/database.types";
+
 /** Client Supabase côté serveur (Server Components, Route Handlers, RPC lecture). */
-export async function createSupabaseServerClient() {
+export async function createSupabaseServerClient(): Promise<DatabaseClient> {
   const env = getPublicEnv();
   const cookieStore = await cookies();
 
-  return createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+  return createServerClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -20,9 +22,9 @@ export async function createSupabaseServerClient() {
           );
         } catch {
           // Appelé depuis un Server Component : la pose de cookie est ignorée
-          // (le rafraîchissement de session est assuré par le middleware).
+          // (le rafraîchissement de session est assuré par le proxy).
         }
       },
     },
-  });
+  }) as unknown as DatabaseClient;
 }

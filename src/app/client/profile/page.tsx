@@ -1,6 +1,7 @@
 "use client";
 
 import { LogOut } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { KycStatusBadge } from "@/components/dashboard/kyc-status-badge";
@@ -33,11 +34,19 @@ export default function ProfilePage() {
           </div>
         ) : null}
       </Card>
+      <Link
+        href="/auth/reset-pin"
+        className="flex min-h-11 items-center justify-center rounded-[14px] border border-border px-4 text-sm font-semibold text-accent"
+      >
+        Réinitialiser mon code PIN
+      </Link>
       <Button variant="outline" onClick={logout}>
         <LogOut className="size-4" aria-hidden />
         Se déconnecter
       </Button>
-      <p className="text-xs text-muted-foreground">Le sélecteur de langue arrive au Lot 9.</p>
+      <p className="text-xs text-muted-foreground">
+        Pour exercer vos droits sur vos données, contactez l’administrateur de la microfinance.
+      </p>
     </div>
   );
 }

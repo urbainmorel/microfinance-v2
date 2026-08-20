@@ -18,11 +18,26 @@ Deno.serve(async (req: Request) => {
   }
 
   const pinHash = await bcrypt.hash(pin, 12);
-  const { error } = await adminClient()
+  const admin = adminClient();
+  const { data: profile, error: readError } = await admin
+    .from("profiles")
+    .select("is_active, pin_hash")
+    .eq("id", userId)
+    .single<{ is_active: boolean | null; pin_hash: string | null }>();
+  if (readError) return jsonResponse({ error: "PIN_SETUP_FAILED" }, 500);
+  if (profile.is_active !== true) return jsonResponse({ error: "FORBIDDEN" }, 403);
+  if (profile.pin_hash) return jsonResponse({ error: "PIN_ALREADY_CONFIGURED" }, 409);
+
+  const { data: updated, error } = await admin
     .from("profiles")
     .update({ pin_hash: pinHash, pin_attempts: 0, pin_locked_until: null })
-    .eq("id", userId);
+    .eq("id", userId)
+    .eq("is_active", true)
+    .is("pin_hash", null)
+    .select("id")
+    .maybeSingle();
 
   if (error) return jsonResponse({ error: error.message }, 500);
+  if (!updated) return jsonResponse({ error: "PIN_ALREADY_CONFIGURED" }, 409);
   return jsonResponse({ ok: true });
 });

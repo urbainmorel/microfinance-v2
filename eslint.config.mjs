@@ -10,7 +10,15 @@ import importPlugin from "eslint-plugin-import";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([".next/**", "out/**", "build/**", "coverage/**", "next-env.d.ts", "supabase/**"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "coverage/**",
+    "next-env.d.ts",
+    "src/lib/database.types.ts",
+    "supabase/**",
+  ]),
   {
     files: ["**/*.{ts,tsx,js,mjs,cjs}"],
     plugins: { import: importPlugin },

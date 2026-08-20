@@ -1,0 +1,22 @@
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PNPM_VERSION = "11"
+  NETLIFY_NEXT_SKEW_PROTECTION = "true"
+
+# L'adaptateur OpenNext est détecté et maintenu automatiquement par Netlify.
+# Ces routes financières ne doivent jamais être mises en cache par un CDN partagé.
+[[headers]]
+  for = "/client/*"
+  [headers.values]
+    Cache-Control = "private, no-store, max-age=0, must-revalidate"
+    Netlify-CDN-Cache-Control = "no-store"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Cache-Control = "private, no-store, max-age=0, must-revalidate"
+    Netlify-CDN-Cache-Control = "no-store"
