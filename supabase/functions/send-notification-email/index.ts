@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { decryptRecoveryPayload } from "../_shared/recovery-crypto.ts";
 import { adminClient } from "../_shared/supabase.ts";
 
 const BATCH_SIZE = 25;
@@ -155,8 +156,22 @@ async function deliver(
 
   const template = await loadTemplate(admin, row.template_slug, row.language);
   const variables = declaredVariables(template.variables);
-  const subject = renderTemplate(template.subject, variables, row.payload, false);
-  const html = renderTemplate(template.body_html, variables, row.payload, true);
+  let payload = row.payload;
+  if (row.template_slug === "pin_reset_otp") {
+    if (!isObject(payload) || typeof payload.encrypted_payload !== "string") {
+      throw new DeliveryError("INVALID_RECOVERY_PAYLOAD");
+    }
+    try {
+      payload = await decryptRecoveryPayload(
+        requiredEnv("PIN_RECOVERY_SECRET"),
+        payload.encrypted_payload,
+      );
+    } catch {
+      throw new DeliveryError("INVALID_RECOVERY_PAYLOAD");
+    }
+  }
+  const subject = renderTemplate(template.subject, variables, payload, false);
+  const html = renderTemplate(template.body_html, variables, payload, true);
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",

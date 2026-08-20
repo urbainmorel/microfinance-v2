@@ -1,4 +1,4 @@
-import bcrypt from "https://esm.sh/bcryptjs@2.4.3";
+import * as bcrypt from "https://esm.sh/bcryptjs@2.4.3";
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const LOCK_THRESHOLD = 5;

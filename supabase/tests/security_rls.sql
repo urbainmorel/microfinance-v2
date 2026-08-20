@@ -3,7 +3,7 @@
 -- ni lire les données d'autrui (ROADMAP Lot 1, Specs §C, invariants 2 & 4).
 
 begin;
-select plan(14);
+select plan(16);
 
 -- Deux clients de test. Le trigger on_auth_user_created crée profiles + wallets.
 insert into auth.users (id, email, raw_user_meta_data)
@@ -105,6 +105,20 @@ select is(
   'onboarding indique que le PIN est absent sans exposer de secret'
 );
 
+-- 14–15. Même un compte applicatif authentifié ne lit ni ne réserve l'outbox.
+select throws_ok(
+  $$ select * from public.notification_outbox $$,
+  '42501',
+  null,
+  'un compte authentifié ne peut pas lire l''outbox'
+);
+select throws_ok(
+  $$ select * from public.claim_notification_outbox(1) $$,
+  '42501',
+  null,
+  'un compte authentifié ne peut pas réserver l''outbox'
+);
+
 reset role;
 
 -- Appel backend simulé : création atomique du premier hash.
@@ -124,7 +138,7 @@ select set_config(
   true
 );
 
--- 14. Après configuration, seul le booléen change pour le client.
+-- 16. Après configuration, seul le booléen change pour le client.
 select is(
   (select pin_set from public.get_onboarding_state()),
   true,

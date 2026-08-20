@@ -41,3 +41,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Adaptation des Edge Functions de création, vérification et récupération du PIN.
 - Conservation d'un état d'onboarding minimal : le client reçoit uniquement `pin_set` et le statut KYC.
 - Extension du test pgTAP de sécurité de 7 à 14 assertions ; son exécution avec Docker reste déléguée à GitHub Actions conformément aux règles du projet.
+
+### Protection de la récupération PIN — terminée
+
+- Remplacement du hash SHA-256 déterministe des OTP à six chiffres par HMAC-SHA-256 avec un secret serveur d'au moins 32 octets.
+- Chiffrement AES-256-GCM de l'OTP lors de son passage temporaire dans l'outbox ; seul le worker d'envoi le déchiffre en mémoire.
+- Suppression de la lecture de l'outbox par les rôles administratifs applicatifs et restriction des RPC de réservation/complétion à `service_role`.
+- Ajout de `PIN_RECOVERY_SECRET` au contrat de configuration, sans valeur réelle dans le dépôt.
+- Extension de la suite pgTAP à 16 assertions de sécurité.

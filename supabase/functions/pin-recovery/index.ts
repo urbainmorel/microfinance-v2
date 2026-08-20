@@ -1,7 +1,8 @@
-import bcrypt from "https://esm.sh/bcryptjs@2.4.3";
+import * as bcrypt from "https://esm.sh/bcryptjs@2.4.3";
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { encryptRecoveryPayload, hashRecoveryOtp } from "../_shared/recovery-crypto.ts";
 import { adminClient, getUserId } from "../_shared/supabase.ts";
 
 const OTP_EXPIRATION_MINUTES = 10;
@@ -54,11 +55,10 @@ function generateOtp(): string {
   return String(values[0] % range).padStart(6, "0");
 }
 
-async function sha256(value: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join(
-    "",
-  );
+function recoverySecret(): string {
+  const secret = Deno.env.get("PIN_RECOVERY_SECRET");
+  if (!secret) throw new RecoveryError("RECOVERY_NOT_CONFIGURED", 503);
+  return secret;
 }
 
 async function hashesMatch(left: string, right: string): Promise<boolean> {
@@ -117,7 +117,9 @@ async function requestReset(userId: string): Promise<Response> {
   }
 
   const otp = generateOtp();
-  const otpHash = await sha256(`${userId}:${otp}`);
+  const secret = recoverySecret();
+  const otpHash = await hashRecoveryOtp(secret, userId, otp);
+  const encryptedPayload = await encryptRecoveryPayload(secret, { otp });
   const expiresAt = new Date(now + OTP_EXPIRATION_MINUTES * 60_000).toISOString();
   const { data: challenge, error: challengeError } = await admin
     .from("pin_reset_challenges")
@@ -132,7 +134,7 @@ async function requestReset(userId: string): Promise<Response> {
     event_type: "pin_reset_otp",
     template_slug: "pin_reset_otp",
     language: profile?.preferred_language || "fr",
-    payload: { otp },
+    payload: encryptedPayload,
     dedupe_key: `pin-reset:${challenge.id}`,
   });
 
@@ -191,7 +193,7 @@ async function confirmReset(
     throw new RecoveryError("OTP_LOCKED", 423);
   }
 
-  const candidateHash = await sha256(`${userId}:${otp}`);
+  const candidateHash = await hashRecoveryOtp(recoverySecret(), userId, otp);
   if (!(await hashesMatch(candidateHash, challenge.otp_hash))) {
     const attempts = challenge.attempts + 1;
     const locked = attempts >= MAX_OTP_ATTEMPTS;
