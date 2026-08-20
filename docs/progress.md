@@ -149,3 +149,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Correction des deux modèles KYC dont une variable obligatoire n'était jamais fournie.
 - Le worker quotidien exécute désormais réellement la maintenance des prêts via une RPC réservée à `service_role` avant l'envoi des emails.
 - Ajout de quatre assertions pgTAP couvrant récupération du bail, terminaison et purge du secret.
+
+### Détail, reçu et annulation des opérations — terminés
+
+- Chaque ligne de l'historique ouvre désormais un reçu appartenant exclusivement au client connecté.
+- Affichage du statut, montant, date, canal, référence, motif de rejet et identifiant de corrélation disponibles.
+- Annulation des dépôts, retraits et remboursements `PENDING` via la commande Edge sécurisée par PIN et idempotence.
+- Retour automatique vers l'historique et invalidation du cache après succès.
+- L'annulation d'un retrait rappelle et applique la libération atomique de la somme réservée.

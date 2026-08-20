@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowDownLeft, ArrowUpRight, Receipt, RotateCcw } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -44,34 +45,45 @@ function operationDate(row: OperationRow) {
   return row.created_at ?? row.operation_date ?? new Date().toISOString();
 }
 
+function operationKind(type: string): "deposit" | "repayment" | "withdrawal" {
+  if (type === "DEPOSIT") return "deposit";
+  if (type === "REPAYMENT") return "repayment";
+  return "withdrawal";
+}
+
 function OperationItem({ operation }: { operation: OperationRow }) {
   const type = operation.operation_type ?? operation.type ?? "OPERATION";
   const Icon = type === "DEPOSIT" ? ArrowDownLeft : ArrowUpRight;
   return (
     <li>
-      <Card className="flex items-center gap-3 p-4">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-pill bg-pastel-green text-accent">
-          <Icon className="size-5" strokeWidth={1.8} aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-foreground">
-            {operation.label || TYPE_LABELS[type] || "Opération"}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(
-              new Date(operationDate(operation)),
-            )}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="font-display text-sm font-bold text-foreground">
-            {formatFcfa(operation.amount)}
-          </p>
-          <p className="text-xs font-medium text-muted-foreground">
-            {STATUS_LABELS[operation.status] ?? operation.status}
-          </p>
-        </div>
-      </Card>
+      <Link
+        href={`/client/operations/${operationKind(type)}/${operation.id}`}
+        aria-label={`Voir le détail : ${operation.label || TYPE_LABELS[type] || "Opération"}`}
+      >
+        <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-pill bg-pastel-green text-accent">
+            <Icon className="size-5" strokeWidth={1.8} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-foreground">
+              {operation.label || TYPE_LABELS[type] || "Opération"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(
+                new Date(operationDate(operation)),
+              )}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-display text-sm font-bold text-foreground">
+              {formatFcfa(operation.amount)}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">
+              {STATUS_LABELS[operation.status] ?? operation.status}
+            </p>
+          </div>
+        </Card>
+      </Link>
     </li>
   );
 }

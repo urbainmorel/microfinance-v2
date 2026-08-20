@@ -743,6 +743,10 @@ export type Database = {
           status: string;
         }[];
       };
+      get_client_operation_detail: {
+        Args: { p_kind: string; p_operation: string };
+        Returns: Json;
+      };
       get_onboarding_state: {
         Args: Record<PropertyKey, never>;
         Returns: { kyc_status: string; pin_set: boolean }[];
