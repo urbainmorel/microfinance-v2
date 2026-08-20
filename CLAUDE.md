@@ -106,3 +106,13 @@ Senior-grade, maintenance-first. These are **enforced mechanically** (see Enforc
 - **Commits.** Small, conventional (`feat:`, `fix:`, `refactor:`…), one concern each, reviewable diffs.
 
 **Enforcement (configured in Lot 0 — guaranteed, not aspirational):** ESLint (`max-lines`, `max-lines-per-function`, `complexity`, `@typescript-eslint/no-explicit-any`, `import/order`, `no-console`, `react-hooks/*`) + Prettier (`printWidth: 100`) + strict `tsconfig`, gated by a **husky + lint-staged pre-commit hook** and CI. Run the built-in `/code-review` and `/simplify` before closing each lot — no custom skill needed.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
