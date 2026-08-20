@@ -232,3 +232,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Écran de gestion des horaires de retrait, frais fixes, délai de défaut et rétentions KYC/audit.
 - Validations cohérentes dans le formulaire et via les contraintes SQL existantes.
 - Commande réservée à l'administrateur actif et chaque modification inscrite dans le journal d'audit.
+
+### Modèles de notification administrables — terminés
+
+- Liste et édition des modèles français et anglais avec objet, HTML et variables déclarées.
+- Validation SQL des slugs, langues, tailles, variables et correspondance des placeholders.
+- Rejet des scripts, gestionnaires d'événements et URL HTML actives.
+- Aperçu rendu dans une iframe sans permissions et attribution automatique de l'administrateur auteur.

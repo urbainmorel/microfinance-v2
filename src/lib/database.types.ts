@@ -779,6 +779,16 @@ export type Database = {
         Returns: string;
       };
       update_app_settings: { Args: { p_values: Json }; Returns: undefined };
+      save_notification_template: {
+        Args: {
+          p_body_html: string;
+          p_language: string;
+          p_slug: string;
+          p_subject: string;
+          p_variables: Json;
+        };
+        Returns: string;
+      };
       disburse_loan: {
         Args: { p_external_reference?: string | null; p_request: string };
         Returns: string;

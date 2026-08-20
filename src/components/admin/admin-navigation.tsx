@@ -9,6 +9,7 @@ import {
   FileClock,
   HandCoins,
   LayoutDashboard,
+  Mail,
   PackageOpen,
   ReceiptText,
   ShieldCheck,
@@ -34,6 +35,7 @@ const navigation = [
   { href: "/admin/privacy", label: "Données", icon: DatabaseZap },
   { href: "/admin/audit", label: "Audit", icon: FileClock },
   { href: "/admin/settings", label: "Paramètres", icon: Settings },
+  { href: "/admin/templates", label: "Notifications", icon: Mail },
 ];
 
 function Brand() {
