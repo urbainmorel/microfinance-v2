@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 type LoanState = {
   displayState: number;
+  loanId?: string;
   requestId?: string;
   remainingPrincipal?: number;
   guaranteeRequired?: number;
@@ -134,12 +135,22 @@ function LoanAction({ state }: { state: LoanState }) {
     return <GuaranteeActions state={state} />;
   if (state.displayState === 7 || state.displayState === 8)
     return (
-      <Link
-        href="/client/repay/request"
-        className={cn(buttonVariants({ variant: "accent", size: "sm" }), "mt-4 w-full")}
-      >
-        Rembourser mon prêt
-      </Link>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {state.loanId ? (
+          <Link
+            href={`/client/loans/${state.loanId}`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            Voir l’échéancier
+          </Link>
+        ) : null}
+        <Link
+          href="/client/repay/request"
+          className={buttonVariants({ variant: "accent", size: "sm" })}
+        >
+          Rembourser mon prêt
+        </Link>
+      </div>
     );
   return null;
 }

@@ -171,3 +171,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Fixtures KYC et financières adossées à de vrais objets Storage avec propriétaire, taille et MIME valides.
 - Scénario de cycle de vie exclusivement fondé sur les mensualités constantes.
 - Conservation des contrôles de coût effectif, d'idempotence, de réservation et de clôture atomique.
+
+### Détail client du prêt — terminé
+
+- Accès direct depuis la carte du prêt actif vers un échéancier protégé par RLS.
+- Solde total ventilé à partir du capital, des intérêts, frais, épargne obligatoire et pénalités restant dus.
+- Mise en avant de la prochaine échéance et de son montant réellement restant.
+- Remboursement anticipé explicitement présenté comme sans frais, avec confirmation manuelle.
