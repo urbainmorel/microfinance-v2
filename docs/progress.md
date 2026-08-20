@@ -329,3 +329,12 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Rejet effectué avant tout téléversement de justificatif, évitant les objets Storage temporaires
   et les allers-retours serveur inutiles.
 - Trois tests unitaires couvrent dépôt électronique, dépôt en espèces et remboursement bancaire.
+
+### Justificatifs multiples d'une demande de prêt — fiabilisés
+
+- Téléversement traité comme un lot compensable : si un fichier échoue, tous les fichiers déjà
+  envoyés pendant la tentative sont supprimés du bucket privé.
+- Lorsqu'un client modifie les données ou les pièces après une tentative, les anciens objets
+  temporaires sont supprimés avant de créer le nouveau lot.
+- La conservation volontaire des chemins ne concerne désormais que la répétition strictement
+  identique d'une commande, afin de préserver son idempotence en cas d'incident réseau.

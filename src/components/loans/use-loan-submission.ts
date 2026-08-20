@@ -15,6 +15,27 @@ import type { LoanRequestInput } from "@/lib/schemas/loan";
 
 type PendingDocuments = { fingerprint: string; paths: string[] };
 
+async function removeDocuments(supabase: ReturnType<typeof useSupabase>, paths: string[]) {
+  if (paths.length) await supabase.storage.from("loan-documents").remove(paths);
+}
+
+async function uploadDocuments(
+  supabase: ReturnType<typeof useSupabase>,
+  userId: string,
+  files: File[],
+) {
+  const paths: string[] = [];
+  try {
+    for (const file of files) {
+      paths.push(await uploadClientDocument(supabase, "loan-documents", userId, file));
+    }
+    return paths;
+  } catch (error) {
+    await removeDocuments(supabase, paths);
+    throw error;
+  }
+}
+
 function commandFingerprint(values: LoanRequestInput) {
   return JSON.stringify({
     productId: values.productId,
@@ -44,11 +65,14 @@ export function useLoanSubmission(
     try {
       const result = await runIdempotent(fingerprint, async (key) => {
         const userId = await getAuthenticatedUserId(supabase);
+        if (pendingDocuments && pendingDocuments.fingerprint !== fingerprint) {
+          await removeDocuments(supabase, pendingDocuments.paths);
+          setPendingDocuments(null);
+        }
         const paths =
           pendingDocuments?.fingerprint === fingerprint ? [...pendingDocuments.paths] : [];
         if (!paths.length) {
-          for (const file of values.documents)
-            paths.push(await uploadClientDocument(supabase, "loan-documents", userId, file));
+          paths.push(...(await uploadDocuments(supabase, userId, values.documents)));
           setPendingDocuments({ fingerprint, paths });
         }
         try {
@@ -70,7 +94,7 @@ export function useLoanSubmission(
           });
         } catch (error) {
           if (error instanceof ClientCommandError && error.code) {
-            await supabase.storage.from("loan-documents").remove(paths);
+            await removeDocuments(supabase, paths);
             setPendingDocuments(null);
           }
           throw error;
