@@ -178,3 +178,9 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Solde total ventilé à partir du capital, des intérêts, frais, épargne obligatoire et pénalités restant dus.
 - Mise en avant de la prochaine échéance et de son montant réellement restant.
 - Remboursement anticipé explicitement présenté comme sans frais, avec confirmation manuelle.
+
+### Revue documentaire KYC — terminée
+
+- Recto, verso et selfie accessibles à l'administrateur via des URL signées privées de cinq minutes.
+- Documents regroupés avec chaque dossier de la file KYC et ouverts dans un contexte isolé.
+- Action de validation désactivée lorsque le dossier ne contient aucune pièce vérifiable.

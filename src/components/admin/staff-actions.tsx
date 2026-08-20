@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export interface StaffAction {
+  disabled?: boolean;
   value: string;
   label: string;
   requiresReason?: boolean;
@@ -63,7 +64,7 @@ function ActionPicker({
           type="button"
           size="sm"
           variant={actionVariant(action)}
-          disabled={busy}
+          disabled={busy || action.disabled}
           onClick={() => select(action)}
         >
           {action.label}

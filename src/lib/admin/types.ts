@@ -61,6 +61,7 @@ export interface KycQueueItem extends ClientSummary {
   profession: string | null;
   monthlyIncomeEstimate: number | null;
   createdAt: string;
+  documents: Array<{ type: string; url: string }>;
 }
 
 export interface DepositQueueItem {

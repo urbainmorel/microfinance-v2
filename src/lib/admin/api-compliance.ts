@@ -1,5 +1,6 @@
 import {
   adminSupabase,
+  createPrivateProofUrl,
   getClientMap,
   mapClient,
   optionalNumber,
@@ -11,15 +12,26 @@ import {
 import type { AuditItem, KycQueueItem } from "./types";
 
 export async function getKycQueue(): Promise<KycQueueItem[]> {
-  const { data, error } = await adminSupabase
-    .from("profiles")
-    .select(
-      "id, firstname, lastname, phone, kyc_status, id_type, id_number, country, city, profession, monthly_income_estimate, created_at",
-    )
-    .neq("kyc_status", "NONE")
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const [{ data, error }, documentsResult] = await Promise.all([
+    adminSupabase
+      .from("profiles")
+      .select(
+        "id, firstname, lastname, phone, kyc_status, id_type, id_number, country, city, profession, monthly_income_estimate, created_at",
+      )
+      .neq("kyc_status", "NONE")
+      .order("created_at", { ascending: false })
+      .limit(100),
+    adminSupabase.from("kyc_documents").select("client_id,doc_type,url"),
+  ]);
   if (error) throw new Error(error.message);
+  if (documentsResult.error) throw new Error(documentsResult.error.message);
+  const signedDocuments = await Promise.all(
+    rows(documentsResult.data).map(async (document) => ({
+      clientId: textValue(document.client_id),
+      type: textValue(document.doc_type),
+      url: await createPrivateProofUrl("kyc-documents", document.url),
+    })),
+  );
   return rows(data).map((row) => ({
     ...mapClient(row),
     kycStatus: textValue(row.kyc_status),
@@ -30,6 +42,9 @@ export async function getKycQueue(): Promise<KycQueueItem[]> {
     profession: optionalText(row.profession),
     monthlyIncomeEstimate: optionalNumber(row.monthly_income_estimate),
     createdAt: textValue(row.created_at),
+    documents: signedDocuments
+      .filter((document) => document.clientId === textValue(row.id) && document.url)
+      .map((document) => ({ type: document.type, url: document.url as string })),
   }));
 }
 
