@@ -721,6 +721,10 @@ export type Database = {
         };
         Returns: number;
       };
+      finalize_kyc_document: {
+        Args: { p_doc_type: string; p_path: string };
+        Returns: undefined;
+      };
       get_active_loan_status: {
         Args: Record<PropertyKey, never>;
         Returns: Json;

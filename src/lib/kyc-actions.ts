@@ -51,12 +51,10 @@ export async function uploadKycDocument(
     .upload(path, file, { upsert: true, contentType: file.type });
   if (uploadError) throw uploadError;
 
-  const { error: rowError } = await supabase
-    .from("kyc_documents")
-    .upsert(
-      { client_id: user.id, doc_type: docType, url: path, verified: false },
-      { onConflict: "client_id,doc_type" },
-    );
+  const { error: rowError } = await supabase.rpc("finalize_kyc_document", {
+    p_doc_type: docType,
+    p_path: path,
+  });
   if (rowError) throw rowError;
 }
 

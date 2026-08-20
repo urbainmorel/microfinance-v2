@@ -92,3 +92,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Désactivation conservatoire des anciens produits actifs hors plafond lors de la migration.
 - Méthode V1 limitée aux mensualités constantes sur capital restant dû ; la méthode dégressive est désormais refusée.
 - Ajout de cinq tests pgTAP couvrant le coût nul, l'annualisation, l'acceptation et les deux blocages métier.
+
+### Intégrité des justificatifs Storage — terminée
+
+- Remplacement de l'écriture directe des métadonnées KYC par une RPC de finalisation serveur.
+- Vérification obligatoire de l'existence de l'objet, du propriétaire, du bucket, du préfixe, de la taille et du type MIME.
+- Contrôles identiques déclenchés avant chaque rattachement de preuve de dépôt, de remboursement ou de demande de prêt.
+- Interdiction aux clients d'insérer ou modifier directement `kyc_documents`.
+- Ajout de cinq tests pgTAP prouvant qu'un faux chemin est refusé et qu'un objet réel valide peut seul être finalisé.
