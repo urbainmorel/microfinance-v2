@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { normalizeAppRole } from "@/lib/access-control";
+import { requiredOnboardingPath, type OnboardingState } from "@/lib/auth-flow";
 import { getPublicEnvSafe } from "@/lib/env";
 
 /**
@@ -11,32 +12,85 @@ import { getPublicEnvSafe } from "@/lib/env";
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const response = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
-  const role = await resolveRole(request, response);
+  const access = await resolveAccess(request, response);
 
   if (pathname.startsWith("/admin")) {
-    if (role !== "admin") return redirectTo("/auth/login", request);
-    return response;
+    return guardAdmin(access, request, response);
   }
 
   if (pathname.startsWith("/client")) {
-    if (role === null) return redirectTo("/auth/login", request);
-    if (role === "admin") return redirectTo("/admin", request);
-    return response;
+    return guardClient(pathname, access, request, response);
+  }
+
+  if (pathname === "/auth/set-pin" && access.role !== null) {
+    return guardSetPin(access, request, response);
   }
 
   return response;
 }
 
-function redirectTo(path: string, request: NextRequest): NextResponse {
-  const url = request.nextUrl.clone();
-  url.pathname = path;
-  return NextResponse.redirect(url);
+function guardAdmin(
+  access: AccessState,
+  request: NextRequest,
+  response: NextResponse,
+): NextResponse {
+  return access.role === "admin" ? response : redirectTo("/auth/login", request, response);
 }
 
-/** Rôle courant, ou null si la session ou la configuration est absente. */
-async function resolveRole(request: NextRequest, response: NextResponse): Promise<string | null> {
+function guardClient(
+  pathname: string,
+  access: AccessState,
+  request: NextRequest,
+  response: NextResponse,
+): NextResponse {
+  if (access.role === null) return redirectTo("/auth/login", request, response);
+  if (!access.emailVerified) return redirectTo("/auth/verify-email", request, response);
+  if (access.role === "admin") return redirectTo("/admin", request, response);
+  if (!access.onboarding) return redirectTo("/auth/login?reason=session", request, response);
+
+  const required = requiredOnboardingPath(access.onboarding);
+  if (required && pathname !== required) return redirectTo(required, request, response);
+  if (!required && pathname === "/client/kyc") {
+    return redirectTo("/client/dashboard", request, response);
+  }
+  return response;
+}
+
+function guardSetPin(
+  access: AccessState,
+  request: NextRequest,
+  response: NextResponse,
+): NextResponse {
+  if (!access.emailVerified) return redirectTo("/auth/verify-email", request, response);
+  if (access.role === "admin") return redirectTo("/admin", request, response);
+  if (!access.onboarding) return redirectTo("/auth/login?reason=session", request, response);
+  const required = requiredOnboardingPath(access.onboarding);
+  return required === "/auth/set-pin"
+    ? response
+    : redirectTo(required ?? "/client/dashboard", request, response);
+}
+
+function redirectTo(path: string, request: NextRequest, source: NextResponse): NextResponse {
+  const url = request.nextUrl.clone();
+  const [pathname, search = ""] = path.split("?");
+  url.pathname = pathname ?? path;
+  url.search = search ? `?${search}` : "";
+  const redirect = NextResponse.redirect(url);
+  for (const cookie of source.cookies.getAll()) redirect.cookies.set(cookie);
+  return redirect;
+}
+
+type AccessState = {
+  emailVerified: boolean;
+  onboarding: OnboardingState | null;
+  role: string | null;
+};
+
+/** Session et état d'onboarding, ou accès nul en cas de configuration invalide. */
+async function resolveAccess(request: NextRequest, response: NextResponse): Promise<AccessState> {
   const env = getPublicEnvSafe();
-  if (env === null) return null;
+  const denied: AccessState = { emailVerified: false, onboarding: null, role: null };
+  if (env === null) return denied;
 
   try {
     const supabase = createServerClient(
@@ -53,11 +107,19 @@ async function resolveRole(request: NextRequest, response: NextResponse): Promis
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return null;
-    if (user.app_metadata?.account_active === false) return null;
-    return normalizeAppRole(user.app_metadata?.user_role);
+    if (!user || user.app_metadata?.account_active === false) return denied;
+    const role = normalizeAppRole(user.app_metadata?.user_role);
+    if (role === "admin") {
+      return { emailVerified: Boolean(user.email_confirmed_at), onboarding: null, role };
+    }
+    const { data, error } = await supabase.rpc("get_onboarding_state").single();
+    return {
+      emailVerified: Boolean(user.email_confirmed_at),
+      onboarding: error ? null : ((data ?? null) as OnboardingState | null),
+      role,
+    };
   } catch {
-    return null;
+    return denied;
   }
 }
 

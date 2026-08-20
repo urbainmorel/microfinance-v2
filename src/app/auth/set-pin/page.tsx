@@ -9,6 +9,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
+import { resolvePostAuthPath } from "@/lib/auth-flow";
 import { setPinSchema, type SetPinInput } from "@/lib/schemas/auth";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -29,7 +30,8 @@ export default function SetPinPage() {
       setServerError("Impossible d'enregistrer le code PIN. Réessayez.");
       return;
     }
-    router.push("/client/dashboard");
+    router.replace(await resolvePostAuthPath(supabase));
+    router.refresh();
   }
 
   return (

@@ -74,3 +74,12 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Soumission refusée tant que le profil, la source de revenus ou les pièces obligatoires ne sont pas complets.
 - Fonctions `SECURITY DEFINER` recréées avec un `search_path` vide et droits explicites.
 - Ajout de cinq tests pgTAP dédiés aux invariants et à l'immutabilité post-soumission.
+
+### Routage d'onboarding obligatoire — terminé
+
+- Protection de toutes les routes client contre le contournement direct par URL.
+- Ordre imposé : email vérifié, puis création du PIN, puis KYC lorsque son état exige une action.
+- Retour post-création du PIN calculé depuis l'état serveur au lieu d'un renvoi prématuré au tableau de bord.
+- Échec fermé lorsque l'état d'onboarding ne peut pas être chargé.
+- Conservation des cookies Supabase rafraîchis lors des redirections du proxy.
+- Ajout de huit cas unitaires couvrant les statuts KYC et la priorité du PIN.
