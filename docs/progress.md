@@ -254,3 +254,15 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Vérification automatisée du manifeste, de ses icônes et de la page hors ligne.
 - Serveur E2E isolé sur le port 3100 et réutilisation silencieuse d'un autre projet interdite.
 - Parcours publics validés sur Chromium desktop et mobile : 8 scénarios réussis.
+
+### Fonctions Edge distantes — déploiement validé
+
+- Déploiement des six fonctions : `client-command`, `daily-jobs`, `pin-recovery`,
+  `send-notification-email`, `set-pin` et `verify-pin`.
+- Secrets internes de récupération PIN et de distribution d'outbox générés de manière
+  cryptographiquement sûre, configurés à distance et jamais stockés dans Git.
+- État `ACTIVE` vérifié pour les six fonctions dans le projet Supabase configuré.
+- Invocation réelle de `verify-pin` validée avec le compte client de test.
+- Rejet HTTP 400 d'une commande client inconnue vérifié sans écriture financière.
+- L'envoi d'e-mails réel reste conditionné à la configuration opérateur de `RESEND_API_KEY` et
+  `EMAIL_FROM`.
