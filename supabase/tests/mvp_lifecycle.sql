@@ -108,9 +108,18 @@ values
     1, 24, 1.5, 'CONSTANT_INSTALLMENT', 10, 5, 1, true
   ),
   (
-    'bbbbbbbb-0000-0000-0000-000000000002', 'MVP degressif', 10000, 500000,
-    1, 24, 2, 'DEGRESSIVE', 0, 0, 1, true
+    'bbbbbbbb-0000-0000-0000-000000000002', 'MVP annuites sans garantie', 10000, 500000,
+    1, 24, 1, 'CONSTANT_INSTALLMENT', 0, 0, 1, true
   );
+
+insert into storage.objects (bucket_id, name, owner_id, metadata)
+values
+  ('deposit-proofs', 'aaaaaaaa-0000-0000-0000-000000000001/deposit-proof.pdf', 'aaaaaaaa-0000-0000-0000-000000000001', '{"size":1024,"mimetype":"application/pdf"}'),
+  ('deposit-proofs', 'aaaaaaaa-0000-0000-0000-000000000001/deposit-cancel.pdf', 'aaaaaaaa-0000-0000-0000-000000000001', '{"size":1024,"mimetype":"application/pdf"}'),
+  ('deposit-proofs', 'aaaaaaaa-0000-0000-0000-000000000004/guarantee-proof.pdf', 'aaaaaaaa-0000-0000-0000-000000000004', '{"size":1024,"mimetype":"application/pdf"}'),
+  ('repayment-proofs', 'aaaaaaaa-0000-0000-0000-000000000004/repayment-partial.pdf', 'aaaaaaaa-0000-0000-0000-000000000004', '{"size":1024,"mimetype":"application/pdf"}'),
+  ('repayment-proofs', 'aaaaaaaa-0000-0000-0000-000000000004/repayment-overpay.pdf', 'aaaaaaaa-0000-0000-0000-000000000004', '{"size":1024,"mimetype":"application/pdf"}'),
+  ('repayment-proofs', 'aaaaaaaa-0000-0000-0000-000000000004/repayment-exact.pdf', 'aaaaaaaa-0000-0000-0000-000000000004', '{"size":1024,"mimetype":"application/pdf"}');
 
 insert into public.loan_requests (
   id, client_id, product_id, amount, duration_months, purpose,
@@ -461,8 +470,8 @@ select is(
   public.simulate_loan(
     'bbbbbbbb-0000-0000-0000-000000000002', 120000, 4, date '2026-01-01'
   ) ->> 'interestMethod',
-  'DEGRESSIVE',
-  'la simulation degressive utilise la methode configuree'
+  'CONSTANT_INSTALLMENT',
+  'la seconde simulation utilise aussi les mensualites constantes'
 );
 select is(
   (select sum((row ->> 'principal')::bigint)::bigint
@@ -472,7 +481,7 @@ select is(
      ) -> 'schedule'
    ) row),
   120000::bigint,
-  'la simulation degressive conserve exactement le capital'
+  'la seconde simulation conserve exactement le capital'
 );
 
 -- Partial guarantee, completion through a deposit, and unique disbursement.
@@ -819,7 +828,7 @@ values (
   'dddddddd-0000-0000-0000-000000000001',
   'cccccccc-0000-0000-0000-000000000002',
   'aaaaaaaa-0000-0000-0000-000000000005',
-  10000, 10000, 2, 'DEGRESSIVE', current_date - 31, current_date - 1, 'ACTIVE'
+  10000, 10000, 1, 'CONSTANT_INSTALLMENT', current_date - 31, current_date - 1, 'ACTIVE'
 );
 insert into public.amortization_schedules (
   id, loan_id, installment_no, due_date, due_principal, due_interest,

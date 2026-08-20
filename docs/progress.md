@@ -165,3 +165,9 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Validation cohérente dans Zod, l'Edge Function et la fonction SQL de réservation.
 - Persistance structurée des nouvelles coordonnées bancaires avec contraintes UMOA côté base.
 - Information explicite du délai manuel de 24 à 48 heures ouvrées pour les virements.
+
+### Tests SQL réalignés sur les invariants V1 — terminés
+
+- Fixtures KYC et financières adossées à de vrais objets Storage avec propriétaire, taille et MIME valides.
+- Scénario de cycle de vie exclusivement fondé sur les mensualités constantes.
+- Conservation des contrôles de coût effectif, d'idempotence, de réservation et de clôture atomique.
