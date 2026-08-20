@@ -49,3 +49,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Suppression de la lecture de l'outbox par les rôles administratifs applicatifs et restriction des RPC de réservation/complétion à `service_role`.
 - Ajout de `PIN_RECOVERY_SECRET` au contrat de configuration, sans valeur réelle dans le dépôt.
 - Extension de la suite pgTAP à 16 assertions de sécurité.
+
+### Moindre privilège des fonctions SQL — terminé
+
+- Révocation globale du droit `EXECUTE` que PostgreSQL attribue implicitement à `PUBLIC` sur les fonctions des schémas `public` et `app_private`.
+- Interdiction de l'accès direct des rôles applicatifs aux fonctions privées ; les droits fonctionnels déjà accordés explicitement restent inchangés.
+- Durcissement des privilèges par défaut afin que les futures migrations ne réintroduisent pas silencieusement ce droit.
+- Réaffirmation explicite des seuls accès techniques nécessaires à Auth et aux Edge Functions utilisant `service_role`.
+- Extension de la suite pgTAP à 20 assertions, dont la preuve qu'une RPC client autorisée reste accessible.

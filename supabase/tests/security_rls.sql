@@ -3,7 +3,7 @@
 -- ni lire les données d'autrui (ROADMAP Lot 1, Specs §C, invariants 2 & 4).
 
 begin;
-select plan(16);
+select plan(20);
 
 -- Deux clients de test. Le trigger on_auth_user_created crée profiles + wallets.
 insert into auth.users (id, email, raw_user_meta_data)
@@ -119,6 +119,28 @@ select throws_ok(
   'un compte authentifié ne peut pas réserver l''outbox'
 );
 
+-- 16–19. Les fonctions SECURITY DEFINER privilégiées n'héritent plus d'EXECUTE via PUBLIC.
+select isnt(
+  has_function_privilege('authenticated', 'public.get_pin_security_for_verification(uuid)', 'EXECUTE'),
+  true,
+  'authenticated ne peut pas lire l''état PIN sensible'
+);
+select isnt(
+  has_function_privilege('authenticated', 'public.claim_notification_outbox(integer)', 'EXECUTE'),
+  true,
+  'authenticated ne peut pas réclamer des notifications'
+);
+select isnt(
+  has_function_privilege('authenticated', 'public.create_loan_request(uuid,uuid,bigint,integer,text,bigint,text,jsonb,uuid,uuid)', 'EXECUTE'),
+  true,
+  'authenticated ne peut pas contourner l''Edge Function de demande de prêt'
+);
+select is(
+  has_function_privilege('authenticated', 'public.get_onboarding_state()', 'EXECUTE'),
+  true,
+  'authenticated conserve les RPC explicitement autorisées'
+);
+
 reset role;
 
 -- Appel backend simulé : création atomique du premier hash.
@@ -138,7 +160,7 @@ select set_config(
   true
 );
 
--- 16. Après configuration, seul le booléen change pour le client.
+-- 20. Après configuration, seul le booléen change pour le client.
 select is(
   (select pin_set from public.get_onboarding_state()),
   true,
