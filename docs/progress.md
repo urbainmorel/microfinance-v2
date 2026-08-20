@@ -100,3 +100,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Contrôles identiques déclenchés avant chaque rattachement de preuve de dépôt, de remboursement ou de demande de prêt.
 - Interdiction aux clients d'insérer ou modifier directement `kyc_documents`.
 - Ajout de cinq tests pgTAP prouvant qu'un faux chemin est refusé et qu'un objet réel valide peut seul être finalisé.
+
+### Prêt vivant unique — terminé
+
+- Verrou transactionnel par client avant toute insertion de demande afin de résister aux soumissions concurrentes.
+- Refus immédiat d'une demande lorsqu'un prêt `ACTIVE` ou `DEFAULTED` existe déjà.
+- Correction de la priorité d'affichage : prêt vivant, puis demande récente, puis ancien prêt clôturé.
+- Ajout de tests pgTAP pour le blocage, la réouverture après clôture et la priorité de la nouvelle demande.
