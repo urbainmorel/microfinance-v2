@@ -3,6 +3,19 @@
 
 ---
 
+> **Décision V1 du 2026-08-13 — prioritaire sur les anciennes matrices de rôles :**
+> la version de lancement comporte uniquement `client` et `admin`. Le rôle `admin` est
+> réservé au chef d’agence, qui réalise toutes les opérations internes du back-office.
+> Les rôles agent crédit, agent caisse, validateur, super-administrateur et auditeur sont
+> retirés du périmètre V1. Voir `docs/adr/0001-modele-acces-deux-roles.md`.
+
+> **Décisions métier V1 du 2026-08-20 — prioritaires :** le périmètre couvre les huit
+> pays de l'UMOA en XOF, avec un administrateur global, deux produits paramétrables,
+> mensualités constantes sur capital restant dû, coût effectif plafonné à 20 %, un seul
+> prêt vivant et contrats dynamiques signés par PIN/OTP. Voir
+> `docs/adr/0002-cadre-metier-credit-v1-umoa.md`, `docs/business-rules-v1.md` et
+> `docs/contracts/dynamic-loan-contract-v1.md`.
+
 ## 1. PRÉSENTATION GÉNÉRALE DU PROJET
 
 ### 1.1 Contexte

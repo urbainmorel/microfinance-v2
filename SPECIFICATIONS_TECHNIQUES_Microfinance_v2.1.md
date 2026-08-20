@@ -3,6 +3,18 @@
 
 ---
 
+> **Décision technique V1 du 2026-08-13 — prioritaire :** seuls les rôles `client` et
+> `admin` sont actifs. `admin` représente le chef d’agence et autorise toutes les RPC et
+> routes internes. Toute ancienne valeur de rôle est refusée comme rôle privilégié. Voir
+> `docs/adr/0001-modele-acces-deux-roles.md` et la migration
+> `20260813090000_two_role_access_model.sql`.
+
+> **Cadre métier V1 du 2026-08-20 — prioritaire sur les anciens exemples :** les
+> invariants de tarification, échéancier, garantie, retard, remboursement anticipé et
+> contrat sont définis dans `docs/business-rules-v1.md` et
+> `docs/contracts/dynamic-loan-contract-v1.md`. Toute implémentation incompatible est un
+> écart à corriger, pas une variante autorisée.
+
 ## PRINCIPES D'ARCHITECTURE DIRECTEURS
 
 1. **Une seule vérité comptable.** Le solde disponible est défini par une formule unique (§F) appliquée de façon identique à l'affichage, au contrôle des retraits et à la base de données.
@@ -15,11 +27,11 @@
 ## PARTIE A : SPÉCIFICATIONS ÉCRAN PAR ÉCRAN (FRONTEND NEXT.JS)
 
 ### Architecture des routes
-- **Espace Client** : `/client/*` (layout protégé par `middleware.ts`).
+- **Espace Client** : `/client/*` (layout protégé par `proxy.ts`).
 - **Espace Admin** : `/admin/*` (layout protégé, contrôle du rôle via le claim JWT).
 - **Auth** : `/auth/*` (non protégé).
 
-Le `middleware.ts` lit le rôle depuis le claim du jeton (`app_metadata.user_role`) sans requête base, et redirige selon les règles du §4.2 du PRD.
+Le `proxy.ts` lit le rôle depuis le claim du jeton (`app_metadata.user_role`) sans requête base, et redirige selon les règles du §4.2 du PRD.
 
 ---
 

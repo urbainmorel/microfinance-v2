@@ -6,9 +6,11 @@ Chaque lot référence sa source : `PRD §x`, `Specs §x`, `DESIGN §x`. Ordre =
 
 ---
 
-## Décisions arrêtées (verrouillées le 2026-07-08)
+## Décisions arrêtées
 
-Ces choix conditionnent le socle et sont désormais fixés. Ils s'appliquent dès la première migration.
+Les décisions D1 à D11 ont été verrouillées le 2026-07-08. Les décisions métier D12 à D22 ont été
+validées à 100 % le 2026-08-20. Le détail normatif se trouve dans `docs/business-rules-v1.md` et
+`docs/contracts/dynamic-loan-contract-v1.md`.
 
 | # | Décision | Choix verrouillé | Détail / impact | Réf |
 |---|---|---|---|---|
@@ -16,12 +18,24 @@ Ces choix conditionnent le socle et sont désormais fixés. Ils s'appliquent dè
 | D2 | Fournisseur email | **Resend** | Envoi derrière une Edge Function | Specs §2.2 |
 | D3 | Bibliothèque i18n | **next-intl** | Natif App Router, formatage devise/date par locale | PRD §19 |
 | D4 | Stratégie de test | **Vitest + Playwright** | Vitest = comptable/amortissement/arrondi (unitaire) ; Playwright = E2E des parcours | PRD §22 |
-| D5 | Échéancier de référence | **Synthétique dès le Lot 6b, validé ensuite** | Ex. 100 000 FCFA / 12 mois / annuités ; à faire valider par le métier puis remplacer par les vrais chiffres produit | PRD §22 |
-| D6 | Fuseau plage 8h–19h | **Africa/Abidjan** (UTC+0, XOF canonique) | Aligne `settle_withdrawal` (Specs §D.5) — même décalage que l'ancien `Africa/Porto-Novo`. ✅ Spec corrigée le 2026-07-08 ; reste à appliquer au Lot 5 | PRD §13.6 |
-| D7 | Version Tailwind | **Tailwind v3 (épinglé)** | `create-next-app` livre Tailwind v4 (config CSS-first). On épingle **v3** pour réutiliser tel quel le bloc `:root` HSL de DESIGN §4.3 (convention `hsl(var(--x))`) et `tailwind.config.ts`/`theme.extend`. Sert l'invariant « une seule source des tokens » ; chemin Shadcn le plus éprouvé. Stabilité > nouveauté (système financier). Appliqué au Lot 0. | DESIGN §4.3 |
-| D8 | Versions socle | **Next.js 16.2 · React 19.2 · Node ≥ 20** | Versions résolues par le scaffold (App Router, RSC). `tsconfig` strict + extras (`noUncheckedIndexedAccess`, `noImplicitOverride`). Appliqué au Lot 0. | Specs §2.2 |
-| D9 | Gestionnaire de paquets | **pnpm** (`pnpm-lock.yaml`) | npm bloquait de façon répétée en résolution/reify sur cette machine (réseau ~25 KiB/s instable, cache volumineux, SAT des peers React 19). pnpm — store persistant/reprise, hardlinks, peers permissifs — fiabilise l'install. `.npmrc` : `strict-peer-dependencies=false`, faible `network-concurrency`, timeouts longs. Appliqué au Lot 0. | — |
-| D10 | Stack Supabase de test | **Runner GitHub Actions** | `supabase/config.toml` reste versionné pour les tests pgTAP ; `supabase start` et Docker sont interdits localement et autorisés uniquement dans le runner GitHub | Specs §2.2 |
+| D5 | Modèle d’accès V1 | **Deux rôles : `client` et `admin`** | Le chef d’agence est l’unique opérateur interne et cumule toutes les actions du back-office ; voir ADR 0001 | ADR 0001 |
+| D6 | Échéancier de référence | **Synthétique dès le Lot 6b** | Ex. 100 000 FCFA / 12 mois / annuités ; les règles définitives sont validées par ADR 0002 | PRD §22, ADR 0002 |
+| D7 | Fuseau plage 8h–19h | **Fuseau dérivé du pays UMOA** | `Africa/Porto-Novo`, `Ouagadougou`, `Abidjan`, `Bissau`, `Bamako`, `Niamey`, `Dakar` ou `Lome` | Règles métier §1 |
+| D8 | Version Tailwind | **Tailwind v3 (épinglé)** | `create-next-app` livre Tailwind v4 (config CSS-first). On épingle **v3** pour réutiliser tel quel le bloc `:root` HSL de DESIGN §4.3 (convention `hsl(var(--x))`) et `tailwind.config.ts`/`theme.extend`. Sert l'invariant « une seule source des tokens » ; chemin Shadcn le plus éprouvé. Stabilité > nouveauté (système financier). Appliqué au Lot 0. | DESIGN §4.3 |
+| D9 | Versions socle | **Next.js 16.2 · React 19.2 · Node ≥ 20** | Versions résolues par le scaffold (App Router, RSC). `tsconfig` strict + extras (`noUncheckedIndexedAccess`, `noImplicitOverride`). Appliqué au Lot 0. | Specs §2.2 |
+| D10 | Gestionnaire de paquets | **pnpm** (`pnpm-lock.yaml`) | npm bloquait de façon répétée en résolution/reify sur cette machine (réseau ~25 KiB/s instable, cache volumineux, SAT des peers React 19). pnpm — store persistant/reprise, hardlinks, peers permissifs — fiabilise l'install. `.npmrc` : `strict-peer-dependencies=false`, faible `network-concurrency`, timeouts longs. Appliqué au Lot 0. | — |
+| D11 | Stack Supabase de test | **Runner GitHub Actions** | `supabase/config.toml` reste versionné pour les tests pgTAP ; `supabase start` et Docker sont interdits localement et autorisés uniquement dans le runner GitHub | Specs §2.2 |
+| D12 | Territoire et devise | **Huit pays UMOA, XOF uniquement** | Pays fermé à BJ/BF/CI/GW/ML/NE/SN/TG ; montants FCFA entiers | ADR 0002 |
+| D13 | Opérations financières | **Confirmation humaine** | Le client initie ; l'administrateur confirme côté serveur, de façon atomique et idempotente | ADR 0002 |
+| D14 | Administration | **Un administrateur global actif** | Il cumule les fonctions d'agent ; l'audit et les motifs compensent la concentration V1 | ADR 0001/0002 |
+| D15 | Amortissement | **Mensualités constantes, capital restant dû** | Méthode unique ; dernière échéance absorbe l'arrondi | Règles métier §6 |
+| D16 | Coût effectif | **Plafond interne 20 %** | Blocage serveur si le coût effectif annualisé dépasse `min(20 %, plafond réglementaire)` | Règles métier §4 |
+| D17 | Unicité du prêt | **Un seul prêt vivant** | `ACTIVE` ou `DEFAULTED` bloque toute nouvelle demande | Règles métier §5 |
+| D18 | Produits | **Deux produits versionnés et paramétrables** | Min/max, durées, taux et frais configurables sans rétroactivité | Règles métier §3 |
+| D19 | KYC | **Fondé sur le risque** | Toute incertitude déclenche une revue humaine | Règles métier §12 |
+| D20 | Langues | **Client fr/en, admin fr** | Portugais hors périmètre V1 ; consentement général UMOA | Règles métier §13/15 |
+| D21 | Retard et remboursement | **Règles validées** | Grâce 3 j, 0,03 %/j plafonné 5 %, J+30/J+45/J+90, remboursement anticipé gratuit | Règles métier §8/9 |
+| D22 | Contrat | **Dynamique, versionné, signé PIN/OTP** | PDF immuable, hash, preuve, échéancier et avenants | Contrat dynamique V1 |
 
 ---
 
@@ -84,7 +98,7 @@ sur réseau correct ; voir mémoire `local-dev-setup`).
 - Tailwind + Shadcn ; **tokens `DESIGN.md` §4.3** en variables CSS + `tailwind.config.ts` ; **rouge Shadcn neutralisé** (`--destructive` → encre).
 - Polices `next/font` (Sora, Instrument Sans) ; `lucide-react`.
 - Providers : TanStack Query, RHF ; conventions Zod.
-- `middleware.ts` (squelette de protection de routes, lecture du claim JWT — stub).
+- `proxy.ts` (protection des routes, lecture du claim JWT).
 - Supabase CLI + dossier `supabase/migrations` (D1).
 - **Qualité mécanisée** (cf. CLAUDE.md § Code quality) : ESLint (`max-lines`, `max-lines-per-function`, `complexity`, `no-explicit-any`, `import/order`, `no-console`) + Prettier (`printWidth: 100`) + tsconfig strict ; **hook pre-commit** husky + lint-staged qui **bloque** tout commit non conforme ; check CI équivalent.
 
@@ -112,7 +126,7 @@ sur réseau correct ; voir mémoire `local-dev-setup`).
 - Vérification email → écran d'attente + renvoi.
 - Création PIN (`/auth/set-pin`) : Edge Function **`set-pin`** (bcrypt **serveur**, jamais client).
 - Edge Function **`verify-pin`** : anti-forçage (compteur, verrouillage croissant après 5 échecs).
-- **Redirections `middleware.ts`** selon l'état (`PRD §4.2`).
+- **Redirections `proxy.ts`** selon l'état (`PRD §4.2`).
 - KYC multi-étapes (`PRD §6.4`) : wizard 9 sous-étapes, **sauvegarde auto par étape**, upload pièces (Storage `kyc_documents`, chiffré au repos), soumission → `kyc_status = PENDING`.
 
 **Fait quand :** un nouvel utilisateur va de l'inscription au dashboard (vide) ; le PIN se verrouille après 5 essais ; un KYC repris conserve ses étapes.
