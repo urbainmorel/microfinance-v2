@@ -10,6 +10,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
+import { isAccountInactive } from "@/lib/access-control";
 import { resolvePostAuthPath } from "@/lib/auth-flow";
 import { loginSchema, type LoginInput } from "@/lib/schemas/auth";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -26,7 +27,7 @@ export default function LoginPage() {
   async function onSubmit(values: LoginInput) {
     setServerError(null);
     const supabase = createSupabaseBrowserClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
     });
@@ -34,7 +35,8 @@ export default function LoginPage() {
       setServerError("Email ou mot de passe incorrect.");
       return;
     }
-    if (data.user?.app_metadata?.account_active === false) {
+    const { data: claimsData } = await supabase.auth.getClaims();
+    if (isAccountInactive(claimsData?.claims?.app_metadata)) {
       await supabase.auth.signOut();
       setServerError("Ce compte est désactivé. Contactez le chef d’agence.");
       return;

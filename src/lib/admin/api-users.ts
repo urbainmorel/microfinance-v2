@@ -1,3 +1,5 @@
+import { roleFromAppMetadata } from "@/lib/access-control";
+
 import {
   adminSupabase,
   getClientMap,
@@ -16,12 +18,9 @@ import type {
 } from "./types";
 
 export async function getCurrentStaffRole(): Promise<StaffRole> {
-  const {
-    data: { user },
-    error,
-  } = await adminSupabase.auth.getUser();
+  const { data, error } = await adminSupabase.auth.getClaims();
   if (error) throw new Error(error.message);
-  const role = user?.app_metadata?.user_role;
+  const role = roleFromAppMetadata(data?.claims?.app_metadata);
   if (role === "admin") return role;
   throw new Error("Le rôle administrateur est introuvable dans la session.");
 }

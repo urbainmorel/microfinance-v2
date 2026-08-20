@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { normalizeAppRole } from "@/lib/access-control";
+import { isAccountInactive, roleFromAppMetadata } from "@/lib/access-control";
 import { requiredOnboardingPath, type OnboardingState } from "@/lib/auth-flow";
 import { getPublicEnvSafe } from "@/lib/env";
 
@@ -104,11 +104,14 @@ async function resolveAccess(request: NextRequest, response: NextResponse): Prom
         },
       },
     );
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user || user.app_metadata?.account_active === false) return denied;
-    const role = normalizeAppRole(user.app_metadata?.user_role);
+    const [userResult, claimsResult] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.auth.getClaims(),
+    ]);
+    const user = userResult.data.user;
+    const appMetadata = claimsResult.data?.claims?.app_metadata;
+    if (!user || claimsResult.error || isAccountInactive(appMetadata)) return denied;
+    const role = roleFromAppMetadata(appMetadata);
     if (role === "admin") {
       return { emailVerified: Boolean(user.email_confirmed_at), onboarding: null, role };
     }

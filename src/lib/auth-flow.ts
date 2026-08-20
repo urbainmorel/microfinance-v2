@@ -1,3 +1,5 @@
+import { isAccountInactive, roleFromAppMetadata } from "@/lib/access-control";
+
 import type { DatabaseClient } from "@/lib/database.types";
 
 export type OnboardingState = { pin_set: boolean; kyc_status: string | null };
@@ -17,13 +19,16 @@ export function requiredOnboardingPath(state: OnboardingState): string | null {
  * KYC non commencé → wizard KYC ; sinon → dashboard.
  */
 export async function resolvePostAuthPath(supabase: DatabaseClient): Promise<string> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [userResult, claimsResult] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.auth.getClaims(),
+  ]);
+  const user = userResult.data.user;
+  const appMetadata = claimsResult.data?.claims?.app_metadata;
   if (!user) return "/auth/login";
-  if (user.app_metadata?.account_active === false) return "/auth/login?reason=disabled";
+  if (isAccountInactive(appMetadata)) return "/auth/login?reason=disabled";
   if (!user.email_confirmed_at) return "/auth/verify-email";
-  if (user.app_metadata?.user_role === "admin") return "/admin";
+  if (roleFromAppMetadata(appMetadata) === "admin") return "/admin";
 
   const { data, error } = await supabase.rpc("get_onboarding_state").single();
   if (error) return "/auth/login?reason=session";

@@ -1,5 +1,5 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-import * as bcrypt from "bcryptjs";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.112.3";
+import * as bcrypt from "npm:bcryptjs@3.0.2";
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { encryptRecoveryPayload, hashRecoveryOtp } from "../_shared/recovery-crypto.ts";
