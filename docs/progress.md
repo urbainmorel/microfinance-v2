@@ -213,3 +213,10 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Service Worker enregistré uniquement en production avec repli explicite hors connexion.
 - Cache limité à la coque hors-ligne et aux ressources statiques publiques.
 - Routes client/admin, réponses Supabase, documents et données financières toujours servis par le réseau.
+
+### Fondation bilingue client FR/EN — terminée
+
+- Dictionnaires typés et fournisseur de langue limité à l'espace client.
+- Préférence persistée un an par cookie, changement instantané et attribut `lang` synchronisé.
+- Sélecteur accessible dans le profil ; navigation, salutation et profil traduits.
+- Administration laissée exclusivement en français conformément à la décision métier.

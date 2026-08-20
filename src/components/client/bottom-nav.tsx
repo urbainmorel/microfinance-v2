@@ -4,18 +4,24 @@ import { HandCoins, Home, Receipt, User, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useClientLocale } from "@/components/i18n/client-locale-provider";
 import { cn } from "@/lib/utils";
 
-const TABS: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/client/dashboard", label: "Accueil", icon: Home },
-  { href: "/client/loans", label: "Mes prêts", icon: HandCoins },
-  { href: "/client/operations", label: "Mes opérations", icon: Receipt },
-  { href: "/client/profile", label: "Profil", icon: User },
+const TABS: {
+  href: string;
+  label: "nav.home" | "nav.loans" | "nav.operations" | "nav.profile";
+  icon: LucideIcon;
+}[] = [
+  { href: "/client/dashboard", label: "nav.home", icon: Home },
+  { href: "/client/loans", label: "nav.loans", icon: HandCoins },
+  { href: "/client/operations", label: "nav.operations", icon: Receipt },
+  { href: "/client/profile", label: "nav.profile", icon: User },
 ];
 
 /** Navigation basse — 4 onglets (PRD §7.6, DESIGN §12). Masquée pendant l'onboarding KYC. */
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useClientLocale();
   if (pathname.startsWith("/client/kyc")) return null;
 
   return (
@@ -34,7 +40,7 @@ export function BottomNav() {
                 )}
               >
                 <Icon className="size-5" strokeWidth={active ? 2.2 : 1.8} aria-hidden />
-                {label}
+                {t(label)}
                 <span
                   className={cn("h-1 w-1 rounded-full", active ? "bg-accent" : "bg-transparent")}
                   aria-hidden
