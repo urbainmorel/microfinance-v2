@@ -21,8 +21,8 @@ export class PinVerificationError extends Error {
 type PinProfile = {
   is_active: boolean | null;
   pin_hash: string | null;
-  pin_attempts: number | null;
-  pin_locked_until: string | null;
+  failed_attempts: number | null;
+  locked_until: string | null;
 };
 
 /** Verifie un PIN cote serveur et applique le verrouillage progressif existant. */
@@ -36,9 +36,7 @@ export async function verifyPin(
   }
 
   const { data, error } = await admin
-    .from("profiles")
-    .select("is_active, pin_hash, pin_attempts, pin_locked_until")
-    .eq("id", userId)
+    .rpc("get_pin_security_for_verification", { p_user_id: userId })
     .single<PinProfile>();
 
   if (error) throw error;
@@ -49,29 +47,28 @@ export async function verifyPin(
     throw new PinVerificationError("PIN_NOT_CONFIGURED", 400);
   }
 
-  if (data.pin_locked_until && new Date(data.pin_locked_until).getTime() > Date.now()) {
+  if (data.locked_until && new Date(data.locked_until).getTime() > Date.now()) {
     throw new PinVerificationError("PIN_LOCKED", 423, {
-      lockedUntil: data.pin_locked_until,
+      lockedUntil: data.locked_until,
     });
   }
 
   const matches = await bcrypt.compare(pin, data.pin_hash);
   if (!matches) {
-    const attempts = Math.max(0, data.pin_attempts ?? 0) + 1;
-    const lockedUntil =
-      attempts >= LOCK_THRESHOLD
-        ? new Date(
-            Date.now() +
-              LOCK_STEP_MINUTES * 60_000 * (attempts - (LOCK_THRESHOLD - 1)),
-          ).toISOString()
-        : null;
-
-    const { error: updateError } = await admin
-      .from("profiles")
-      .update({ pin_attempts: attempts, pin_locked_until: lockedUntil })
-      .eq("id", userId);
+    const { data: failures, error: updateError } = await admin.rpc(
+      "record_pin_verification_failure",
+      {
+        p_user_id: userId,
+        p_lock_threshold: LOCK_THRESHOLD,
+        p_lock_step_minutes: LOCK_STEP_MINUTES,
+      },
+    );
 
     if (updateError) throw updateError;
+    const failure = failures?.[0];
+    if (!failure) throw new Error("PIN_SECURITY_STATE_MISSING");
+    const attempts = failure.attempts;
+    const lockedUntil = failure.new_locked_until;
 
     if (lockedUntil) {
       throw new PinVerificationError("PIN_LOCKED", 423, { attempts, lockedUntil });
@@ -79,10 +76,9 @@ export async function verifyPin(
     throw new PinVerificationError("PIN_INVALID", 401, { attempts });
   }
 
-  const { error: resetError } = await admin
-    .from("profiles")
-    .update({ pin_attempts: 0, pin_locked_until: null })
-    .eq("id", userId);
+  const { error: resetError } = await admin.rpc("record_pin_verification_success", {
+    p_user_id: userId,
+  });
 
   if (resetError) throw resetError;
 }

@@ -3,7 +3,7 @@
 -- ni lire les données d'autrui (ROADMAP Lot 1, Specs §C, invariants 2 & 4).
 
 begin;
-select plan(7);
+select plan(14);
 
 -- Deux clients de test. Le trigger on_auth_user_created crée profiles + wallets.
 insert into auth.users (id, email, raw_user_meta_data)
@@ -75,6 +75,60 @@ select throws_ok(
   NULL,
   NULL,
   'insertion directe d''un wallet interdite'
+);
+
+-- 8–10. Aucun secret PIN ne demeure dans le profil exposé par la Data API.
+select hasnt_column('public', 'profiles', 'pin_hash', 'profiles ne publie pas le hash PIN');
+select hasnt_column('public', 'profiles', 'pin_attempts', 'profiles ne publie pas les tentatives PIN');
+select hasnt_column('public', 'profiles', 'pin_locked_until', 'profiles ne publie pas le verrouillage PIN');
+
+-- 11. Le schéma privé n'est pas accessible à un client authentifié.
+select throws_ok(
+  $$ select * from app_private.user_pin_security $$,
+  '42501',
+  null,
+  'un client ne peut pas lire la sécurité PIN privée'
+);
+
+-- 12. La RPC qui révèle le hash est réservée à la service_role.
+select throws_ok(
+  $$ select * from public.get_pin_security_for_verification(auth.uid()) $$,
+  '42501',
+  null,
+  'un client ne peut pas appeler la RPC de vérification PIN'
+);
+
+-- 13. L'onboarding ne révèle qu'un état booléen avant configuration.
+select is(
+  (select pin_set from public.get_onboarding_state()),
+  false,
+  'onboarding indique que le PIN est absent sans exposer de secret'
+);
+
+reset role;
+
+-- Appel backend simulé : création atomique du premier hash.
+select public.set_initial_pin_hash(
+  '11111111-1111-1111-1111-111111111111',
+  '$2a$12$012345678901234567890u012345678901234567890123456789012'
+);
+
+set local role authenticated;
+select set_config(
+  'request.jwt.claims',
+  json_build_object(
+    'sub', '11111111-1111-1111-1111-111111111111',
+    'role', 'authenticated',
+    'app_metadata', json_build_object('user_role', 'client')
+  )::text,
+  true
+);
+
+-- 14. Après configuration, seul le booléen change pour le client.
+select is(
+  (select pin_set from public.get_onboarding_state()),
+  true,
+  'onboarding indique que le PIN est configuré'
 );
 
 reset role;

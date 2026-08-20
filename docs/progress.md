@@ -30,3 +30,14 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Format, Vitest et build Next.js 16.3.1 réussis.
 - ESLint global a identifié uniquement le journal console du script de nettoyage ; le script a été corrigé et son lint ciblé est vert.
 - Le snapshot applicatif local antérieur est intégré comme baseline contrôlée afin que les développements suivants puissent être livrés par commits fonctionnels atomiques.
+
+### Sécurité du PIN — terminée
+
+- Déplacement des hashes bcrypt et des compteurs de verrouillage de `public.profiles` vers `app_private.user_pin_security`, hors des schémas exposés par la Data API.
+- Migration automatique des hashes existants puis suppression des trois colonnes publiques sensibles.
+- RPC sensibles explicitement révoquées à `public`, `anon` et `authenticated`, et accordées uniquement à `service_role`.
+- Création initiale et remplacement du hash effectués atomiquement en base.
+- Incrément des échecs et calcul du verrouillage progressif effectués dans une unique instruction SQL atomique.
+- Adaptation des Edge Functions de création, vérification et récupération du PIN.
+- Conservation d'un état d'onboarding minimal : le client reçoit uniquement `pin_set` et le statut KYC.
+- Extension du test pgTAP de sécurité de 7 à 14 assertions ; son exécution avec Docker reste déléguée à GitHub Actions conformément aux règles du projet.

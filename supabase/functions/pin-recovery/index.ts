@@ -238,11 +238,11 @@ async function confirmReset(
   }
 
   const pinHash = await bcrypt.hash(newPin, 12);
-  const { error: profileError } = await admin
-    .from("profiles")
-    .update({ pin_hash: pinHash, pin_attempts: 0, pin_locked_until: null })
-    .eq("id", userId);
-  if (profileError) {
+  const { data: replaced, error: profileError } = await admin.rpc("replace_pin_hash", {
+    p_user_id: userId,
+    p_pin_hash: pinHash,
+  });
+  if (profileError || !replaced) {
     await admin
       .from("pin_reset_challenges")
       .update({ consumed_at: null })

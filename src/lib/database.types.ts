@@ -68,9 +68,6 @@ export type Database = {
           lastname: string;
           monthly_income_estimate: number | null;
           phone: string | null;
-          pin_attempts: number | null;
-          pin_hash: string | null;
-          pin_locked_until: string | null;
           preferred_language: string | null;
           profession: string | null;
           role: "admin" | "client" | null;
@@ -614,6 +611,15 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      get_pin_security_for_verification: {
+        Args: { p_user_id: string };
+        Returns: {
+          failed_attempts: number;
+          is_active: boolean;
+          locked_until: string | null;
+          pin_hash: string | null;
+        }[];
+      };
       amortization_rows: {
         Args: { p_method: string; p_n: number; p_principal: number; p_rate: number };
         Returns: { due_interest: number; due_principal: number; installment_no: number }[];
@@ -726,6 +732,22 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: { kyc_status: string; pin_set: boolean }[];
       };
+      record_pin_verification_failure: {
+        Args: {
+          p_lock_step_minutes?: number;
+          p_lock_threshold?: number;
+          p_user_id: string;
+        };
+        Returns: { attempts: number; new_locked_until: string | null }[];
+      };
+      record_pin_verification_success: {
+        Args: { p_user_id: string };
+        Returns: undefined;
+      };
+      replace_pin_hash: {
+        Args: { p_pin_hash: string; p_user_id: string };
+        Returns: boolean;
+      };
       get_wallet_summary: {
         Args: { p_client: string };
         Returns: {
@@ -759,6 +781,10 @@ export type Database = {
       };
       save_kyc_financials: { Args: { p_data: Json }; Returns: undefined };
       save_kyc_profile: { Args: { p_data: Json }; Returns: undefined };
+      set_initial_pin_hash: {
+        Args: { p_pin_hash: string; p_user_id: string };
+        Returns: boolean;
+      };
       settle_withdrawal: {
         Args: {
           p_action: string;
