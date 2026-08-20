@@ -25,9 +25,20 @@ Les environnements GitHub `staging` et `production` doivent chacun définir :
 | Variable | `SUPABASE_PROJECT_NAME`    | Nom attendu, utilisé pour le contrôle d’identité            |
 | Variable | `SUPABASE_ORGANIZATION_ID` | Organisation attendue, utilisée pour le contrôle d’identité |
 | Secret   | `SUPABASE_ACCESS_TOKEN`    | Jeton CLI autorisé                                          |
-| Secret   | `SUPABASE_DB_PASSWORD`     | Mot de passe de la base cible                               |
 
 Avant `supabase link`, le workflow récupère les projets accessibles au jeton et exige une correspondance unique sur la référence, le nom et l’organisation. Toute valeur absente ou différente arrête le déploiement avant la lecture des migrations.
+
+La CLI obtient des identifiants temporaires via l’API de gestion : aucun mot de passe PostgreSQL
+permanent n’est requis ni conservé dans GitHub.
+
+État du pilote au 20 août 2026 :
+
+- l’environnement `staging` contient la configuration du projet pilote vérifié ;
+- l’environnement `production` existe mais ne contient volontairement aucun secret ni variable ;
+- aucune configuration Supabase de déploiement n’est définie au niveau global du dépôt.
+
+Ainsi, un lancement production échoue avant toute connexion tant que sa cible dédiée n’a pas été
+explicitement configurée.
 
 ## Séquence autorisée
 

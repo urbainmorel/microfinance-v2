@@ -304,3 +304,6 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   liaison API temporaire, validée avec le même jeton opérateur.
 - Le workflow vérifie toujours l'identité exacte du projet avant le dry-run, les migrations et le
   déploiement parallèle des fonctions Edge.
+- Configuration déplacée du dépôt vers l'environnement GitHub `staging` uniquement.
+- Environnement `production` créé mais laissé sans cible ni secret, afin qu'un déploiement
+  accidentel échoue avant toute connexion.
