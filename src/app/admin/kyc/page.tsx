@@ -10,7 +10,7 @@ import {
 } from "@/components/admin/admin-page";
 import { useAdminRole } from "@/components/admin/admin-role-context";
 import { KycQueueCard } from "@/components/admin/kyc-queue-card";
-import { getKycQueue, reviewKyc } from "@/lib/admin/api";
+import { getKycQueue, reviewKyc, verifyKycDocument } from "@/lib/admin/api";
 import { adminKeys, useAdminMutation } from "@/lib/admin/hooks";
 
 export default function AdminKycPage() {
@@ -19,6 +19,11 @@ export default function AdminKycPage() {
     ({ id, action, reason }: { id: string; action: string; reason: string | null }) =>
       reviewKyc(id, action, reason),
     [adminKeys.kyc, adminKeys.kpis],
+  );
+  const documentMutation = useAdminMutation(
+    ({ id, verified, reason }: { id: string; verified: boolean; reason: string | null }) =>
+      verifyKycDocument(id, verified, reason),
+    [adminKeys.kyc],
   );
   const { can } = useAdminRole();
 
@@ -38,10 +43,13 @@ export default function AdminKycPage() {
             key={item.id}
             item={item}
             canReview={can("kyc")}
-            busy={mutation.isPending}
-            error={mutation.error}
-            success={mutation.isSuccess}
+            busy={mutation.isPending || documentMutation.isPending}
+            error={mutation.error ?? documentMutation.error}
+            success={mutation.isSuccess || documentMutation.isSuccess}
             onReview={(action, reason) => mutation.mutate({ id: item.id, action, reason })}
+            onDocumentReview={(id, verified, reason) =>
+              documentMutation.mutate({ id, verified, reason })
+            }
           />
         ))}
       </div>

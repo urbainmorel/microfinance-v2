@@ -15,9 +15,13 @@ const LABELS: Record<string, string> = {
 };
 
 function isComplete(item: KycQueueItem) {
-  const types = new Set(item.documents.map((document) => document.type));
+  const types = new Set(
+    item.documents.filter((document) => document.verified).map((document) => document.type),
+  );
   return (
-    types.has("ID_FRONT") && types.has("SELFIE") && (item.idType !== "CNI" || types.has("ID_BACK"))
+    types.has("ID_FRONT") &&
+    types.has("SELFIE") &&
+    (item.idType === "PASSPORT" || types.has("ID_BACK"))
   );
 }
 
@@ -42,6 +46,44 @@ function facts(item: KycQueueItem) {
   ];
 }
 
+function DocumentReview({
+  document,
+  canReview,
+  busy,
+  onReview,
+}: {
+  document: KycQueueItem["documents"][number];
+  canReview: boolean;
+  busy: boolean;
+  onReview: (id: string, verified: boolean, reason: string | null) => void;
+}) {
+  return (
+    <div className="space-y-2 rounded-xl border p-2">
+      <a
+        href={document.url}
+        target="_blank"
+        rel="noreferrer"
+        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
+      >
+        {LABELS[document.type] ?? document.type}
+      </a>
+      <p className="text-center text-xs font-semibold">
+        {document.verified ? "Contrôlée" : "À contrôler"}
+      </p>
+      {canReview && !document.verified ? (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => onReview(document.id, true, null)}
+          className={cn(buttonVariants({ size: "sm" }), "w-full")}
+        >
+          Confirmer la pièce
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export function KycQueueCard({
   item,
   canReview,
@@ -49,6 +91,7 @@ export function KycQueueCard({
   error,
   success,
   onReview,
+  onDocumentReview,
 }: {
   item: KycQueueItem;
   canReview: boolean;
@@ -56,6 +99,7 @@ export function KycQueueCard({
   error: Error | null;
   success: boolean;
   onReview: (action: string, reason: string | null) => void;
+  onDocumentReview: (id: string, verified: boolean, reason: string | null) => void;
 }) {
   const complete = isComplete(item);
   const actionable =
@@ -67,22 +111,20 @@ export function KycQueueCard({
       status={<StatusBadge status={item.kycStatus} />}
       facts={facts(item)}
     >
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         {item.documents.map((document) => (
-          <a
-            key={document.type}
-            href={document.url}
-            target="_blank"
-            rel="noreferrer"
-            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
-          >
-            {LABELS[document.type] ?? document.type}
-          </a>
+          <DocumentReview
+            key={document.id}
+            document={document}
+            canReview={canReview}
+            busy={busy}
+            onReview={onDocumentReview}
+          />
         ))}
       </div>
       {!complete ? (
         <p className="rounded-xl bg-warning/10 p-3 text-sm font-semibold text-warning">
-          Dossier documentaire incomplet : la validation doit rester bloquée.
+          Toutes les pièces obligatoires doivent être consultées et confirmées avant validation.
         </p>
       ) : null}
       {actionable ? (

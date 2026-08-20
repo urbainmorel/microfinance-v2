@@ -307,3 +307,16 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Configuration déplacée du dépôt vers l'environnement GitHub `staging` uniquement.
 - Environnement `production` créé mais laissé sans cible ni secret, afin qu'un déploiement
   accidentel échoue avant toute connexion.
+
+### Contrôle humain des pièces KYC — terminé
+
+- Validation administrative renforcée dans la base : un dossier ne peut atteindre `COMPLETED`
+  que si le recto, le selfie et, hors passeport, le verso ont chacun été contrôlés.
+- Commande dédiée de confirmation d'une pièce, réservée à l'administrateur actif et interdite
+  dès que le dossier n'est plus révisable.
+- Chaque décision documentaire conserve l'agent, le client, le type de pièce, l'ancien état, le
+  nouvel état, la date et le motif éventuel dans le journal d'audit append-only.
+- Back-office enrichi avec l'état « À contrôler »/« Contrôlée » et une action explicite par pièce ;
+  la décision KYC globale reste désactivée jusqu'à la fin du contrôle obligatoire.
+- Test pgTAP de non-régression ajouté ; son exécution reste confiée à GitHub Actions conformément
+  à la règle du projet qui réserve Docker à la CI.

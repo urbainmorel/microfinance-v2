@@ -21,14 +21,16 @@ export async function getKycQueue(): Promise<KycQueueItem[]> {
       .neq("kyc_status", "NONE")
       .order("created_at", { ascending: false })
       .limit(100),
-    adminSupabase.from("kyc_documents").select("client_id,doc_type,url"),
+    adminSupabase.from("kyc_documents").select("id,client_id,doc_type,url,verified"),
   ]);
   if (error) throw new Error(error.message);
   if (documentsResult.error) throw new Error(documentsResult.error.message);
   const signedDocuments = await Promise.all(
     rows(documentsResult.data).map(async (document) => ({
+      id: textValue(document.id),
       clientId: textValue(document.client_id),
       type: textValue(document.doc_type),
+      verified: document.verified === true,
       url: await createPrivateProofUrl("kyc-documents", document.url),
     })),
   );
@@ -44,7 +46,12 @@ export async function getKycQueue(): Promise<KycQueueItem[]> {
     createdAt: textValue(row.created_at),
     documents: signedDocuments
       .filter((document) => document.clientId === textValue(row.id) && document.url)
-      .map((document) => ({ type: document.type, url: document.url as string })),
+      .map((document) => ({
+        id: document.id,
+        type: document.type,
+        url: document.url as string,
+        verified: document.verified,
+      })),
   }));
 }
 

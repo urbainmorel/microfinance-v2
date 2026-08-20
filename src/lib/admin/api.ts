@@ -12,6 +12,7 @@ export {
   reviewKyc,
   settleWithdrawal,
   transitionLoanRequest,
+  verifyKycDocument,
 } from "./api-rpc";
 export {
   getAdminUsers,

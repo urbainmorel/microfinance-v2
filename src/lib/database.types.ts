@@ -887,6 +887,10 @@ export type Database = {
         Args: { p_action: string; p_client: string; p_reason?: string | null };
         Returns: undefined;
       };
+      verify_kyc_document: {
+        Args: { p_document: string; p_verified: boolean; p_reason?: string | null };
+        Returns: undefined;
+      };
       save_kyc_financials: { Args: { p_data: Json }; Returns: undefined };
       save_kyc_profile: { Args: { p_data: Json }; Returns: undefined };
       set_initial_pin_hash: {

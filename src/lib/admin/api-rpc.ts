@@ -4,6 +4,14 @@ export function reviewKyc(clientId: string, action: string, reason: string | nul
   return callRpc("review_kyc", { p_client: clientId, p_action: action, p_reason: reason });
 }
 
+export function verifyKycDocument(documentId: string, verified: boolean, reason: string | null) {
+  return callRpc("verify_kyc_document", {
+    p_document: documentId,
+    p_verified: verified,
+    p_reason: reason,
+  });
+}
+
 export function confirmDeposit(requestId: string, action: string, reason: string | null) {
   return callRpc("confirm_deposit", { p_request: requestId, p_action: action, p_reason: reason });
 }
