@@ -65,3 +65,12 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Lecture agent unifiée sur l'unique rôle V1 `admin` pour les quatre buckets privés.
 - Téléversement des justificatifs financiers réservé aux comptes actifs et à leur propre dossier Storage.
 - Suppression client limitée aux fichiers financiers orphelins, afin que le nettoyage après échec d'une commande fonctionne sans permettre d'effacer une preuve déjà rattachée à une opération.
+
+### Invariants serveur du KYC — terminés
+
+- Sauvegarde KYC réservée au propriétaire authentifié, actif, et uniquement aux états `NONE` ou `INFO_REQUESTED`.
+- Liste blanche stricte des champs acceptés ; toute tentative d'injecter un rôle ou un statut est rejetée avant écriture.
+- Validation serveur du pays UMOA, des dates, téléphones, types de pièce et bornes financières.
+- Soumission refusée tant que le profil, la source de revenus ou les pièces obligatoires ne sont pas complets.
+- Fonctions `SECURITY DEFINER` recréées avec un `search_path` vide et droits explicites.
+- Ajout de cinq tests pgTAP dédiés aux invariants et à l'immutabilité post-soumission.
