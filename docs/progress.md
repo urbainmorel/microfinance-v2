@@ -130,3 +130,12 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Conservation temporaire de l'adresse uniquement dans `sessionStorage` pour permettre un renvoi lorsque l'inscription n'a pas encore créé de session.
 - Détection d'une session déjà confirmée et redirection automatique sans nouvelle connexion manuelle.
 - Échec fermé vers la connexion lorsque le code est absent, invalide ou expiré.
+
+### Barrière CI Supabase avant déploiement — terminée
+
+- Ajout du linter de schéma après reconstruction de la base dans le runner GitHub.
+- Validation Deno séparée : lint et typecheck des six Edge Functions.
+- Déploiement automatique déclenché uniquement après succès du workflow Supabase sur `main` et checkout du SHA effectivement contrôlé.
+- Déclenchement manuel conservé mais rendu autonome : reconstruction, lint, pgTAP et contrôles Deno précèdent toute mutation distante.
+- Docker reste exclusivement exécuté dans GitHub Actions conformément aux instructions du dépôt.
+- Imports Deno centralisés et figés dans `supabase/functions/deno.json`, supprimant la résolution flottante de `@supabase/supabase-js@2`.

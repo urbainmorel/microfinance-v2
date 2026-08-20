@@ -1,11 +1,10 @@
 name: Deploy Supabase
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Supabase tests"]
     branches: [main]
-    paths:
-      - "supabase/**"
-      - ".github/workflows/deploy-supabase.yml"
+    types: [completed]
   workflow_dispatch:
     inputs:
       target:
@@ -26,6 +25,9 @@ concurrency:
 
 jobs:
   deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: ${{ inputs.target || 'staging' }}
     timeout-minutes: 20
@@ -38,10 +40,35 @@ jobs:
       DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - uses: supabase/setup-cli@v1
         with:
           version: 2.114.0
+
+      - uses: denoland/setup-deno@v2
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          deno-version: v2.5.4
+
+      # Un déclenchement manuel prouve lui-même l'état, tandis que le déploiement
+      # automatique dépend déjà du workflow Supabase tests réussi sur le même SHA.
+      - name: Rebuild and test database before manual deployment
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+          trap 'supabase stop --no-backup' EXIT
+          supabase db lint --local --level error
+          supabase test db --local
+
+      - name: Check Edge Functions before manual deployment
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          deno lint --config supabase/functions/deno.json supabase/functions
+          deno check --config supabase/functions/deno.json supabase/functions/*/index.ts
 
       - name: Verify explicit deployment target
         shell: bash

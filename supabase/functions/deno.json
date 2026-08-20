@@ -1,0 +1,11 @@
+{
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.112.3",
+    "bcryptjs": "https://esm.sh/bcryptjs@2.4.3"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-control-regex"]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { decryptRecoveryPayload } from "../_shared/recovery-crypto.ts";

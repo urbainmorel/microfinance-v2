@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 function reqEnv(name: string): string {
   const value = Deno.env.get(name);

@@ -1,6 +1,6 @@
 // Edge Function `set-pin` (Specs §D.1) — hachage bcrypt du PIN CÔTÉ SERVEUR uniquement.
 // Aucune primitive bcrypt n'est jamais exécutée côté client (CLAUDE.md § Security).
-import * as bcrypt from "https://esm.sh/bcryptjs@2.4.3";
+import * as bcrypt from "bcryptjs";
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { adminClient, getUserId } from "../_shared/supabase.ts";

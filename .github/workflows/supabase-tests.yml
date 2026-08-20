@@ -38,9 +38,36 @@ jobs:
       - name: Verify local migration history
         run: supabase migration list --local
 
+      - name: Lint database schema
+        run: supabase db lint --local --level error
+
       - name: Run pgTAP tests
         run: supabase test db --local
 
       - name: Stop Supabase
         if: always()
         run: supabase stop --no-backup
+
+  edge-functions:
+    name: Deno checks for Edge Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.5.4
+
+      - name: Lint Edge Functions
+        run: deno lint --config supabase/functions/deno.json supabase/functions
+
+      - name: Typecheck Edge Function entrypoints
+        run: |
+          deno check --config supabase/functions/deno.json \
+            supabase/functions/client-command/index.ts \
+            supabase/functions/daily-jobs/index.ts \
+            supabase/functions/pin-recovery/index.ts \
+            supabase/functions/send-notification-email/index.ts \
+            supabase/functions/set-pin/index.ts \
+            supabase/functions/verify-pin/index.ts

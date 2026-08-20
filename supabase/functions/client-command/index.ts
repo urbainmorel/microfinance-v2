@@ -1,4 +1,4 @@
-import type { PostgrestError } from "https://esm.sh/@supabase/supabase-js@2";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { PinVerificationError, verifyPin } from "../_shared/pin.ts";
