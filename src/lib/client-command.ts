@@ -7,6 +7,7 @@ export type ClientCommandAction =
   | "withdrawal.create"
   | "request.cancel"
   | "loan.submit"
+  | "loan.contract.sign"
   | "guarantee.block"
   | "repayment.create";
 

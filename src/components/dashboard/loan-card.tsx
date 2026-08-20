@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 type LoanState = {
   displayState: number;
+  contractSigned?: boolean;
   loanId?: string;
   requestId?: string;
   remainingPrincipal?: number;
@@ -129,6 +130,15 @@ function LoanAction({ state }: { state: LoanState }) {
         className={cn(buttonVariants({ variant: "accent", size: "sm" }), "mt-4 w-full")}
       >
         Simuler un prêt
+      </Link>
+    );
+  if ([4, 5, 6].includes(state.displayState) && !state.contractSigned && state.requestId)
+    return (
+      <Link
+        href={`/client/loans/contracts/${state.requestId}`}
+        className={cn(buttonVariants({ variant: "accent", size: "sm" }), "mt-4 w-full")}
+      >
+        Lire et signer mon contrat
       </Link>
     );
   if (state.displayState === 4 || state.displayState === 5)

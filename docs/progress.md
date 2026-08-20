@@ -191,3 +191,11 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Identifiant de version contractuelle unique créé à la soumission.
 - Devise XOF, plafond de coût effectif à 20 % et remboursement anticipé sans frais inscrits dans l'instantané.
 - Protection SQL contre toute modification rétroactive, y compris lors d'un changement de produit.
+
+### Contrats de prêt dynamiques et signature — terminés
+
+- Contrat individuel généré à l'acceptation avec emprunteur, capital, durée, taux, frais, garantie et clauses V1.
+- Empreinte SHA-256, numéro unique, version des conditions et horodatages conservés en base.
+- Lecture strictement limitée au client concerné et à l'administrateur actif par RLS.
+- Consentement explicite et signature par PIN via Edge Function ; rejeu rendu idempotent.
+- Garantie et décaissement techniquement impossibles tant que le contrat n'est pas signé.

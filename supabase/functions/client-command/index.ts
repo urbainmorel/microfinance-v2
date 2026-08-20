@@ -12,6 +12,7 @@ const ACTIONS = [
   "withdrawal.create",
   "request.cancel",
   "loan.submit",
+  "loan.contract.sign",
   "guarantee.block",
   "repayment.create",
 ] as const;
@@ -22,6 +23,7 @@ type RpcName =
   | "create_client_withdrawal"
   | "cancel_client_request"
   | "create_loan_request"
+  | "sign_loan_contract"
   | "process_guarantee_blocking"
   | "create_repayment_request";
 
@@ -310,6 +312,17 @@ function validatePayload(
           p_documents: ownedDocumentPaths(payload.documentPaths, userId),
         },
         fallbackStatus: "SUBMITTED",
+      };
+    }
+
+    case "loan.contract.sign": {
+      assertExactKeys(payload, ["requestId"]);
+      const requestId = uuid(payload.requestId);
+      return {
+        rpc: "sign_loan_contract",
+        args: { ...idempotent, p_request: requestId },
+        fallbackId: requestId,
+        fallbackStatus: "SIGNED",
       };
     }
 

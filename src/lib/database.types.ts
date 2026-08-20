@@ -253,6 +253,46 @@ export type Database = {
           },
         ]
       >;
+      loan_contracts: Table<
+        {
+          client_id: string;
+          content: Json;
+          content_hash: string;
+          contract_number: string;
+          generated_at: string;
+          id: string;
+          language: string;
+          request_id: string;
+          signature_correlation_id: string | null;
+          signature_idempotency_key: string | null;
+          signature_method: string | null;
+          signed_at: string | null;
+          terms_version: string;
+        },
+        | "client_id"
+        | "content"
+        | "content_hash"
+        | "contract_number"
+        | "request_id"
+        | "terms_version",
+        never,
+        [
+          {
+            foreignKeyName: "loan_contracts_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "loan_contracts_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: true;
+            referencedRelation: "loan_requests";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
       loans: Table<
         {
           client_id: string;
@@ -716,6 +756,15 @@ export type Database = {
           p_payment_method: string;
           p_proof_path: string;
           p_reference: string | null;
+        };
+        Returns: string;
+      };
+      sign_loan_contract: {
+        Args: {
+          p_client: string;
+          p_correlation_id?: string | null;
+          p_idempotency_key: string;
+          p_request: string;
         };
         Returns: string;
       };

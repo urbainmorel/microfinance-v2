@@ -490,6 +490,13 @@ set status = 'ACCEPTED', approved_amount = 100000,
     guarantee_required = 10000, guarantee_blocked_partial = 0
 where id = 'cccccccc-0000-0000-0000-000000000001';
 
+select public.sign_loan_contract(
+  'aaaaaaaa-0000-0000-0000-000000000004',
+  'cccccccc-0000-0000-0000-000000000001',
+  '32323232-0000-0000-0000-000000000001',
+  '32323232-0000-0000-0000-000000000002'
+);
+
 update public.wallets set reserved_amount = 1000
 where client_id = 'aaaaaaaa-0000-0000-0000-000000000004';
 
