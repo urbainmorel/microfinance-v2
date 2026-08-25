@@ -11,17 +11,21 @@ export function DashboardHeader() {
   const { data } = useProfile();
   const { t } = useClientLocale();
   return (
-    <header className="flex items-start justify-between gap-4">
+    <header className="flex items-center justify-between gap-4">
       <div className="min-w-0">
-        <p className="text-sm text-muted-foreground">{t("common.hello")}</p>
+        <p className="text-xs font-semibold text-muted-foreground">{t("common.hello")}</p>
         {data ? (
-          <h1 className="truncate font-display text-2xl font-bold text-foreground">
-            {data.firstname}
+          <h1 className="mt-1 truncate font-display text-[28px] font-bold tracking-[-0.035em] text-foreground sm:text-[32px]">
+            {data.firstname}, bienvenue
           </h1>
         ) : (
-          <Skeleton className="mt-1 h-7 w-32" />
+          <Skeleton className="mt-2 h-8 w-56" />
         )}
-        {data ? <KycStatusBadge status={data.kyc_status} /> : null}
+        {data ? (
+          <div className="mt-2">
+            <KycStatusBadge status={data.kyc_status} />
+          </div>
+        ) : null}
       </div>
       <NotificationBell />
     </header>

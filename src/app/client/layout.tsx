@@ -10,9 +10,9 @@ export default async function ClientLayout({ children }: { children: React.React
   const locale: ClientLocale = requested === "en" ? "en" : "fr";
   return (
     <ClientLocaleProvider initialLocale={locale}>
-      <div className="mx-auto min-h-dvh w-full max-w-screen-xl bg-radial-app px-5 pb-24 pt-6 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 lg:px-8 lg:pb-8">
+      <div className="bg-app-bg min-h-dvh w-full px-4 pb-24 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-6 lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-8 lg:px-6 lg:pb-6 lg:pt-6 xl:gap-10 xl:px-8">
         <BottomNav />
-        <main className="min-w-0 lg:max-w-4xl">{children}</main>
+        <main className="mx-auto w-full min-w-0 max-w-[1180px] lg:py-2">{children}</main>
       </div>
     </ClientLocaleProvider>
   );

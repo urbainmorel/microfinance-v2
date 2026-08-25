@@ -10,6 +10,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormField } from "@/components/ui/form-field";
+import { Modal } from "@/components/ui/modal";
 import { invokeClientCommand } from "@/lib/client-command";
 import { formatFcfa } from "@/lib/format";
 import { useSupabase } from "@/lib/hooks/use-supabase";
@@ -54,16 +55,24 @@ function OperationReceipt({ operation }: { operation: OperationDetail }) {
     dateStyle: "long",
     timeStyle: "short",
   }).format(new Date(operation.createdAt));
+  const recipient = operation.recipient
+    ? Object.values(operation.recipient).filter(Boolean).join(" · ")
+    : null;
   return (
-    <Card>
-      <p className="text-sm font-semibold text-accent">Reçu d’opération</p>
-      <h1 className="mt-1 font-display text-2xl font-bold">{operation.label}</h1>
-      <p className="mt-3 font-display text-3xl font-extrabold">{formatFcfa(operation.amount)}</p>
+    <Card className="p-6 sm:p-8">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Reçu d’opération</p>
+      <h1 className="mt-2 font-display text-2xl font-bold tracking-[-0.025em]">
+        {operation.label}
+      </h1>
+      <p className="mt-4 font-display text-4xl font-bold tracking-[-0.04em] [font-variant-numeric:tabular-nums]">
+        {formatFcfa(operation.amount)}
+      </p>
       <dl className="mt-5">
         <DetailRow label="Statut" value={STATUS_LABELS[operation.status] ?? operation.status} />
         <DetailRow label="Créée le" value={createdAt} />
         <DetailRow label="Moyen" value={operation.paymentMethod} />
         <DetailRow label="Référence" value={operation.reference} />
+        <DetailRow label="Bénéficiaire" value={recipient} />
         <DetailRow label="Motif du rejet" value={operation.reason} />
         <DetailRow label="Corrélation" value={operation.correlationId} />
       </dl>
@@ -71,7 +80,7 @@ function OperationReceipt({ operation }: { operation: OperationDetail }) {
   );
 }
 
-function CancellationCard({
+function CancellationDialog({
   error,
   pending,
   pin,
@@ -84,26 +93,57 @@ function CancellationCard({
   setPin: (value: string) => void;
   submit: () => void;
 }) {
+  const [open, setOpen] = useState(false);
   return (
-    <Card className="space-y-3">
-      <h2 className="font-display text-lg font-bold">Annuler cette demande</h2>
-      <p className="text-sm text-muted-foreground">
-        La demande sera annulée immédiatement. Toute somme réservée sera libérée.
-      </p>
-      <FormField
-        id="cancel-pin"
-        label="Code PIN"
-        type="password"
-        inputMode="numeric"
-        maxLength={6}
-        value={pin}
-        onChange={(event) => setPin(event.target.value)}
-        error={error ?? undefined}
-      />
-      <Button variant="outline" className="w-full" disabled={pending} onClick={submit}>
-        {pending ? "Annulation…" : "Confirmer l’annulation"}
+    <>
+      <Button variant="outline" className="self-start" onClick={() => setOpen(true)}>
+        Annuler cette demande
       </Button>
-    </Card>
+      <Modal
+        open={open}
+        onOpenChange={(next) => {
+          if (pending) return;
+          setOpen(next);
+          if (!next) setPin("");
+        }}
+        title="Annuler cette demande"
+        description="La somme éventuellement réservée sera libérée après confirmation."
+        className="max-w-lg"
+      >
+        <div className="space-y-5">
+          <div className="rounded-xl border border-border bg-card p-4 text-sm leading-6 text-muted-foreground">
+            Cette action est immédiate et ne peut pas être annulée. Vous pourrez créer une nouvelle
+            demande si nécessaire.
+          </div>
+          <FormField
+            id="cancel-pin"
+            label="Code PIN de confirmation"
+            type="password"
+            inputMode="numeric"
+            autoComplete="current-password"
+            maxLength={6}
+            value={pin}
+            onChange={(event) => setPin(event.target.value)}
+            error={error ?? undefined}
+          />
+          <div className="grid grid-cols-2 gap-3 border-t border-separator pt-5">
+            <Button
+              variant="outline"
+              disabled={pending}
+              onClick={() => {
+                setOpen(false);
+                setPin("");
+              }}
+            >
+              Retour
+            </Button>
+            <Button disabled={pending} onClick={submit}>
+              {pending ? "Annulation…" : "Confirmer"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 }
 
@@ -160,11 +200,11 @@ export default function OperationDetailPage() {
         href="/client/operations"
         className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "self-start px-0")}
       >
-        <ArrowLeft aria-hidden /> Mes opérations
+        <ArrowLeft aria-hidden /> Historiques
       </Link>
       <OperationReceipt operation={operation} />
       {operation.status === "PENDING" ? (
-        <CancellationCard
+        <CancellationDialog
           error={cancelError}
           pending={cancellation.isPending}
           pin={pin}

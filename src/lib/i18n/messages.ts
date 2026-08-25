@@ -1,8 +1,8 @@
 export const messages = {
   fr: {
     "nav.home": "Accueil",
-    "nav.loans": "Mes prêts",
-    "nav.operations": "Mes opérations",
+    "nav.loans": "Mon prêt",
+    "nav.operations": "Historiques",
     "nav.profile": "Profil",
     "common.hello": "Bonjour",
     "common.language": "Langue",
@@ -17,7 +17,7 @@ export const messages = {
   en: {
     "nav.home": "Home",
     "nav.loans": "My loans",
-    "nav.operations": "My transactions",
+    "nav.operations": "History",
     "nav.profile": "Profile",
     "common.hello": "Hello",
     "common.language": "Language",

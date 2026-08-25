@@ -1,15 +1,10 @@
-import { Clock, Lock } from "lucide-react";
+import { Clock, Lock, WalletCards } from "lucide-react";
 
 import { formatFcfa } from "@/lib/format";
 import { type WalletSubAccounts, type WalletSummary } from "@/lib/wallet";
 
 type Props = { summary: WalletSummary; subAccounts: WalletSubAccounts };
 
-/**
- * Carte héros portefeuille (DESIGN §11.1, PRD §7.2). Rend les formules UNIQUES calculées
- * en amont — aucune arithmétique locale. Doré = bloqué/réservé ; réservé retenu sur le
- * disponible, jamais recompté dans le patrimoine.
- */
 export function WalletCard({ summary, subAccounts }: Props) {
   const stats = [
     { key: "blocked", Icon: Lock, label: "Montant bloqué", value: summary.blocked },
@@ -17,38 +12,53 @@ export function WalletCard({ summary, subAccounts }: Props) {
   ] as const;
 
   return (
-    <section className="rounded-2xl bg-hero-green p-6 text-white shadow-hero">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/60">
-        Solde disponible
-      </p>
-      <p className="mt-1 font-display text-[40px] font-bold leading-none">
+    <section className="relative isolate overflow-hidden rounded-[24px] bg-balance-gradient p-6 text-white shadow-hero sm:p-8">
+      <span
+        className="pointer-events-none absolute -right-16 -top-20 -z-10 size-64 rounded-full border-[38px] border-white/[0.06]"
+        aria-hidden
+      />
+      <span
+        className="pointer-events-none absolute -bottom-28 right-24 -z-10 size-56 rounded-full border-[28px] border-white/[0.045]"
+        aria-hidden
+      />
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-[13px] font-semibold text-white/75">
+          <WalletCards className="size-4" strokeWidth={1.8} aria-hidden />
+          Solde disponible
+        </div>
+        <span className="rounded-full border border-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/75">
+          Portefeuille
+        </span>
+      </div>
+
+      <p className="mt-5 font-display text-[40px] font-bold leading-none tracking-[-0.045em] [font-variant-numeric:tabular-nums] sm:text-[48px]">
         {formatFcfa(summary.available)}
       </p>
 
-      <div className="mt-3 flex flex-col gap-0.5 text-xs text-white/70">
-        <span>Dont épargne libre · {formatFcfa(subAccounts.free_savings)}</span>
-        <span>Dont prêt décaissé disponible · {formatFcfa(subAccounts.disbursed_loan)}</span>
+      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium text-white/70">
+        <span>Épargne libre · {formatFcfa(subAccounts.free_savings)}</span>
+        <span>Prêt disponible · {formatFcfa(subAccounts.disbursed_loan)}</span>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 border-t border-white/15 pt-4">
+      <div className="mt-7 grid grid-cols-2 gap-x-5 gap-y-5 border-t border-white/15 pt-5 sm:grid-cols-3">
         {stats.map(({ key, Icon, label, value }) => (
           <div key={key}>
             <div className="flex items-center gap-1.5 text-white/60">
-              <Icon className="size-3.5 text-brand-gold-bright" strokeWidth={1.8} aria-hidden />
-              <span className="text-[11px] font-semibold uppercase tracking-wider">{label}</span>
+              <Icon className="size-3.5" strokeWidth={1.8} aria-hidden />
+              <span className="text-[11px] font-semibold">{label}</span>
             </div>
-            <p className="mt-1 font-display text-base font-bold text-brand-gold-bright">
+            <p className="mt-1.5 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
               {formatFcfa(value)}
             </p>
           </div>
         ))}
-      </div>
-
-      <div className="mt-4 flex items-center justify-between border-t border-white/15 pt-4">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/60">
-          Solde total (patrimoine)
-        </span>
-        <span className="font-display text-lg font-bold">{formatFcfa(summary.netWorth)}</span>
+        <div className="col-span-2 sm:col-span-1">
+          <p className="text-[11px] font-semibold text-white/60">Patrimoine total</p>
+          <p className="mt-1.5 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
+            {formatFcfa(summary.netWorth)}
+          </p>
+        </div>
       </div>
     </section>
   );

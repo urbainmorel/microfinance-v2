@@ -55,34 +55,33 @@ function OperationItem({ operation }: { operation: OperationRow }) {
   const type = operation.operation_type ?? operation.type ?? "OPERATION";
   const Icon = type === "DEPOSIT" ? ArrowDownLeft : ArrowUpRight;
   return (
-    <li>
+    <li className="group">
       <Link
         href={`/client/operations/${operationKind(type)}/${operation.id}`}
         aria-label={`Voir le détail : ${operation.label || TYPE_LABELS[type] || "Opération"}`}
+        className="flex items-center gap-3 px-4 py-4 transition-colors hover:bg-muted/60 sm:px-5"
       >
-        <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-pill bg-pastel-green text-accent">
-            <Icon className="size-5" strokeWidth={1.8} aria-hidden />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {operation.label || TYPE_LABELS[type] || "Opération"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(
-                new Date(operationDate(operation)),
-              )}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-display text-sm font-bold text-foreground">
-              {formatFcfa(operation.amount)}
-            </p>
-            <p className="text-xs font-medium text-muted-foreground">
-              {STATUS_LABELS[operation.status] ?? operation.status}
-            </p>
-          </div>
-        </Card>
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-finance-soft text-accent">
+          <Icon className="size-[18px]" strokeWidth={1.9} aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-foreground">
+            {operation.label || TYPE_LABELS[type] || "Opération"}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(
+              new Date(operationDate(operation)),
+            )}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="font-display text-sm font-bold text-foreground [font-variant-numeric:tabular-nums]">
+            {formatFcfa(operation.amount)}
+          </p>
+          <p className="mt-0.5 text-[11px] font-semibold text-muted-foreground">
+            {STATUS_LABELS[operation.status] ?? operation.status}
+          </p>
+        </div>
       </Link>
     </li>
   );
@@ -109,14 +108,16 @@ function OperationsContent({
     );
   return (
     <div className="flex flex-col gap-3">
-      <ul className="flex flex-col gap-3" aria-label="Historique des opérations">
-        {operations.map((operation) => (
-          <OperationItem
-            key={`${operation.operation_type}-${operation.id}`}
-            operation={operation}
-          />
-        ))}
-      </ul>
+      <Card className="overflow-hidden p-0">
+        <ul className="divide-y divide-separator" aria-label="Historique des opérations">
+          {operations.map((operation) => (
+            <OperationItem
+              key={`${operation.operation_type}-${operation.id}`}
+              operation={operation}
+            />
+          ))}
+        </ul>
+      </Card>
       {hasMore ? (
         <Button variant="outline" onClick={loadMore} disabled={loadingMore} aria-busy={loadingMore}>
           {loadingMore ? "Chargement…" : "Afficher plus"}

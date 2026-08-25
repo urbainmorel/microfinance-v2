@@ -10,6 +10,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormField } from "@/components/ui/form-field";
+import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { invokeClientCommand } from "@/lib/client-command";
 import { formatFcfa } from "@/lib/format";
@@ -111,14 +112,19 @@ function SignedNotice({ signedAt }: { signedAt: string }) {
   );
 }
 
-export function LoanContract({ requestId }: { requestId: string }) {
-  const query = useContract(requestId);
+function useContractSignature({
+  requestId,
+  accepted,
+  pin,
+}: {
+  requestId: string;
+  accepted: boolean;
+  pin: string;
+}) {
   const supabase = useSupabase();
   const router = useRouter();
   const cache = useQueryClient();
-  const [pin, setPin] = useState("");
-  const [accepted, setAccepted] = useState(false);
-  const signature = useMutation({
+  return useMutation({
     mutationFn: async () => {
       if (!accepted) throw new Error("Vous devez accepter les conditions du contrat.");
       if (!/^\d{4,6}$/.test(pin)) throw new Error("Saisissez votre PIN de 4 à 6 chiffres.");
@@ -134,6 +140,105 @@ export function LoanContract({ requestId }: { requestId: string }) {
       router.replace("/client/loans");
     },
   });
+}
+
+function SignaturePrompt({ open }: { open: () => void }) {
+  return (
+    <Card className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="font-display text-lg font-bold">Prêt à signer ?</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          La confirmation finale s’effectue dans une fenêtre sécurisée.
+        </p>
+      </div>
+      <Button variant="accent" onClick={open}>
+        Signer le contrat
+      </Button>
+    </Card>
+  );
+}
+
+function SignatureModalContent({
+  accepted,
+  pin,
+  error,
+  pending,
+  setAccepted,
+  setPin,
+  cancel,
+  submit,
+}: {
+  accepted: boolean;
+  pin: string;
+  error?: string;
+  pending: boolean;
+  setAccepted: (accepted: boolean) => void;
+  setPin: (pin: string) => void;
+  cancel: () => void;
+  submit: () => void;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="rounded-xl border border-border bg-card p-4 text-sm leading-6 text-muted-foreground">
+        Cette signature est définitive. Le contrat affiché restera associé à son empreinte et à
+        votre dossier de prêt.
+      </div>
+      <label className="flex gap-3 text-sm font-medium text-foreground">
+        <input
+          type="checkbox"
+          className="mt-0.5 size-5 shrink-0 accent-[hsl(var(--accent))]"
+          checked={accepted}
+          onChange={(event) => setAccepted(event.target.checked)}
+        />
+        <span>J’ai lu et j’accepte sans réserve les conditions contractuelles.</span>
+      </label>
+      <FormField
+        id="contract-pin"
+        label="Code PIN de signature"
+        type="password"
+        inputMode="numeric"
+        autoComplete="current-password"
+        maxLength={6}
+        value={pin}
+        onChange={(event) => setPin(event.target.value)}
+        error={error}
+      />
+      <div className="grid grid-cols-2 gap-3 border-t border-separator pt-5">
+        <Button variant="outline" disabled={pending} onClick={cancel}>
+          Annuler
+        </Button>
+        <Button variant="accent" disabled={pending} onClick={submit}>
+          {pending ? "Signature…" : "Signer définitivement"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export function LoanContract({ requestId }: { requestId: string }) {
+  const query = useContract(requestId);
+  const [pin, setPin] = useState("");
+  const [accepted, setAccepted] = useState(false);
+  const [signatureOpen, setSignatureOpen] = useState(false);
+  const signature = useContractSignature({ requestId, accepted, pin });
+
+  function resetSignature() {
+    setAccepted(false);
+    setPin("");
+    signature.reset();
+  }
+
+  function closeSignature() {
+    setSignatureOpen(false);
+    resetSignature();
+  }
+
+  function handleSignatureOpen(open: boolean) {
+    if (signature.isPending) return;
+    setSignatureOpen(open);
+    if (!open) resetSignature();
+  }
+
   if (query.isPending) return <Skeleton className="h-96 w-full rounded-2xl" />;
   if (query.isError || !query.data)
     return (
@@ -146,41 +251,33 @@ export function LoanContract({ requestId }: { requestId: string }) {
   return (
     <div className="space-y-4">
       <Link href="/client/loans" className={cn(buttonVariants({ variant: "ghost" }), "px-0")}>
-        ← Mes prêts
+        ← Mon prêt
       </Link>
       <ContractTerms contract={query.data} />
       {query.data.signed_at ? (
         <SignedNotice signedAt={query.data.signed_at} />
       ) : (
-        <Card className="space-y-3">
-          <label className="flex gap-3 text-sm">
-            <input
-              type="checkbox"
-              className="size-5"
-              checked={accepted}
-              onChange={(event) => setAccepted(event.target.checked)}
-            />
-            <span>J’ai lu et j’accepte sans réserve les conditions contractuelles ci-dessus.</span>
-          </label>
-          <FormField
-            id="contract-pin"
-            label="Code PIN de signature"
-            type="password"
-            inputMode="numeric"
-            maxLength={6}
-            value={pin}
-            onChange={(event) => setPin(event.target.value)}
-            error={signature.error?.message}
-          />
-          <Button
-            className="w-full"
-            variant="accent"
-            disabled={signature.isPending}
-            onClick={() => signature.mutate()}
+        <>
+          <SignaturePrompt open={() => setSignatureOpen(true)} />
+          <Modal
+            open={signatureOpen}
+            onOpenChange={handleSignatureOpen}
+            title="Confirmer la signature"
+            description={`Contrat ${query.data.contract_number} · ${formatFcfa(query.data.content.loan.principal)}`}
+            className="max-w-lg"
           >
-            {signature.isPending ? "Signature…" : "Signer définitivement"}
-          </Button>
-        </Card>
+            <SignatureModalContent
+              accepted={accepted}
+              pin={pin}
+              error={signature.error?.message}
+              pending={signature.isPending}
+              setAccepted={setAccepted}
+              setPin={setPin}
+              cancel={closeSignature}
+              submit={() => signature.mutate()}
+            />
+          </Modal>
+        </>
       )}
     </div>
   );

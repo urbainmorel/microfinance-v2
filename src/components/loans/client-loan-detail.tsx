@@ -3,10 +3,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
-import { buttonVariants } from "@/components/ui/button";
+import { RepaymentRequestForm } from "@/components/operations/repayment-request-form";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatFcfa } from "@/lib/format";
 import { useSupabase } from "@/lib/hooks/use-supabase";
@@ -73,14 +77,24 @@ function useLoanDetail(id: string) {
   });
 }
 
-function Summary({ loan, schedule }: { loan: Loan; schedule: Schedule[] }) {
+function Summary({
+  loan,
+  schedule,
+  onRepay,
+}: {
+  loan: Loan;
+  schedule: Schedule[];
+  onRepay: () => void;
+}) {
   const outstanding = schedule.reduce((sum, row) => sum + remaining(row), 0);
   const next = schedule.find((row) => remaining(row) > 0);
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-5 p-6 sm:p-7">
       <div>
         <p className="text-sm text-muted-foreground">Solde total à régulariser</p>
-        <p className="font-display text-3xl font-extrabold">{formatFcfa(outstanding)}</p>
+        <p className="mt-1 font-display text-3xl font-bold tracking-[-0.035em] [font-variant-numeric:tabular-nums]">
+          {formatFcfa(outstanding)}
+        </p>
       </div>
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div>
@@ -103,12 +117,9 @@ function Summary({ loan, schedule }: { loan: Loan; schedule: Schedule[] }) {
         soumis à la confirmation manuelle d’un agent.
       </p>
       {loan.status !== "CLOSED" ? (
-        <Link
-          href="/client/repay/request"
-          className={cn(buttonVariants({ variant: "accent" }), "w-full")}
-        >
+        <Button variant="accent" className="w-full" onClick={onRepay}>
           Effectuer un remboursement
-        </Link>
+        </Button>
       ) : null}
     </Card>
   );
@@ -116,29 +127,37 @@ function Summary({ loan, schedule }: { loan: Loan; schedule: Schedule[] }) {
 
 function ScheduleList({ rows }: { rows: Schedule[] }) {
   return (
-    <div className="space-y-3">
-      {rows.map((row) => (
-        <Card key={row.installment_no} className="flex items-center justify-between gap-4 py-4">
-          <div>
-            <p className="font-semibold">Échéance {row.installment_no}</p>
-            <p className="text-xs text-muted-foreground">
-              {new Intl.DateTimeFormat("fr-FR").format(new Date(row.due_date))} · {row.status}
-            </p>
+    <Card className="overflow-hidden p-0">
+      <div className="divide-y divide-separator">
+        {rows.map((row) => (
+          <div
+            key={row.installment_no}
+            className="flex items-center justify-between gap-4 px-5 py-4"
+          >
+            <div>
+              <p className="font-semibold">Échéance {row.installment_no}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Intl.DateTimeFormat("fr-FR").format(new Date(row.due_date))} · {row.status}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="font-semibold [font-variant-numeric:tabular-nums]">
+                {formatFcfa(remaining(row))}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Capital {formatFcfa(Math.max(row.due_principal - (row.paid_principal ?? 0), 0))}
+              </p>
+            </div>
           </div>
-          <div className="text-right">
-            <p className="font-semibold">{formatFcfa(remaining(row))}</p>
-            <p className="text-xs text-muted-foreground">
-              Capital {formatFcfa(Math.max(row.due_principal - (row.paid_principal ?? 0), 0))}
-            </p>
-          </div>
-        </Card>
-      ))}
-    </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 
 export function ClientLoanDetail({ id }: { id: string }) {
   const query = useLoanDetail(id);
+  const [repayOpen, setRepayOpen] = useState(false);
   if (query.isPending) return <Skeleton className="h-80 w-full rounded-2xl" />;
   if (query.isError || !query.data)
     return (
@@ -149,22 +168,31 @@ export function ClientLoanDetail({ id }: { id: string }) {
       />
     );
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <Link
         href="/client/loans"
         className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-0")}
       >
-        <ArrowLeft aria-hidden /> Mes prêts
+        <ArrowLeft aria-hidden /> Mon prêt
       </Link>
-      <div>
-        <h1 className="font-display text-2xl font-bold">Détail du prêt</h1>
-        <p className="text-sm text-muted-foreground">Échéancier et solde en temps réel</p>
-      </div>
-      <Summary loan={query.data.loan} schedule={query.data.schedule} />
+      <PageHeader title="Détail du prêt" description="Échéancier et solde en temps réel." />
+      <Summary
+        loan={query.data.loan}
+        schedule={query.data.schedule}
+        onRepay={() => setRepayOpen(true)}
+      />
       <section>
-        <h2 className="mb-3 font-display text-xl font-bold">Échéancier</h2>
+        <h2 className="mb-4 font-display text-xl font-bold tracking-[-0.025em]">Échéancier</h2>
         <ScheduleList rows={query.data.schedule} />
       </section>
+      <Modal
+        open={repayOpen}
+        onOpenChange={setRepayOpen}
+        title="Rembourser mon prêt"
+        description="Ajoutez le paiement et son justificatif, puis confirmez la demande avec votre PIN."
+      >
+        <RepaymentRequestForm />
+      </Modal>
     </div>
   );
 }

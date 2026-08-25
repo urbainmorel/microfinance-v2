@@ -5,6 +5,7 @@ import { BellOff } from "lucide-react";
 import { NotificationItem } from "@/components/notifications/notification-item";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMarkNotificationsRead, useNotifications } from "@/lib/hooks/use-notifications";
 
@@ -15,20 +16,23 @@ export default function NotificationsPage() {
   const unreadIds = items.filter((n) => !n.read_at).map((n) => n.id);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-bold text-foreground">Notifications</h1>
-        {unreadIds.length > 0 ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => markRead.mutate(unreadIds)}
-            disabled={markRead.isPending}
-          >
-            Tout marquer comme lu
-          </Button>
-        ) : null}
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Notifications"
+        description="Les informations importantes liées à votre compte et vos demandes."
+        action={
+          unreadIds.length > 0 ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => markRead.mutate(unreadIds)}
+              disabled={markRead.isPending}
+            >
+              Tout marquer comme lu
+            </Button>
+          ) : undefined
+        }
+      />
 
       {isPending ? (
         <div className="flex flex-col gap-3">

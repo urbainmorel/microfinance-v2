@@ -25,7 +25,7 @@ export function KycStatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "mt-2 inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[11px] font-semibold",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold",
         s.className,
       )}
     >

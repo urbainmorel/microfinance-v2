@@ -1,7 +1,8 @@
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 import type { ReactNode } from "react";
 
@@ -17,35 +18,38 @@ export function RequestPageShell({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <Link
-          href={backHref}
-          className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent"
-        >
-          <ArrowLeft aria-hidden /> Retour
-        </Link>
-        <h1 className="font-display text-2xl font-bold text-foreground">{title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader title={title} description={description} backHref={backHref} />
       {children}
     </div>
   );
 }
 
-export function RequestSuccess({ title, reference }: { title: string; reference: string }) {
+export function RequestSuccess({
+  title,
+  reference,
+  href = "/client/operations",
+  linkLabel = "Suivre dans mes opérations",
+}: {
+  title: string;
+  reference: string;
+  href?: string;
+  linkLabel?: string;
+}) {
   return (
-    <Card role="status" aria-live="polite" className="text-center">
-      <CheckCircle2 className="mx-auto size-9 text-accent" strokeWidth={1.8} aria-hidden />
-      <p className="mt-3 font-display text-lg font-bold text-foreground">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">
+    <Card role="status" aria-live="polite" className="px-6 py-10 text-center">
+      <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-finance-soft text-accent">
+        <CheckCircle2 className="size-6" strokeWidth={1.9} aria-hidden />
+      </span>
+      <p className="mt-4 font-display text-xl font-bold text-foreground">{title}</p>
+      <p className="mt-2 text-sm text-muted-foreground">
         Référence : <span className="font-semibold text-foreground">{reference}</span>
       </p>
       <Link
-        href="/client/operations"
+        href={href}
         className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent hover:underline"
       >
-        Suivre dans mes opérations
+        {linkLabel}
       </Link>
     </Card>
   );

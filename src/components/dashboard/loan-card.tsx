@@ -1,12 +1,14 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { HandCoins } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 import { useIdempotentCommand } from "@/components/client/use-idempotent-command";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { invokeClientCommand } from "@/lib/client-command";
 import { formatFcfa } from "@/lib/format";
@@ -25,7 +27,7 @@ type LoanState = {
 
 const DEFAULT_COPY = {
   title: "Aucun prêt en cours",
-  body: "Simulez une offre et envoyez votre demande.",
+  body: "Choisissez une offre adaptée à votre projet et envoyez votre demande.",
 };
 const STATE_COPY: Record<number, { title: string; body: string }> = {
   1: DEFAULT_COPY,
@@ -58,6 +60,69 @@ function useLoanStatus() {
   });
 }
 
+function GuaranteeModalContent({
+  state,
+  remaining,
+  pin,
+  error,
+  busy,
+  setPin,
+  cancel,
+  confirm,
+}: {
+  state: LoanState;
+  remaining: number;
+  pin: string;
+  error: string | null;
+  busy: boolean;
+  setPin: (value: string) => void;
+  cancel: () => void;
+  confirm: () => void;
+}) {
+  return (
+    <div className="space-y-5">
+      <dl className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <dt className="text-xs font-semibold text-muted-foreground">Garantie requise</dt>
+          <dd className="mt-1 font-display text-lg font-bold [font-variant-numeric:tabular-nums]">
+            {formatFcfa(state.guaranteeRequired ?? 0)}
+          </dd>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <dt className="text-xs font-semibold text-muted-foreground">Montant à bloquer</dt>
+          <dd className="mt-1 font-display text-lg font-bold text-accent [font-variant-numeric:tabular-nums]">
+            {formatFcfa(remaining)}
+          </dd>
+        </div>
+      </dl>
+      <div>
+        <label htmlFor="guarantee-pin" className="text-[13px] font-semibold text-foreground">
+          Code PIN de confirmation
+        </label>
+        <input
+          id="guarantee-pin"
+          type="password"
+          inputMode="numeric"
+          autoComplete="current-password"
+          maxLength={6}
+          value={pin}
+          onChange={(event) => setPin(event.target.value)}
+          className="mt-2 h-12 w-full rounded-xl border border-input bg-card px-4 text-base outline-none focus:border-ring focus:ring-4 focus:ring-ring/10"
+        />
+        {error ? <p className="mt-2 text-xs font-semibold text-warning">{error}</p> : null}
+      </div>
+      <div className="grid grid-cols-2 gap-3 border-t border-separator pt-5">
+        <Button variant="outline" onClick={cancel} disabled={busy}>
+          Annuler
+        </Button>
+        <Button variant="accent" onClick={confirm} disabled={busy}>
+          {busy ? "Blocage…" : "Confirmer"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function GuaranteeActions({ state }: { state: LoanState }) {
   const supabase = useSupabase();
   const queryClient = useQueryClient();
@@ -65,6 +130,14 @@ function GuaranteeActions({ state }: { state: LoanState }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const remaining = Math.max((state.guaranteeRequired ?? 0) - (state.guaranteeBlocked ?? 0), 0);
+
+  function closeModal() {
+    setOpen(false);
+    setPin("");
+    setError(null);
+  }
 
   async function blockGuarantee() {
     if (!state.requestId || !/^\d{4,6}$/.test(pin))
@@ -85,6 +158,7 @@ function GuaranteeActions({ state }: { state: LoanState }) {
         queryClient.invalidateQueries({ queryKey: ["active-loan-status"] }),
         queryClient.invalidateQueries({ queryKey: ["wallet"] }),
       ]);
+      setOpen(false);
     } catch (commandError) {
       setError(commandError instanceof Error ? commandError.message : "Opération impossible.");
     } finally {
@@ -94,21 +168,8 @@ function GuaranteeActions({ state }: { state: LoanState }) {
 
   return (
     <div className="mt-4 flex flex-col gap-2">
-      <label htmlFor="guarantee-pin" className="text-xs font-semibold text-muted-foreground">
-        PIN pour bloquer mon épargne disponible
-      </label>
-      <input
-        id="guarantee-pin"
-        type="password"
-        inputMode="numeric"
-        maxLength={6}
-        value={pin}
-        onChange={(event) => setPin(event.target.value)}
-        className="h-11 rounded-[14px] border border-border bg-card px-4"
-      />
-      {error ? <p className="text-xs font-medium text-warning">{error}</p> : null}
-      <Button size="sm" variant="accent" onClick={blockGuarantee} disabled={busy}>
-        {busy ? "Blocage…" : "Constituer la garantie"}
+      <Button size="sm" variant="accent" onClick={() => setOpen(true)}>
+        Constituer la garantie
       </Button>
       {state.displayState === 5 ? (
         <Link
@@ -118,20 +179,34 @@ function GuaranteeActions({ state }: { state: LoanState }) {
           Effectuer le dépôt complémentaire
         </Link>
       ) : null}
+
+      <Modal
+        open={open}
+        onOpenChange={(next) => {
+          if (busy) return;
+          if (next) setOpen(true);
+          else closeModal();
+        }}
+        title="Constituer la garantie"
+        description="Vérifiez le montant qui sera bloqué sur votre épargne avant de confirmer."
+        className="max-w-lg"
+      >
+        <GuaranteeModalContent
+          state={state}
+          remaining={remaining}
+          pin={pin}
+          error={error}
+          busy={busy}
+          setPin={setPin}
+          cancel={closeModal}
+          confirm={() => void blockGuarantee()}
+        />
+      </Modal>
     </div>
   );
 }
 
 function LoanAction({ state }: { state: LoanState }) {
-  if (state.displayState === 1 || state.displayState === 10)
-    return (
-      <Link
-        href="/client/loans/request"
-        className={cn(buttonVariants({ variant: "accent", size: "sm" }), "mt-4 w-full")}
-      >
-        Simuler un prêt
-      </Link>
-    );
   if ([4, 5, 6].includes(state.displayState) && !state.contractSigned && state.requestId)
     return (
       <Link
@@ -175,23 +250,44 @@ export function LoanCard() {
     0,
   );
   return (
-    <Card>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Mon prêt
+    <Card className="flex h-full min-h-[280px] flex-col p-6 sm:p-7">
+      <div className="flex items-center justify-between gap-3">
+        <span className="grid size-10 place-items-center rounded-xl bg-finance-soft text-accent">
+          <HandCoins className="size-[18px]" strokeWidth={1.8} aria-hidden />
+        </span>
+        <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+          Mon prêt
+        </span>
+      </div>
+
+      <p className="mt-5 font-display text-xl font-bold tracking-[-0.025em] text-foreground">
+        {copy.title}
       </p>
-      <p className="mt-2 font-display text-lg font-bold text-foreground">{copy.title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{copy.body}</p>
-      {state.remainingPrincipal === undefined ? null : (
-        <p className="mt-3 text-sm font-semibold text-foreground">
-          Capital restant : {formatFcfa(state.remainingPrincipal)}
-        </p>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.body}</p>
+
+      {state.remainingPrincipal === undefined && remainingGuarantee <= 0 ? null : (
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+          {state.remainingPrincipal === undefined ? null : (
+            <div className="rounded-xl bg-muted/75 p-3">
+              <p className="text-[11px] font-semibold text-muted-foreground">Capital restant</p>
+              <p className="mt-1 font-display text-sm font-bold [font-variant-numeric:tabular-nums]">
+                {formatFcfa(state.remainingPrincipal)}
+              </p>
+            </div>
+          )}
+          {remainingGuarantee > 0 ? (
+            <div className="rounded-xl bg-muted/75 p-3">
+              <p className="text-[11px] font-semibold text-muted-foreground">Garantie restante</p>
+              <p className="mt-1 font-display text-sm font-bold [font-variant-numeric:tabular-nums]">
+                {formatFcfa(remainingGuarantee)}
+              </p>
+            </div>
+          ) : null}
+        </div>
       )}
-      {remainingGuarantee > 0 ? (
-        <p className="mt-3 text-sm font-semibold text-foreground">
-          Garantie restante : {formatFcfa(remainingGuarantee)}
-        </p>
-      ) : null}
-      <LoanAction state={state} />
+      <div className="mt-auto pt-1">
+        <LoanAction state={state} />
+      </div>
     </Card>
   );
 }

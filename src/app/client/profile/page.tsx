@@ -9,6 +9,7 @@ import { useClientLocale } from "@/components/i18n/client-locale-provider";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { useProfile } from "@/lib/hooks/use-profile";
 import { useSessionUser } from "@/lib/hooks/use-session-user";
 import { useSupabase } from "@/lib/hooks/use-supabase";
@@ -26,12 +27,16 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-bold text-foreground">{t("profile.title")}</h1>
-        <LanguageSwitcher />
-      </div>
-      <Card className="flex flex-col gap-1">
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title={t("profile.title")}
+        description="Gérez vos préférences et la sécurité de votre compte."
+        action={<LanguageSwitcher />}
+      />
+      <Card className="flex flex-col gap-1 p-6">
+        <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-finance-soft font-display text-lg font-bold text-accent">
+          {(profile?.firstname ?? "—").slice(0, 1).toUpperCase()}
+        </div>
         <p className="text-lg font-bold text-foreground">{profile?.firstname ?? "—"}</p>
         <p className="text-sm text-muted-foreground">{user?.email}</p>
         {profile ? (
@@ -42,7 +47,7 @@ export default function ProfilePage() {
       </Card>
       <Link
         href="/auth/reset-pin"
-        className="flex min-h-11 items-center justify-center rounded-[14px] border border-border px-4 text-sm font-semibold text-accent"
+        className="flex min-h-12 items-center justify-center rounded-xl border border-border bg-card px-4 text-sm font-semibold text-accent shadow-card transition-colors hover:bg-muted"
       >
         {t("profile.resetPin")}
       </Link>

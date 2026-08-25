@@ -55,7 +55,7 @@ export function KycStepBody({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="rounded-[14px] border border-border bg-card p-4 text-sm text-muted-foreground">
+      <p className="rounded-xl border border-border bg-muted/60 p-4 text-sm leading-6 text-muted-foreground">
         Vérifiez vos informations avant l’envoi. Votre dossier sera ensuite étudié par nos équipes.
       </p>
       <label className="flex items-start gap-3 text-sm text-foreground">

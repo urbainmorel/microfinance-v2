@@ -16,11 +16,6 @@ type Props = {
   onSelect: (file: File) => void;
 };
 
-/**
- * Champ d'upload de pièce KYC (DESIGN §8, §15). Statut doublé icône + texte ;
- * erreurs en doré, jamais en rouge (DESIGN §4.2). Présentationnel : la logique
- * d'upload (validation, Storage) est portée par le wizard.
- */
 export function FileUploadField({
   label,
   hint,
@@ -40,8 +35,8 @@ export function FileUploadField({
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-xs font-semibold text-muted-foreground">
+    <div className="flex flex-col gap-2">
+      <span className="text-[13px] font-semibold text-foreground">
         {label}
         {optional ? " (facultatif)" : ""}
       </span>
@@ -57,15 +52,17 @@ export function FileUploadField({
         onClick={() => inputRef.current?.click()}
         disabled={busy}
         className={cn(
-          "flex items-center gap-3 rounded-[14px] border bg-card p-4 text-left transition-colors",
+          "flex min-h-[92px] items-center gap-3 rounded-xl border bg-muted/45 p-4 text-left transition-colors",
           "focus-visible:border-ring focus-visible:outline-none disabled:opacity-70",
-          uploaded ? "border-primary" : "border-dashed border-border hover:border-ring",
+          uploaded
+            ? "border-accent/40 bg-finance-soft/45"
+            : "border-dashed border-input hover:border-accent/40",
         )}
       >
         {busy ? (
           <Loader2 className="size-5 shrink-0 animate-spin text-muted-foreground" aria-hidden />
         ) : uploaded ? (
-          <CheckCircle2 className="size-5 shrink-0 text-primary" strokeWidth={1.8} aria-hidden />
+          <CheckCircle2 className="size-5 shrink-0 text-accent" strokeWidth={1.8} aria-hidden />
         ) : (
           <FileUp className="size-5 shrink-0 text-muted-foreground" strokeWidth={1.8} aria-hidden />
         )}

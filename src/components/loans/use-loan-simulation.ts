@@ -43,15 +43,20 @@ export function useLoanSimulation(
   );
   const simulationIsFresh = Boolean(simulation && simulatedFingerprint === currentFingerprint);
 
-  async function simulate() {
+  async function simulate(): Promise<boolean> {
     setError(null);
-    if (!(await form.trigger(["productId", "amount", "durationMonths", "startDate"]))) return;
+    if (!(await form.trigger(["productId", "amount", "durationMonths", "startDate"]))) {
+      return false;
+    }
     const values = form.getValues();
     const invalid = limitsError(
       products.find((item) => item.id === values.productId),
       values,
     );
-    if (invalid) return setError(invalid);
+    if (invalid) {
+      setError(invalid);
+      return false;
+    }
     setSimulating(true);
     try {
       const { data, error } = await supabase.rpc("simulate_loan", {
@@ -65,9 +70,11 @@ export function useLoanSimulation(
       if (!result || typeof result !== "object") throw new Error("Simulation vide");
       setSimulation(result as unknown as LoanSimulation);
       setSimulatedFingerprint(fingerprint(values));
+      return true;
     } catch {
       setSimulation(null);
       setError("La simulation n’a pas pu être calculée. Vérifiez les valeurs et réessayez.");
+      return false;
     } finally {
       setSimulating(false);
     }

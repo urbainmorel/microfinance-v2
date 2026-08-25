@@ -13,11 +13,11 @@ export function NotificationBell() {
     <Link
       href="/client/notifications"
       aria-label={unread > 0 ? `Notifications, ${unread} non lues` : "Notifications"}
-      className="relative flex size-11 shrink-0 items-center justify-center rounded-pill text-foreground hover:bg-muted"
+      className="relative flex size-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground shadow-card transition-colors hover:bg-muted"
     >
       <Bell className="size-5" strokeWidth={1.8} aria-hidden />
       {unread > 0 ? (
-        <span className="absolute right-1 top-1 flex min-w-4 items-center justify-center rounded-pill bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+        <span className="border-app-bg absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full border-2 bg-accent px-1 text-[9px] font-bold text-accent-foreground">
           {unread > 9 ? "9+" : unread}
         </span>
       ) : null}

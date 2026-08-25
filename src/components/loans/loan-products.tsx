@@ -1,50 +1,122 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, CalendarRange, HandCoins } from "lucide-react";
+import { AlertCircle, CalendarRange, ExternalLink, HandCoins } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
+import { LoanRequestForm } from "@/components/loans/loan-request-form";
+import { useActiveLoanProducts } from "@/components/loans/use-loan-request";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatFcfa } from "@/lib/format";
-import { useSupabase } from "@/lib/hooks/use-supabase";
 import { cn } from "@/lib/utils";
 
 import type { LoanProduct } from "@/lib/schemas/loan";
+import type { MouseEvent } from "react";
 
-const PRODUCT_FIELDS =
-  "id,name,description,min_amount,max_amount,min_duration_months,max_duration_months,interest_rate,interest_method,processing_fee_percent,processing_fee_flat,management_fee_percent,management_fee_flat,insurance_rate,guarantee_rate,mandatory_savings_rate";
+function shouldOpenModal(event: MouseEvent<HTMLAnchorElement>) {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+}
 
-export function useActiveLoanProducts() {
-  const supabase = useSupabase();
-  return useQuery({
-    queryKey: ["active-loan-products"],
-    staleTime: 60_000,
-    queryFn: async (): Promise<LoanProduct[]> => {
-      const { data, error } = await supabase
-        .from("loan_products")
-        .select(PRODUCT_FIELDS)
-        .eq("is_active", true)
-        .order("min_amount", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as unknown as LoanProduct[];
-    },
-  });
+function LoanProductCard({ product, select }: { product: LoanProduct; select: () => void }) {
+  const href = `/client/loans/request?product=${product.id}`;
+  return (
+    <Card className="group flex h-full flex-col overflow-hidden border-border bg-card p-0 shadow-none transition-colors hover:border-accent/35">
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
+              Offre de financement
+            </p>
+            <h3 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">
+              {product.name}
+            </h3>
+            {product.description ? (
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{product.description}</p>
+            ) : null}
+          </div>
+          <span className="shrink-0 rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-bold text-accent">
+            {Number(product.interest_rate).toLocaleString("fr-FR")} % / mois
+          </span>
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-border bg-muted/35 p-4 text-sm">
+          <div>
+            <p className="text-xs text-muted-foreground">Montant disponible</p>
+            <p className="mt-1 font-semibold leading-5 text-foreground">
+              {formatFcfa(product.min_amount)} à {formatFcfa(product.max_amount)}
+            </p>
+          </div>
+          <div>
+            <p className="flex items-center gap-1 text-xs text-muted-foreground">
+              <CalendarRange className="size-3.5" aria-hidden /> Durée
+            </p>
+            <p className="mt-1 font-semibold text-foreground">
+              {product.min_duration_months} à {product.max_duration_months} mois
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-border px-5 py-4 sm:px-6">
+        <Link
+          href={href}
+          onClick={(event) => {
+            if (!shouldOpenModal(event)) return;
+            event.preventDefault();
+            select();
+          }}
+          aria-haspopup="dialog"
+          className={cn(buttonVariants({ variant: "accent", size: "sm" }), "w-full")}
+        >
+          Simuler et demander ce prêt
+        </Link>
+      </div>
+    </Card>
+  );
+}
+
+function LoanRequestModal({ productId, close }: { productId: string | null; close: () => void }) {
+  return (
+    <Modal
+      open={productId !== null}
+      onOpenChange={(open) => {
+        if (!open) close();
+      }}
+      title="Simuler et demander un prêt"
+      description="Un parcours guidé en trois étapes pour comprendre le coût, préparer le dossier et confirmer la demande."
+      className="max-w-4xl"
+    >
+      {productId ? <LoanRequestForm defaultProductId={productId} /> : null}
+      {productId ? (
+        <div className="mt-5 border-t border-border pt-4 text-center">
+          <Link
+            href={`/client/loans/request?product=${productId}`}
+            className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Ouvrir sur une page dédiée <ExternalLink className="size-4" aria-hidden />
+          </Link>
+        </div>
+      ) : null}
+    </Modal>
+  );
+}
+
+function ProductsLoading() {
+  return (
+    <div className="flex flex-col gap-3">
+      {[0, 1].map((item) => (
+        <Skeleton key={item} className="h-[210px] w-full rounded-2xl" />
+      ))}
+    </div>
+  );
 }
 
 export function LoanProducts() {
   const products = useActiveLoanProducts();
-  if (products.isPending) {
-    return (
-      <div className="flex flex-col gap-3">
-        {[0, 1].map((item) => (
-          <Skeleton key={item} className="h-[210px] w-full rounded-2xl" />
-        ))}
-      </div>
-    );
-  }
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  if (products.isPending) return <ProductsLoading />;
   if (products.isError) {
     return (
       <EmptyState
@@ -63,46 +135,18 @@ export function LoanProducts() {
       />
     );
   }
-
   return (
-    <div className="flex flex-col gap-3">
-      {products.data.map((product) => (
-        <Card key={product.id}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="font-display text-lg font-bold text-foreground">{product.name}</h3>
-              {product.description ? (
-                <p className="mt-1 text-sm text-muted-foreground">{product.description}</p>
-              ) : null}
-            </div>
-            <span className="shrink-0 rounded-pill bg-pastel-green px-3 py-1 text-xs font-bold text-accent">
-              {Number(product.interest_rate).toLocaleString("fr-FR")} % / mois
-            </span>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p className="text-xs text-muted-foreground">Montant</p>
-              <p className="font-semibold text-foreground">
-                {formatFcfa(product.min_amount)} à {formatFcfa(product.max_amount)}
-              </p>
-            </div>
-            <div>
-              <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CalendarRange className="size-3.5" aria-hidden /> Durée
-              </p>
-              <p className="font-semibold text-foreground">
-                {product.min_duration_months} à {product.max_duration_months} mois
-              </p>
-            </div>
-          </div>
-          <Link
-            href={`/client/loans/request?product=${product.id}`}
-            className={cn(buttonVariants({ variant: "accent", size: "sm" }), "mt-5 w-full")}
-          >
-            Simuler ce prêt
-          </Link>
-        </Card>
-      ))}
-    </div>
+    <>
+      <div className="grid gap-4 lg:grid-cols-2">
+        {products.data.map((product) => (
+          <LoanProductCard
+            key={product.id}
+            product={product}
+            select={() => setSelectedProductId(product.id)}
+          />
+        ))}
+      </div>
+      <LoanRequestModal productId={selectedProductId} close={() => setSelectedProductId(null)} />
+    </>
   );
 }

@@ -8,6 +8,8 @@ import { KycStepBody } from "@/components/kyc/kyc-step-body";
 import { KycStepper } from "@/components/kyc/kyc-stepper";
 import { useKycWizard } from "@/components/kyc/use-kyc-wizard";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { KYC_STEPS } from "@/lib/schemas/kyc";
 
 export default function KycPage() {
@@ -27,41 +29,44 @@ export default function KycPage() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-2xl font-bold text-foreground">Compléter mon profil</h1>
-      <p className="mb-6 mt-1 text-sm text-muted-foreground">
-        Vos informations sont enregistrées à chaque étape.
-      </p>
-      <KycStepper steps={KYC_STEPS.map((s) => s.title)} current={step} />
-      <FormError message={error} />
-      <div className="mt-4 flex flex-col gap-4">
-        <KycStepBody
-          step={current}
-          form={form}
-          docs={docs}
-          uploading={uploading}
-          isPassport={idType === "PASSPORT"}
-          certified={certified}
-          onUpload={upload}
-          onCertifiedChange={setCertified}
-        />
-      </div>
-      <div className="mt-6 flex gap-3">
-        {step > 0 ? (
-          <Button variant="outline" onClick={back}>
-            Retour
-          </Button>
-        ) : null}
-        {isConfirm ? (
-          <Button className="flex-1" onClick={onSubmit} disabled={!certified || submitting}>
-            {submitting ? "Envoi…" : "Soumettre mon dossier KYC"}
-          </Button>
-        ) : (
-          <Button className="flex-1" onClick={next}>
-            Continuer
-          </Button>
-        )}
-      </div>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <PageHeader
+        eyebrow="Vérification d’identité"
+        title="Compléter mon profil"
+        description="Vos informations sont enregistrées à chaque étape afin que vous puissiez reprendre plus tard."
+      />
+      <Card className="p-5 sm:p-7">
+        <KycStepper steps={KYC_STEPS.map((s) => s.title)} current={step} />
+        <FormError message={error} />
+        <div className="mt-5 flex flex-col gap-4">
+          <KycStepBody
+            step={current}
+            form={form}
+            docs={docs}
+            uploading={uploading}
+            isPassport={idType === "PASSPORT"}
+            certified={certified}
+            onUpload={upload}
+            onCertifiedChange={setCertified}
+          />
+        </div>
+        <div className="mt-7 flex gap-3 border-t border-separator pt-5">
+          {step > 0 ? (
+            <Button variant="outline" onClick={back}>
+              Retour
+            </Button>
+          ) : null}
+          {isConfirm ? (
+            <Button className="flex-1" onClick={onSubmit} disabled={!certified || submitting}>
+              {submitting ? "Envoi…" : "Soumettre mon dossier KYC"}
+            </Button>
+          ) : (
+            <Button className="flex-1" onClick={next}>
+              Continuer
+            </Button>
+          )}
+        </div>
+      </Card>
     </div>
   );
 }

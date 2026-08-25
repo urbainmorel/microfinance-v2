@@ -1,240 +1,127 @@
 import Link from "next/link";
 
-import { DocumentField } from "@/components/operations/document-field";
 import { RecipientFields } from "@/components/operations/recipient-fields";
-import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
-import { SelectField } from "@/components/ui/select-field";
-import { formatFcfa } from "@/lib/format";
 
-import type {
-  DepositRequestInput,
-  RepaymentRequestInput,
-  WithdrawalRequestInput,
-} from "@/lib/schemas/operations";
+import type { WithdrawalRequestInput } from "@/lib/schemas/operations";
 import type { UseFormReturn } from "react-hook-form";
 
-const PAYMENT_OPTIONS = [
-  { value: "MOBILE_MONEY", label: "Mobile Money" },
-  { value: "BANK_TRANSFER", label: "Virement bancaire" },
-  { value: "CASH", label: "Espèces en agence" },
-];
+export { DepositFields } from "@/components/operations/deposit-fields";
+export { RepaymentFields } from "@/components/operations/repayment-fields";
+export type { ActiveLoan } from "@/components/operations/repayment-fields";
 
-export function DepositFields({ form }: { form: UseFormReturn<DepositRequestInput> }) {
-  const {
-    register,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = form;
-  const electronicPayment = watch("paymentMethod") !== "CASH";
-  return (
-    <>
-      <FormField
-        id="deposit-amount"
-        label="Montant (FCFA)"
-        type="number"
-        min={1}
-        step={1}
-        inputMode="numeric"
-        error={errors.amount?.message}
-        {...register("amount")}
-      />
-      <SelectField
-        id="deposit-motif"
-        label="Destination du dépôt"
-        options={[
-          { value: "FREE_SAVINGS", label: "Épargne libre" },
-          { value: "GUARANTEE", label: "Garantie de prêt" },
-          { value: "REPAYMENT", label: "Remboursement" },
-        ]}
-        error={errors.motif?.message}
-        {...register("motif")}
-      />
-      <SelectField
-        id="deposit-method"
-        label="Moyen de paiement"
-        options={PAYMENT_OPTIONS}
-        error={errors.paymentMethod?.message}
-        {...register("paymentMethod")}
-      />
-      <FormField
-        id="deposit-reference"
-        label={`Référence${electronicPayment ? "" : " (facultative)"}`}
-        required={electronicPayment}
-        autoComplete="off"
-        error={errors.reference?.message}
-        {...register("reference")}
-      />
-      <DocumentField
-        id="deposit-proof"
-        label="Justificatif du paiement"
-        error={errors.proof?.message}
-        onChange={(files) =>
-          setValue("proof", files[0] as File, { shouldDirty: true, shouldValidate: true })
-        }
-      />
-      <label className="flex min-h-11 items-start gap-3 text-sm">
-        <input type="checkbox" className="mt-0.5 size-5" {...register("certified")} />
-        <span>
-          Je certifie que ce justificatif est authentique et correspond au paiement déclaré.
-        </span>
-      </label>
-      {errors.certified ? (
-        <p className="text-xs font-medium text-warning">{errors.certified.message}</p>
-      ) : null}
-      <FormField
-        id="deposit-pin"
-        label="Code PIN de confirmation"
-        type="password"
-        inputMode="numeric"
-        autoComplete="current-password"
-        maxLength={6}
-        error={errors.pin?.message}
-        {...register("pin")}
-      />
-      <Button type="submit" variant="accent" disabled={isSubmitting} aria-busy={isSubmitting}>
-        {isSubmitting ? "Envoi en cours…" : "Envoyer la demande"}
-      </Button>
-    </>
-  );
-}
+export type TransactionFormStep = 0 | 1 | 2;
 
 export function WithdrawalFields({
   form,
   isMomo,
+  step,
 }: {
   form: UseFormReturn<WithdrawalRequestInput>;
   isMomo: boolean;
+  step: TransactionFormStep;
 }) {
   const {
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = form;
   return (
     <>
       <input type="hidden" {...register("type")} />
-      <FormField
-        id="withdrawal-amount"
-        label="Montant (FCFA)"
-        type="number"
-        min={1}
-        step={1}
-        inputMode="numeric"
-        error={errors.amount?.message}
-        {...register("amount")}
-      />
-      <FormField
-        id="withdrawal-name"
-        label="Nom complet du bénéficiaire"
-        autoComplete="name"
-        error={errors.recipientName?.message}
-        {...register("recipientName")}
-      />
-      <RecipientFields form={form} isMomo={isMomo} />
-      <FormField
-        id="withdrawal-pin"
-        label="Code PIN de confirmation"
-        type="password"
-        inputMode="numeric"
-        autoComplete="current-password"
-        maxLength={6}
-        error={errors.pin?.message}
-        {...register("pin")}
-      />
-      <Button type="submit" variant="accent" disabled={isSubmitting} aria-busy={isSubmitting}>
-        {isSubmitting ? "Envoi en cours…" : "Confirmer le retrait"}
-      </Button>
+      {step === 0 ? (
+        <>
+          <FormField
+            id="withdrawal-amount"
+            label="Montant (FCFA)"
+            type="number"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            error={errors.amount?.message}
+            {...register("amount")}
+          />
+          <FormField
+            id="withdrawal-name"
+            label="Nom complet du bénéficiaire"
+            autoComplete="name"
+            error={errors.recipientName?.message}
+            {...register("recipientName")}
+          />
+        </>
+      ) : null}
+      {step === 1 ? <RecipientFields form={form} isMomo={isMomo} /> : null}
+      {step === 2 ? (
+        <FormField
+          id="withdrawal-pin"
+          label="Code PIN de confirmation"
+          type="password"
+          inputMode="numeric"
+          autoComplete="current-password"
+          maxLength={6}
+          error={errors.pin?.message}
+          {...register("pin")}
+        />
+      ) : null}
     </>
   );
 }
 
-export type ActiveLoan = { id: string; total_amount: number; remaining_principal: number };
-
-export function RepaymentFields({
-  form,
-  loans,
+export function TransactionReview({
+  title,
+  amount,
+  items,
 }: {
-  form: UseFormReturn<RepaymentRequestInput>;
-  loans: ActiveLoan[];
+  title: string;
+  amount: string;
+  items: Array<{ label: string; value: React.ReactNode }>;
 }) {
-  const {
-    register,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = form;
-  const electronicPayment = watch("paymentMethod") !== "CASH";
   return (
-    <>
-      <SelectField
-        id="repayment-loan"
-        label="Prêt à rembourser"
-        placeholder="Sélectionner un prêt"
-        options={loans.map((loan) => ({
-          value: loan.id,
-          label: `Capital restant : ${formatFcfa(loan.remaining_principal)}`,
-        }))}
-        error={errors.loanId?.message}
-        {...register("loanId")}
-      />
-      <FormField
-        id="repayment-amount"
-        label="Montant (FCFA)"
-        type="number"
-        min={1}
-        step={1}
-        inputMode="numeric"
-        error={errors.amount?.message}
-        {...register("amount")}
-      />
-      <SelectField
-        id="repayment-method"
-        label="Moyen de paiement"
-        options={PAYMENT_OPTIONS}
-        error={errors.paymentMethod?.message}
-        {...register("paymentMethod")}
-      />
-      <FormField
-        id="repayment-reference"
-        label={`Référence du paiement${electronicPayment ? "" : " (facultatif)"}`}
-        required={electronicPayment}
-        autoComplete="off"
-        error={errors.reference?.message}
-        {...register("reference")}
-      />
-      <DocumentField
-        id="repayment-proof"
-        label="Justificatif du paiement"
-        error={errors.proof?.message}
-        onChange={(files) =>
-          setValue("proof", files[0] as File, { shouldDirty: true, shouldValidate: true })
-        }
-      />
-      <FormField
-        id="repayment-pin"
-        label="Code PIN de confirmation"
-        type="password"
-        inputMode="numeric"
-        autoComplete="current-password"
-        maxLength={6}
-        error={errors.pin?.message}
-        {...register("pin")}
-      />
-      <Button type="submit" variant="accent" disabled={isSubmitting} aria-busy={isSubmitting}>
-        {isSubmitting ? "Envoi en cours…" : "Envoyer le remboursement"}
-      </Button>
-    </>
+    <section className="rounded-2xl border border-border bg-muted/60 p-4" aria-label={title}>
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        {title}
+      </p>
+      <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{amount}</p>
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        {items.map((item) => (
+          <div key={item.label}>
+            <dt className="text-xs text-muted-foreground">{item.label}</dt>
+            <dd className="mt-0.5 break-words text-sm font-semibold text-foreground">
+              {item.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 
-export function AlternateWithdrawalLink({ isMomo }: { isMomo: boolean }) {
+export function AlternateWithdrawalLink({
+  isMomo,
+  onSwitch,
+}: {
+  isMomo: boolean;
+  onSwitch?: () => void;
+}) {
+  const label = isMomo
+    ? "Faire plutôt un virement bancaire"
+    : "Faire plutôt un retrait Mobile Money";
+  if (onSwitch) {
+    return (
+      <button
+        type="button"
+        onClick={onSwitch}
+        className="min-h-11 text-center text-sm font-semibold text-accent"
+      >
+        {label}
+      </button>
+    );
+  }
   return (
     <Link
       href={isMomo ? "/client/withdraw/bank" : "/client/withdraw/momo"}
       className="min-h-11 text-center text-sm font-semibold text-accent"
     >
-      {isMomo ? "Faire plutôt un virement bancaire" : "Faire plutôt un retrait Mobile Money"}
+      {label}
     </Link>
   );
 }

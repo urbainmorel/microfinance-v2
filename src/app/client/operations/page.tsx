@@ -1,27 +1,18 @@
-import Link from "next/link";
-
+import { QuickActions } from "@/components/client/quick-actions";
 import { OperationsList } from "@/components/operations/operations-list";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function OperationsPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-display text-2xl font-bold text-foreground">Mes opérations</h1>
-      <div className="grid grid-cols-2 gap-3">
-        <Link
-          href="/client/deposit/request"
-          className={cn(buttonVariants({ variant: "accent", size: "sm" }), "w-full")}
-        >
-          Faire un dépôt
-        </Link>
-        <Link
-          href="/client/repay/request"
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
-        >
-          Rembourser
-        </Link>
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Historiques"
+        description="Consultez votre historique et lancez une nouvelle opération en quelques étapes."
+      />
+      <QuickActions />
+      <h2 className="font-display text-lg font-bold tracking-[-0.02em] text-foreground">
+        Historique
+      </h2>
       <OperationsList />
     </div>
   );
