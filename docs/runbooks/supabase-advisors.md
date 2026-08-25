@@ -46,6 +46,9 @@ Ces deux alertes sont des paramètres de projet, pas des défauts corrigibles pa
 
 ## Contrôle de cible obligatoire
 
+La seule référence autorisée pour cette application est `qdmriiokeindzgeokvqj`. Le projet Coutilo
+(`kfbcnfurqgncilgwobvo`) est explicitement interdit et ne doit jamais servir de cible de repli.
+
 Avant toute lecture d'advisor, migration ou changement Auth, vérifier ensemble :
 
 1. le nom du projet attendu ;
@@ -55,4 +58,4 @@ Avant toute lecture d'advisor, migration ou changement Auth, vérifier ensemble 
 5. l'identité remontée par `supabase projects list` ou le connecteur utilisé.
 
 L'opération distante doit être interrompue dès qu'une de ces valeurs diverge. La migration locale
-reste la source de vérité et ne doit être appliquée à la cible correcte qu'après ce contrôle.
+reste la source de vérité et ne doit être appliquée qu'à `qdmriiokeindzgeokvqj` après ce contrôle.

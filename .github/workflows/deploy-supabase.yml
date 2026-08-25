@@ -37,6 +37,7 @@ jobs:
       EXPECTED_PROJECT_NAME: ${{ vars.SUPABASE_PROJECT_NAME }}
       EXPECTED_ORGANIZATION_ID: ${{ vars.SUPABASE_ORGANIZATION_ID }}
       DEPLOYMENT_TARGET: ${{ inputs.target || 'staging' }}
+      OFFICIAL_PROJECT_REF: qdmriiokeindzgeokvqj
     steps:
       - uses: actions/checkout@v4
         with:
@@ -83,6 +84,10 @@ jobs:
             echo "Invalid Supabase project reference format" >&2
             exit 1
           fi
+          if [ "$PROJECT_REF" != "$OFFICIAL_PROJECT_REF" ]; then
+            echo "Unauthorized Supabase target: this application only uses $OFFICIAL_PROJECT_REF" >&2
+            exit 1
+          fi
           projects="$(supabase projects list --output json)"
           matches="$(jq --arg ref "$PROJECT_REF" '[.[] | select(.id == $ref)] | length' <<<"$projects")"
           if [ "$matches" -ne 1 ]; then
@@ -91,6 +96,10 @@ jobs:
           fi
           actual_name="$(jq -r --arg ref "$PROJECT_REF" '.[] | select(.id == $ref) | .name' <<<"$projects")"
           actual_org="$(jq -r --arg ref "$PROJECT_REF" '.[] | select(.id == $ref) | .organization_id' <<<"$projects")"
+          if [ "${actual_name,,}" = "coutilo" ]; then
+            echo "Forbidden Supabase project: Coutilo never belongs to this application" >&2
+            exit 1
+          fi
           if [ "$actual_name" != "$EXPECTED_PROJECT_NAME" ] || [ "$actual_org" != "$EXPECTED_ORGANIZATION_ID" ]; then
             echo "Supabase target identity mismatch for $DEPLOYMENT_TARGET" >&2
             exit 1

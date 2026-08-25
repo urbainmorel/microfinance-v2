@@ -361,6 +361,7 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   avertissement générique est documenté plutôt que masqué au prix d'une régression métier.
 - Protection contre les mots de passe compromis et MFA documentées comme paramètres Auth à
   activer et valider avant ouverture publique.
-- Déploiement supplémentaire suspendu : l'hôte configuré localement et le projet visible dans le
-  connecteur ne désignent pas la même cible. Le contrôle d'identité du runbook est désormais un
-  prérequis bloquant à toute opération distante.
+- Référence historique `qdmriiokeindzgeokvqj` confirmée comme cible officielle unique de
+  l'application ; le projet Coutilo est explicitement hors périmètre.
+- Garde CI ajouté avant toute liaison : une autre référence, y compris Coutilo, arrête le workflow
+  avant la lecture ou l'application des migrations.

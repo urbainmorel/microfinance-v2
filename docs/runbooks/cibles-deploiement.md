@@ -17,6 +17,28 @@ Le fichier `netlify.toml` décrit uniquement les paramètres de build. Il ne con
 
 ## Cibles Supabase
 
+### Référence officielle de l'application
+
+La référence Supabase officielle et unique de l'application est :
+
+```text
+qdmriiokeindzgeokvqj
+```
+
+L'URL applicative attendue utilise donc l'hôte
+`qdmriiokeindzgeokvqj.supabase.co`. Cette référence, déjà utilisée historiquement par le dépôt,
+est la seule cible autorisée tant qu'une décision métier explicite et documentée ne la remplace
+pas.
+
+Le projet **Coutilo**, notamment la référence `kfbcnfurqgncilgwobvo`, est totalement étranger à
+cette application. Il ne doit jamais être inspecté, lié, migré, configuré ni utilisé pour ses
+données, son Auth, son Storage ou ses fonctions Edge. Si un connecteur ou un jeton ne montre que
+Coutilo, l'opération doit être interrompue : ce compte n'est pas le bon contexte Supabase.
+
+Le workflow GitHub applique une liste blanche stricte sur la référence officielle avant
+`supabase link`. La concordance du nom et de l'organisation reste une seconde vérification, jamais
+un substitut à cette liste blanche.
+
 Les environnements GitHub `staging` et `production` doivent chacun définir :
 
 | Type     | Nom                        | Usage                                                       |
@@ -26,7 +48,10 @@ Les environnements GitHub `staging` et `production` doivent chacun définir :
 | Variable | `SUPABASE_ORGANIZATION_ID` | Organisation attendue, utilisée pour le contrôle d’identité |
 | Secret   | `SUPABASE_ACCESS_TOKEN`    | Jeton CLI autorisé                                          |
 
-Avant `supabase link`, le workflow récupère les projets accessibles au jeton et exige une correspondance unique sur la référence, le nom et l’organisation. Toute valeur absente ou différente arrête le déploiement avant la lecture des migrations.
+Avant `supabase link`, le workflow exige d'abord la référence officielle, puis récupère les projets
+accessibles au jeton et impose une correspondance unique sur la référence, le nom et
+l'organisation. Toute valeur absente ou différente arrête le déploiement avant la lecture des
+migrations.
 
 La CLI obtient des identifiants temporaires via l’API de gestion : aucun mot de passe PostgreSQL
 permanent n’est requis ni conservé dans GitHub.
