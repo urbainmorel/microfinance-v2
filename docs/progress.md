@@ -338,3 +338,29 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   temporaires sont supprimés avant de créer le nouveau lot.
 - La conservation volontaire des chemins ne concerne désormais que la répétition strictement
   identique d'une commande, afin de préserver son idempotence en cas d'incident réseau.
+
+### Parcours financier E2E transactionnel — terminé localement
+
+- Scénario pgTAP dédié couvrant la création et l'annulation d'un dépôt, la confirmation manuelle
+  d'un second dépôt, puis la création et l'annulation d'un retrait.
+- Demande de prêt créée par la RPC de production et conduite par les vraies transitions
+  `SUBMITTED`, `IN_ANALYSIS`, `PRE_APPROVED`, `ACCEPTED` et `GUARANTEE_COMPLETE`.
+- Génération unique du contrat dynamique, signature PIN, mobilisation exacte de la garantie,
+  décaissement, création de l'échéancier à mensualités constantes et remboursement intégral.
+- Vérification de la clôture du prêt, du capital restant dû nul et de la libération automatique de
+  la garantie.
+- Les 29 assertions s'exécutent dans une transaction terminée par `ROLLBACK` sur la stack
+  éphémère GitHub Actions : aucune donnée de test ne subsiste et aucun Docker local n'est utilisé.
+
+### Avertissements Supabase — durcissement préparé
+
+- Migration locale consolidant les politiques RLS, initialisant les appels Auth une seule fois et
+  fixant le `search_path` des six fonctions historiques.
+- Test pgTAP de non-régression ajouté pour les trois familles d'alertes corrigibles par SQL.
+- Fonctions `SECURITY DEFINER` indispensables conservées avec leurs contrôles internes ; leur
+  avertissement générique est documenté plutôt que masqué au prix d'une régression métier.
+- Protection contre les mots de passe compromis et MFA documentées comme paramètres Auth à
+  activer et valider avant ouverture publique.
+- Déploiement supplémentaire suspendu : l'hôte configuré localement et le projet visible dans le
+  connecteur ne désignent pas la même cible. Le contrôle d'identité du runbook est désormais un
+  prérequis bloquant à toute opération distante.
