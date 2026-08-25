@@ -2,7 +2,7 @@
 
 begin;
 delete from public.loan_products;
-select plan(94);
+select plan(95);
 
 create temporary table mvp_test_state (
   name text primary key,
@@ -32,6 +32,12 @@ update public.profiles
 set role = 'admin', is_active = true
 where id = 'aaaaaaaa-0000-0000-0000-000000000002';
 select set_config('app.privileged', 'off', true);
+
+set local request.jwt.claims = '{"sub":"aaaaaaaa-0000-0000-0000-000000000002","role":"authenticated","app_metadata":{"user_role":"admin"}}';
+select lives_ok(
+  $$ select public.get_admin_kpis() $$,
+  'les indicateurs admin restent compatibles avec le verrou de controle d acces'
+);
 
 select ok(
   not exists(select 1 from public.profiles where role not in ('client', 'admin')),
