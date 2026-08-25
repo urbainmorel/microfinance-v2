@@ -14,6 +14,7 @@ Ce portail oriente vers les sources de vérité produit, techniques et opératio
 | Comprendre le cadre crédit UMOA               | [`adr/0002-cadre-metier-credit-v1-umoa.md`](adr/0002-cadre-metier-credit-v1-umoa.md) |
 | Amorcer ou remplacer l'administrateur         | [`runbooks/amorcer-chef-agence.md`](runbooks/amorcer-chef-agence.md)                 |
 | Vérifier une cible de déploiement             | [`runbooks/cibles-deploiement.md`](runbooks/cibles-deploiement.md)                   |
+| Traiter les avertissements Supabase           | [`runbooks/supabase-advisors.md`](runbooks/supabase-advisors.md)                     |
 | Lire les exigences fonctionnelles historiques | [`PRD_Microfinance_v2.1.md`](../PRD_Microfinance_v2.1.md)                            |
 | Suivre les lots d'implémentation              | [`ROADMAP.md`](../ROADMAP.md)                                                        |
 
@@ -71,6 +72,7 @@ La validation métier ne prouve pas l'implémentation. La ROADMAP et les tests d
 
 1. [`Cibles de déploiement`](runbooks/cibles-deploiement.md)
 2. [`Amorçage administrateur`](runbooks/amorcer-chef-agence.md)
+3. [`Avertissements Supabase`](runbooks/supabase-advisors.md)
 
 ## Entretien
 
