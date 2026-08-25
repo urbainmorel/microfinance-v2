@@ -2,12 +2,7 @@ import tailwindcssAnimate from "tailwindcss-animate";
 
 import type { Config } from "tailwindcss";
 
-/**
- * Tokens du design system — DESIGN.md §4.3 (mapping Shadcn) et §4.1 (palette).
- * Toutes les couleurs sont référencées via `hsl(var(--token))` ; aucun hex en dur
- * dans les composants (CLAUDE.md § Code quality, DESIGN §3). Rouge Shadcn neutralisé
- * en encre (`--destructive`) car la palette proscrit le rouge (PRD §3, DESIGN §4.2).
- */
+/** Tokens du design system fintech. Les composants restent découplés de la palette. */
 const config: Config = {
   darkMode: ["class"],
   content: ["./src/**/*.{ts,tsx,mdx}"],
@@ -65,7 +60,13 @@ const config: Config = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        // Palette de marque (DESIGN §4.1) exposée en tokens.
+        finance: {
+          DEFAULT: "hsl(var(--accent))",
+          deep: "hsl(var(--accent-deep))",
+          ink: "hsl(var(--accent-ink))",
+          soft: "hsl(var(--accent-soft))",
+        },
+        // Alias conservés pour les vues historiques pendant la refonte.
         brand: {
           green: "hsl(var(--brand-green))",
           "green-deep": "hsl(var(--brand-green-deep))",
@@ -83,27 +84,28 @@ const config: Config = {
       },
       borderRadius: {
         pill: "999px",
-        "2xl": "1.5rem",
-        xl: "1.125rem",
+        "2xl": "1.25rem",
+        xl: "1rem",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        // Instrument Sans = texte courant ; Sora = titres/montants (DESIGN §5).
-        sans: ["var(--font-instrument)", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["var(--font-sora)", "ui-sans-serif", "system-ui", "sans-serif"],
+        // Manrope = texte courant ; DM Sans = titres et montants.
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        // DESIGN §7 — ombres discrètes, jamais de halo dur.
-        hero: "0 18px 40px -18px rgba(11,43,30,0.55)",
-        card: "0 1px 2px rgba(20,30,25,0.03)",
+        hero: "0 28px 60px -30px rgba(7, 89, 126, 0.65)",
+        card: "0 1px 2px rgba(15, 23, 42, 0.035), 0 10px 30px rgba(15, 23, 42, 0.035)",
+        lift: "0 20px 55px -28px rgba(15, 23, 42, 0.28)",
       },
       backgroundImage: {
-        "radial-app":
-          "radial-gradient(1200px 600px at 50% -10%, hsl(var(--background-radial)) 0%, hsl(var(--app-bg)) 60%)",
+        "radial-app": "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--app-bg)) 100%)",
         "hero-green":
-          "linear-gradient(160deg, hsl(var(--brand-green-mid)) 0%, hsl(var(--brand-green-deep)) 100%)",
+          "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent-deep)) 58%, hsl(var(--accent-ink)) 100%)",
+        "balance-gradient":
+          "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent-deep)) 58%, hsl(var(--accent-ink)) 100%)",
       },
       keyframes: {
         "accordion-down": {

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Espace sécurisé de gestion des demandes, prêts et remboursements en XOF.",
     start_url: "/",
     display: "standalone",
-    background_color: "#F7F4EC",
-    theme_color: "#0B2B1E",
+    background_color: "#F8FAFC",
+    theme_color: "#077BAD",
     lang: "fr",
     categories: ["finance", "business"],
     icons: [

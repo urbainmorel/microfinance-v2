@@ -1,4 +1,4 @@
-import { Instrument_Sans, Sora } from "next/font/google";
+import { DM_Sans, Manrope } from "next/font/google";
 
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 
@@ -8,17 +8,17 @@ import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 
-const sora = Sora({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-sora",
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
   display: "swap",
 });
 
-const instrumentSans = Instrument_Sans({
+const manrope = Manrope({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-instrument",
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -31,14 +31,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B2B1E",
+  themeColor: "#F8FAFC",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${sora.variable} ${instrumentSans.variable}`}>
+    <html lang="fr" className={`${dmSans.variable} ${manrope.variable}`}>
       <body className="min-h-dvh">
         <Providers>{children}</Providers>
         <ServiceWorkerRegistration />

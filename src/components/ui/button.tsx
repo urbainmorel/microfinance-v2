@@ -3,27 +3,25 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Bouton — DESIGN §8. Pill, CTA principal encre (`default`), accent vert (`accent`).
- * Aucune variante rouge : `destructive` réutilise l'encre neutralisée (DESIGN §4.2).
- */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill font-semibold transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:ring-offset-2 active:translate-y-px disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        accent: "bg-accent text-accent-foreground hover:bg-accent/90",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline: "border border-border bg-card text-foreground hover:bg-muted",
-        ghost: "text-foreground hover:bg-muted",
+        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+        accent:
+          "bg-accent text-accent-foreground shadow-[0_10px_24px_-14px_hsl(var(--accent))] hover:bg-finance-deep",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-finance-soft",
+        outline:
+          "border border-border bg-card text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.03)] hover:border-foreground/15 hover:bg-muted/70",
+        ghost: "text-foreground hover:bg-muted/80",
         link: "text-accent underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-[54px] px-6 text-[15px]",
-        sm: "h-11 px-4 text-sm",
-        lg: "h-14 px-8 text-base",
-        icon: "size-11",
+        default: "h-12 px-5 text-sm",
+        sm: "h-10 px-4 text-[13px]",
+        lg: "h-14 px-7 text-[15px]",
+        icon: "size-10",
       },
     },
     defaultVariants: { variant: "default", size: "default" },
