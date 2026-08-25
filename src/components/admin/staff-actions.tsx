@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { Modal } from "@/components/ui/modal";
 
 export interface StaffAction {
   disabled?: boolean;
@@ -91,7 +91,7 @@ function DraftFields({
           onChange={(event) => setDraft((value) => ({ ...value, reason: event.target.value }))}
           placeholder="Motif obligatoire"
           rows={3}
-          className="w-full rounded-[14px] border border-border bg-card px-4 py-3 text-base"
+          className="w-full rounded-xl border border-input bg-card px-4 py-3 text-base outline-none focus:border-ring focus:ring-4 focus:ring-ring/10"
         />
       ) : null}
       {action.requiresReference ? (
@@ -126,14 +126,13 @@ export function StaffActions({
   const [selected, setSelected] = useState<StaffAction | null>(null);
   const [draft, setDraft] = useState(emptyDraft);
   const [error, setError] = useState<string | null>(null);
-  if (!selected) return <ActionPicker actions={actions} busy={busy} select={setSelected} />;
-
   const reset = () => {
     setSelected(null);
     setDraft(emptyDraft);
     setError(null);
   };
   const confirm = () => {
+    if (!selected) return;
     const validation = validateDraft(selected, draft);
     if (validation) return setError(validation);
     onSubmit(selected.value, {
@@ -141,23 +140,35 @@ export function StaffActions({
       reference: draft.reference.trim() || null,
       amount: draft.amount ? Number(draft.amount) : null,
     });
+    reset();
   };
   return (
-    <div className="space-y-3">
-      <p className="text-sm font-bold">Confirmer : {selected.label}</p>
-      <DraftFields action={selected} draft={draft} setDraft={setDraft} />
-      {error ? <p className="text-sm font-medium text-[hsl(var(--gold))]">{error}</p> : null}
-      <div className="flex gap-2">
-        <Button type="button" size="sm" onClick={confirm} disabled={busy}>
-          {busy ? "Traitement…" : "Confirmer"}
-        </Button>
-        <Button type="button" size="sm" variant="ghost" onClick={reset} disabled={busy}>
-          Annuler
-        </Button>
-      </div>
-      <div className={cn("h-0.5 bg-muted", busy && "animate-pulse")}>
-        <div className={cn("h-full bg-accent", busy ? "w-2/3" : "w-0")} />
-      </div>
-    </div>
+    <>
+      <ActionPicker actions={actions} busy={busy} select={setSelected} />
+      <Modal
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open && !busy) reset();
+        }}
+        title={selected ? `Confirmer : ${selected.label}` : "Confirmer l’action"}
+        description="Vérifiez les informations requises avant d’enregistrer cette décision."
+        className="max-w-lg"
+      >
+        {selected ? (
+          <div className="space-y-4">
+            <DraftFields action={selected} draft={draft} setDraft={setDraft} />
+            {error ? <p className="text-sm font-semibold text-warning">{error}</p> : null}
+            <div className="grid grid-cols-2 gap-3 border-t border-separator pt-5">
+              <Button type="button" variant="outline" onClick={reset} disabled={busy}>
+                Annuler
+              </Button>
+              <Button type="button" variant="accent" onClick={confirm} disabled={busy}>
+                {busy ? "Traitement…" : "Confirmer"}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
+    </>
   );
 }

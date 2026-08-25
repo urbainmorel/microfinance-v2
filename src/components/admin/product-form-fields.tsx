@@ -34,33 +34,33 @@ export function ProductFormFields({
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       <label className="space-y-2 md:col-span-2">
-        <span className="text-xs font-bold uppercase text-muted-foreground">Nom</span>
+        <span className="text-[13px] font-semibold text-foreground">Nom</span>
         <Input value={value.name} onChange={(event) => setValue("name", event.target.value)} />
       </label>
       <label className="space-y-2">
-        <span className="text-xs font-bold uppercase text-muted-foreground">Méthode d’intérêt</span>
+        <span className="text-[13px] font-semibold text-foreground">Méthode d’intérêt</span>
         <select
           value={value.interestMethod}
           onChange={(event) =>
             setValue("interestMethod", event.target.value as LoanProductInput["interestMethod"])
           }
-          className="h-[52px] w-full rounded-[14px] border border-border bg-card px-4"
+          className="h-[52px] w-full rounded-xl border border-input bg-card px-4 outline-none focus:border-ring focus:ring-4 focus:ring-ring/10"
         >
           <option value="CONSTANT_INSTALLMENT">Échéance constante</option>
         </select>
       </label>
       <label className="space-y-2 md:col-span-2 xl:col-span-3">
-        <span className="text-xs font-bold uppercase text-muted-foreground">Description</span>
+        <span className="text-[13px] font-semibold text-foreground">Description</span>
         <textarea
           value={value.description ?? ""}
           onChange={(event) => setValue("description", event.target.value)}
           rows={3}
-          className="w-full rounded-[14px] border border-border bg-card px-4 py-3"
+          className="w-full rounded-xl border border-input bg-card px-4 py-3 outline-none focus:border-ring focus:ring-4 focus:ring-ring/10"
         />
       </label>
       {numericFields.map((field) => (
         <label key={field.key} className="space-y-2">
-          <span className="text-xs font-bold uppercase text-muted-foreground">{field.label}</span>
+          <span className="text-[13px] font-semibold text-foreground">{field.label}</span>
           <Input
             type="number"
             min={field.min ?? 0}

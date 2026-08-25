@@ -1,3 +1,5 @@
+import { CheckCircle2, Clock3, ExternalLink, FileText } from "lucide-react";
+
 import { MutationFeedback } from "@/components/admin/admin-page";
 import { QueueCard } from "@/components/admin/queue-card";
 import { StaffActions } from "@/components/admin/staff-actions";
@@ -58,24 +60,39 @@ function DocumentReview({
   onReview: (id: string, verified: boolean, reason: string | null) => void;
 }) {
   return (
-    <div className="space-y-2 rounded-xl border p-2">
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-start gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-accent">
+          <FileText className="size-[17px]" strokeWidth={1.8} aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-bold text-foreground">
+            {LABELS[document.type] ?? document.type}
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+            {document.verified ? (
+              <CheckCircle2 className="size-3.5 text-success" strokeWidth={1.9} aria-hidden />
+            ) : (
+              <Clock3 className="size-3.5 text-warning" strokeWidth={1.9} aria-hidden />
+            )}
+            {document.verified ? "Pièce contrôlée" : "Contrôle requis"}
+          </p>
+        </div>
+      </div>
       <a
         href={document.url}
         target="_blank"
         rel="noreferrer"
-        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
+        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-3 w-full")}
       >
-        {LABELS[document.type] ?? document.type}
+        Ouvrir la pièce <ExternalLink aria-hidden />
       </a>
-      <p className="text-center text-xs font-semibold">
-        {document.verified ? "Contrôlée" : "À contrôler"}
-      </p>
       {canReview && !document.verified ? (
         <button
           type="button"
           disabled={busy}
           onClick={() => onReview(document.id, true, null)}
-          className={cn(buttonVariants({ size: "sm" }), "w-full")}
+          className={cn(buttonVariants({ variant: "accent", size: "sm" }), "mt-2 w-full")}
         >
           Confirmer la pièce
         </button>
@@ -106,6 +123,7 @@ export function KycQueueCard({
     canReview && ["PENDING", "IN_REVIEW", "INFO_REQUESTED"].includes(item.kycStatus);
   return (
     <QueueCard
+      className="border-l-[3px] border-l-accent"
       title={`${item.firstname} ${item.lastname}`}
       subtitle={item.phone ?? "Téléphone non renseigné"}
       status={<StatusBadge status={item.kycStatus} />}
@@ -123,27 +141,37 @@ export function KycQueueCard({
         ))}
       </div>
       {!complete ? (
-        <p className="rounded-xl bg-warning/10 p-3 text-sm font-semibold text-warning">
-          Toutes les pièces obligatoires doivent être consultées et confirmées avant validation.
+        <p className="mt-3 flex items-start gap-2 rounded-xl border border-pastel-gold bg-pastel-gold p-3 text-sm font-semibold leading-5 text-foreground">
+          <Clock3 className="mt-0.5 size-4 shrink-0 text-warning" strokeWidth={1.8} aria-hidden />
+          <span>
+            Toutes les pièces obligatoires doivent être consultées et confirmées avant validation.
+          </span>
         </p>
       ) : null}
       {actionable ? (
-        <StaffActions
-          busy={busy}
-          actions={[
-            { value: "VALIDATE", label: "Valider", tone: "accent", disabled: !complete },
-            {
-              value: "REQUEST_INFO",
-              label: "Demander un complément",
-              requiresReason: true,
-              tone: "outline",
-            },
-            { value: "REJECT", label: "Rejeter", requiresReason: true },
-          ]}
-          onSubmit={(action, values) => onReview(action, values.reason)}
-        />
+        <div className="mt-4 space-y-3 border-t border-separator pt-4">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+            Décision de conformité
+          </p>
+          <StaffActions
+            busy={busy}
+            actions={[
+              { value: "VALIDATE", label: "Valider", tone: "accent", disabled: !complete },
+              {
+                value: "REQUEST_INFO",
+                label: "Demander un complément",
+                requiresReason: true,
+                tone: "outline",
+              },
+              { value: "REJECT", label: "Rejeter", requiresReason: true },
+            ]}
+            onSubmit={(action, values) => onReview(action, values.reason)}
+          />
+        </div>
       ) : (
-        <p className="text-sm text-muted-foreground">Consultation en lecture seule.</p>
+        <p className="mt-4 border-t border-separator pt-4 text-sm leading-6 text-muted-foreground">
+          Consultation en lecture seule.
+        </p>
       )}
       <MutationFeedback error={error} success={success} />
     </QueueCard>
