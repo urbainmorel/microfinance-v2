@@ -365,3 +365,25 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   l'application ; le projet Coutilo est explicitement hors périmètre.
 - Garde CI ajouté avant toute liaison : une autre référence, y compris Coutilo, arrête le workflow
   avant la lecture ou l'application des migrations.
+
+### Refonte de l'expérience client et administrateur — terminée visuellement
+
+- Nouvelle identité visuelle responsive appliquée aux espaces d'authentification, client et
+  administration, avec composants de navigation et états de chargement harmonisés.
+- Tableau de bord client enrichi d'actions rapides et d'un carrousel des deux offres de
+  financement paramétrées, sans dupliquer la logique de récupération des produits.
+- Dépôts, retraits, remboursements et demandes de prêt convertis en parcours guidés par étapes,
+  avec validation progressive, récapitulatif et confirmation PIN.
+- Contrat, garantie et remboursement accessibles dans des fenêtres modales avec gestion du focus,
+  fermeture sécurisée pendant les traitements et alternative en page dédiée.
+- Inscription publique convertie en deux étapes et test E2E adapté ; manifeste et icônes PWA
+  alignés sur la nouvelle palette.
+- Traduction anglaise exhaustive des nouveaux libellés financiers encore requise avant de déclarer
+  la décision bilingue entièrement implémentée.
+
+### RPC administrateur en transaction — corrigées
+
+- Les fonctions de KPI et de rapport financier sont déclarées `VOLATILE`, conformément au verrou
+  `FOR SHARE` utilisé pour confirmer en base l'administrateur actif.
+- Test pgTAP ajouté sur l'appel KPI ; les deux migrations sont déjà alignées avec la cible
+  officielle `qdmriiokeindzgeokvqj`.
