@@ -9,6 +9,12 @@ test.describe("parcours publics", () => {
     await expect(page.getByLabel("Prénom")).toBeVisible();
     await expect(page.getByLabel("Nom", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Adresse email")).toBeVisible();
+
+    await page.getByLabel("Prénom").fill("Awa");
+    await page.getByLabel("Nom", { exact: true }).fill("Koné");
+    await page.getByLabel("Adresse email").fill("awa.kone@example.com");
+    await page.getByLabel("Adresse email").press("Enter");
+
     await expect(page.getByLabel("Mot de passe", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Créer mon compte" })).toBeVisible();
     await expect(page.getByRole("link", { name: "politique de confidentialité" })).toHaveAttribute(

@@ -4,24 +4,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm, type FieldErrors, type UseFormRegister } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 
 import { AuthCard } from "@/components/auth/auth-card";
 import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
+import { FormStepper } from "@/components/ui/form-stepper";
 import { registerSchema, type RegisterInput } from "@/lib/schemas/auth";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const PRIVACY_POLICY_VERSION = "privacy-v1";
 
-function RegisterFields({
-  register,
-  errors,
-}: {
-  register: UseFormRegister<RegisterInput>;
-  errors: FieldErrors<RegisterInput>;
-}) {
+const REGISTER_STEPS = [{ label: "Profil" }, { label: "Sécurité" }] as const;
+
+function IdentityFields({ form }: { form: UseFormReturn<RegisterInput> }) {
+  const { register, formState } = form;
+  const { errors } = formState;
   return (
     <>
       <div className="grid grid-cols-2 gap-3">
@@ -45,6 +44,23 @@ function RegisterFields({
         autoComplete="email"
         {...register("email")}
         error={errors.email?.message}
+      />
+    </>
+  );
+}
+
+function SecurityFields({ form }: { form: UseFormReturn<RegisterInput> }) {
+  const { register, formState } = form;
+  const { errors } = formState;
+  return (
+    <>
+      <input
+        type="email"
+        name="username"
+        autoComplete="username"
+        value={form.getValues("email")}
+        readOnly
+        hidden
       />
       <FormField
         id="password"
@@ -85,8 +101,14 @@ function RegisterFields({
 
 function RegisterForm() {
   const router = useRouter();
+  const [step, setStep] = useState(0);
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
+
+  async function continueToSecurity() {
+    const valid = await form.trigger(["firstname", "lastname", "email"]);
+    if (valid) setStep(1);
+  }
 
   async function submit(values: RegisterInput) {
     setServerError(null);
@@ -109,13 +131,34 @@ function RegisterForm() {
     router.push("/auth/verify-email");
   }
 
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    if (step === 0) {
+      event.preventDefault();
+      void continueToSecurity();
+      return;
+    }
+    void form.handleSubmit(submit)(event);
+  }
+
   return (
-    <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4" noValidate>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+      <FormStepper steps={REGISTER_STEPS} currentStep={step} className="border-0 bg-muted/55" />
       <FormError message={serverError} />
-      <RegisterFields register={form.register} errors={form.formState.errors} />
-      <Button type="submit" className="mt-2 w-full" disabled={form.formState.isSubmitting}>
-        {form.formState.isSubmitting ? "Création…" : "Créer mon compte"}
-      </Button>
+      {step === 0 ? <IdentityFields form={form} /> : <SecurityFields form={form} />}
+      {step === 0 ? (
+        <Button type="submit" className="mt-1 w-full">
+          Continuer
+        </Button>
+      ) : (
+        <div className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] gap-3">
+          <Button type="button" variant="outline" onClick={() => setStep(0)}>
+            Retour
+          </Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Création…" : "Créer mon compte"}
+          </Button>
+        </div>
+      )}
     </form>
   );
 }
