@@ -252,9 +252,23 @@ export function RepaymentRequestForm() {
       });
       if (result) setRequestId(result.id);
     } catch (error) {
-      setServerError(
-        error instanceof Error ? error.message : "Le remboursement n’a pas pu être envoyé.",
-      );
+      if (error instanceof ClientCommandError && error.code === "PIN_INVALID") {
+        form.setError("pin", {
+          type: "server",
+          message: "Code PIN incorrect. Veuillez vérifier votre saisie.",
+        });
+        setServerError(null);
+      } else if (error instanceof ClientCommandError && error.code === "PIN_LOCKED") {
+        form.setError("pin", {
+          type: "server",
+          message: "Code PIN temporairement bloqué suite à trop de tentatives.",
+        });
+        setServerError(null);
+      } else {
+        setServerError(
+          error instanceof Error ? error.message : "Le remboursement n’a pas pu être envoyé.",
+        );
+      }
     }
   }
 

@@ -387,3 +387,13 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
   `FOR SHARE` utilisé pour confirmer en base l'administrateur actif.
 - Test pgTAP ajouté sur l'appel KPI ; les deux migrations sont déjà alignées avec la cible
   officielle `qdmriiokeindzgeokvqj`.
+
+## 2026-09-17
+
+### Restructuration et enrichissement de la documentation — terminé
+
+- Création du document d'architecture visuel `docs/architecture.md` avec diagrammes Mermaid (Vue d'ensemble, Modèle de sécurité PIN/JWT, Solde à 5 composantes, et Cycle de vie du prêt en 10 états).
+- Création du guide de référence API & Supabase `docs/api-reference.md` (Tables PostgreSQL, RPCs `SECURITY DEFINER`, Edge Functions Deno, et Buckets Storage).
+- Création du guide de tests & qualité `docs/testing-guide.md` (Stratégie à 3 niveaux : Vitest, pgTAP dans GitHub Actions, Playwright E2E, et hooks Pre-commit Husky).
+- Refonte complète de `README.md` avec navigation directe, badges, stack clarifiée et invariants non négociables.
+- Mise à jour du portail `docs/index.md` intégrant les nouveaux documents dans la table des matières et les parcours conseillés (Produit, Développeur, Ops).

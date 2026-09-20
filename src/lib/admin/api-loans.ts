@@ -82,6 +82,7 @@ export async function getLoanProducts(): Promise<LoanProduct[]> {
   const { data, error } = await adminSupabase
     .from("loan_products")
     .select("*")
+    .is("retired_at", null)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return rows(data).map(mapProduct);

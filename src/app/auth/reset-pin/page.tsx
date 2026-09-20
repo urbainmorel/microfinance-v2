@@ -64,9 +64,18 @@ function usePinRecovery() {
     confirmPin,
     error,
     busy,
-    setOtp,
-    setNewPin,
-    setConfirmPin,
+    setOtp: (val: string) => {
+      setOtp(val);
+      if (error) setError(null);
+    },
+    setNewPin: (val: string) => {
+      setNewPin(val);
+      if (error) setError(null);
+    },
+    setConfirmPin: (val: string) => {
+      setConfirmPin(val);
+      if (error) setError(null);
+    },
     requestOtp,
     confirmReset,
   };

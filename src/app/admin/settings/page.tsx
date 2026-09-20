@@ -16,7 +16,11 @@ const SETTINGS_KEY = ["admin", "settings"] as const;
 
 export default function AdminSettingsPage() {
   const query = useQuery({ queryKey: SETTINGS_KEY, queryFn: getAppSettings });
-  const mutation = useAdminMutation(saveAppSettings, [SETTINGS_KEY]);
+  const mutation = useAdminMutation(saveAppSettings, [
+    SETTINGS_KEY,
+    ["app_settings", "platform_name"],
+    ["app_settings"],
+  ]);
   return (
     <>
       <AdminPageHeader

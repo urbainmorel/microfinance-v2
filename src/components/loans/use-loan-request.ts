@@ -46,7 +46,7 @@ export function useLoanRequest(products: LoanProduct[], defaultProductId?: strin
     },
   });
   const simulation = useLoanSimulation(form, products, setServerError);
-  const submission = useLoanSubmission(simulation.simulationIsFresh, setServerError);
+  const submission = useLoanSubmission(simulation.simulationIsFresh, setServerError, form);
 
   return {
     form,

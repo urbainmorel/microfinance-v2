@@ -6,7 +6,7 @@ import {
   BookOpenCheck,
   ChevronLeft,
   ClipboardCheck,
-  DatabaseZap,
+  Database,
   FileClock,
   HandCoins,
   LayoutDashboard,
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { PlatformName } from "@/components/brand/platform-name";
 import { formatRole } from "@/lib/admin/format";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +34,7 @@ const navigation = [
   { href: "/admin/loans", label: "Prêts", icon: BookOpenCheck },
   { href: "/admin/products", label: "Produits", icon: PackageOpen },
   { href: "/admin/users", label: "Utilisateurs", icon: UserRoundCog },
-  { href: "/admin/privacy", label: "Données", icon: DatabaseZap },
+  { href: "/admin/privacy", label: "Données", icon: Database },
   { href: "/admin/audit", label: "Audit", icon: FileClock },
   { href: "/admin/settings", label: "Paramètres", icon: Settings },
   { href: "/admin/templates", label: "Notifications", icon: Mail },
@@ -47,7 +48,9 @@ function Brand() {
         <ShieldCheck className="size-[18px]" strokeWidth={1.9} aria-hidden />
       </div>
       <div className="min-w-0">
-        <p className="truncate font-display text-[15px] font-bold text-foreground">Microfinance</p>
+        <p className="truncate font-display text-[15px] font-bold text-foreground">
+          <PlatformName fallback="Azari Microfinance" />
+        </p>
         <p className="truncate text-[11px] font-medium text-muted-foreground">
           Centre d’opérations
         </p>

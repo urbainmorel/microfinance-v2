@@ -1,22 +1,29 @@
 "use client";
 
-import { type UseFormReturn } from "react-hook-form";
+import { Controller, type UseFormReturn } from "react-hook-form";
 
 import { FormField } from "@/components/ui/form-field";
+import { SearchableSelectField } from "@/components/ui/searchable-select-field";
 import { SelectField } from "@/components/ui/select-field";
-import { type KycField, type KycInput } from "@/lib/schemas/kyc";
+import { FCFA_COUNTRIES, type KycField, type KycInput } from "@/lib/schemas/kyc";
 
 type FieldMeta = {
   label: string;
   type?: string;
   inputMode?: "numeric" | "tel";
   placeholder?: string;
-  options?: { value: string; label: string }[];
+  searchable?: boolean;
+  options?: readonly { value: string; label: string }[];
 };
 
 const FIELD_META: Record<KycField, FieldMeta> = {
   birth_date: { label: "Date de naissance", type: "date" },
-  country: { label: "Pays de résidence", placeholder: "Ex. Côte d'Ivoire" },
+  country: {
+    label: "Pays de résidence",
+    placeholder: "Rechercher un pays…",
+    searchable: true,
+    options: FCFA_COUNTRIES,
+  },
   city: { label: "Ville" },
   address: { label: "Adresse précise" },
   phone: { label: "Téléphone", type: "tel", inputMode: "tel", placeholder: "+225…" },
@@ -43,16 +50,38 @@ const FIELD_META: Record<KycField, FieldMeta> = {
   usual_bank: { label: "Banque habituelle" },
 };
 
-/** Rend le contrôle adapté à un champ KYC (select natif ou input labellisé). */
+/** Rend le contrôle adapté à un champ KYC (autocomplétion, select natif ou input labellisé). */
 export function FieldControl({ name, form }: { name: KycField; form: UseFormReturn<KycInput> }) {
   const meta = FIELD_META[name];
   const error = form.formState.errors[name]?.message;
+
+  if (meta.searchable && meta.options) {
+    return (
+      <Controller
+        name={name}
+        control={form.control}
+        render={({ field }) => (
+          <SearchableSelectField
+            id={name}
+            label={meta.label}
+            placeholder={meta.placeholder ?? "Rechercher…"}
+            options={meta.options ?? []}
+            value={field.value as string | undefined}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            error={error}
+          />
+        )}
+      />
+    );
+  }
+
   if (meta.options) {
     return (
       <SelectField
         id={name}
         label={meta.label}
-        placeholder="Sélectionner…"
+        placeholder={meta.placeholder ?? "Sélectionner…"}
         options={meta.options}
         {...form.register(name)}
         error={error}

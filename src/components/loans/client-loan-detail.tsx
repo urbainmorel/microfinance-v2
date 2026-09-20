@@ -102,7 +102,7 @@ function Summary({
           <p className="font-semibold">{formatFcfa(loan.remaining_principal)}</p>
         </div>
         <div>
-          <p className="text-muted-foreground">Taux mensuel</p>
+          <p className="text-muted-foreground">Taux annuel</p>
           <p className="font-semibold">{loan.interest_rate} %</p>
         </div>
       </div>

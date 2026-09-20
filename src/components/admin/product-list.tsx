@@ -4,6 +4,7 @@ import { QueueCard } from "@/components/admin/queue-card";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/admin/format";
+import { cleanProductDescription } from "@/lib/format";
 
 import type { LoanProduct } from "@/lib/admin/types";
 
@@ -57,7 +58,7 @@ export function ProductList({
         <QueueCard
           key={product.id}
           title={product.name}
-          subtitle={product.description ?? "Sans description"}
+          subtitle={cleanProductDescription(product.description) ?? "Sans description"}
           status={<StatusBadge status={product.isActive ? "ACTIVE" : "CANCELLED"} />}
           facts={[
             {
@@ -68,7 +69,7 @@ export function ProductList({
               label: "Durées",
               value: `${product.minDurationMonths} à ${product.maxDurationMonths} mois`,
             },
-            { label: "Intérêt", value: `${product.interestRate}%` },
+            { label: "Taux annuel", value: `${product.interestRate} %` },
             { label: "Garantie", value: `${product.guaranteeRate}%` },
             { label: "Épargne obligatoire", value: `${product.mandatorySavingsRate}%` },
             { label: "Créé le", value: formatDate(product.createdAt) },

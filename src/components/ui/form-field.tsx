@@ -1,9 +1,9 @@
 import { AlertCircle } from "lucide-react";
 import * as React from "react";
 
-import { Input } from "@/components/ui/input";
+import { Input, type InputProps } from "@/components/ui/input";
 
-type FormFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type FormFieldProps = InputProps & {
   label: string;
   error?: string;
 };

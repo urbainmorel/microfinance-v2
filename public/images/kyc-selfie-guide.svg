@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 380" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="50%" stop-color="#f1f5f9" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+
+    <!-- Card Shadow -->
+    <filter id="cardShadow" x="-15%" y="-15%" width="130%" height="135%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.14" />
+    </filter>
+
+    <!-- Subtle Skin Gradient for Natural Depth -->
+    <linearGradient id="skin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fae2d0" />
+      <stop offset="100%" stop-color="#f2cfb6" />
+    </linearGradient>
+    <linearGradient id="skinShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e8bd9e" />
+      <stop offset="100%" stop-color="#deb08f" />
+    </linearGradient>
+
+    <!-- Card Gradient -->
+    <linearGradient id="idCardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f8fafc" />
+    </linearGradient>
+  </defs>
+
+  <!-- Container Box with Rounded Corners -->
+  <rect width="540" height="380" rx="20" fill="url(#bgGlow)" />
+
+  <!-- Verification Frame / Scan Area Guides -->
+  <g stroke="#94a3b8" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6">
+    <!-- Top Left -->
+    <path d="M 45 65 L 45 45 L 65 45" />
+    <!-- Top Right -->
+    <path d="M 475 45 L 495 45 L 495 65" />
+    <!-- Bottom Left -->
+    <path d="M 45 315 L 45 335 L 65 335" />
+    <!-- Bottom Right -->
+    <path d="M 495 315 L 495 335 L 475 335" />
+  </g>
+
+  <!-- Soft Central Halo -->
+  <circle cx="230" cy="180" r="140" fill="#ffffff" opacity="0.75" />
+
+  <!-- === PERSON (BUSTE) === -->
+  <g id="character">
+    <!-- Shoulders & Upper Body -->
+    <path d="M 60 380 C 75 305, 145 270, 205 264 L 260 264 C 320 270, 395 305, 415 380 Z" fill="#0f766e" />
+    <!-- Crew Neckline -->
+    <path d="M 205 264 C 215 282, 250 282, 260 264" fill="none" stroke="#042f2e" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Neck with Soft Anatomical Shadow -->
+    <path d="M 210 215 L 210 268 C 220 272, 245 272, 255 268 L 255 215 Z" fill="url(#skinShadow)" />
+    <path d="M 213 220 L 213 266 C 222 270, 243 270, 252 266 L 252 220 Z" fill="url(#skin)" />
+
+    <!-- Left Ear -->
+    <path d="M 183 162 C 175 168, 175 186, 184 192 C 185 190, 185 168, 183 162 Z" fill="#ebd0be" stroke="#d49e7d" stroke-width="1" />
+
+    <!-- Head / Jawline with Natural Human Proportions -->
+    <!-- Jaw and Face Shape (Tapered oval, natural chin) -->
+    <path d="M 184 150 C 184 115, 198 90, 232 90 C 266 90, 280 115, 280 150 C 280 185, 276 210, 254 228 C 244 236, 220 236, 210 228 C 188 210, 184 185, 184 150 Z" fill="url(#skin)" stroke="#d49e7d" stroke-width="1.2" />
+
+    <!-- Hair Silhouette (Clean, Natural, Minimalist) -->
+    <path d="M 182 148 C 180 115, 195 82, 232 82 C 270 82, 284 115, 283 148 C 281 120, 265 98, 232 98 C 198 98, 184 120, 182 148 Z" fill="#1e293b" />
+    <path d="M 182 145 C 185 125, 202 105, 232 105 C 262 105, 280 125, 282 145 C 274 128, 256 118, 232 118 C 208 118, 190 128, 182 145 Z" fill="#0f172a" />
+
+    <!-- === HUMAN FACIAL FEATURES (CLEAR OPEN EYES) === -->
+    <!-- Left Eyebrow -->
+    <path d="M 197 151 C 205 146, 215 146, 221 150" fill="none" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round" />
+
+    <!-- Left Eye (Open, Almond Shape) -->
+    <g id="eye-left">
+      <!-- White Sclera -->
+      <path d="M 198 162 C 203 156, 215 156, 220 162 C 215 168, 203 168, 198 162 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="0.8" />
+      <!-- Iris & Pupil (Looking forward) -->
+      <ellipse cx="209" cy="162" rx="4" ry="4.5" fill="#1e293b" />
+      <!-- Light Catch / Reflection Dot -->
+      <circle cx="210.5" cy="160.5" r="1.3" fill="#ffffff" />
+      <!-- Upper Eyelid Line -->
+      <path d="M 197 162 C 202 155, 216 155, 221 162" fill="none" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round" />
+    </g>
+
+    <!-- Right Eyebrow -->
+    <path d="M 243 150 C 249 146, 259 146, 267 151" fill="none" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round" />
+
+    <!-- Right Eye (Open, Almond Shape) -->
+    <g id="eye-right">
+      <!-- White Sclera -->
+      <path d="M 244 162 C 249 156, 261 156, 266 162 C 261 168, 249 168, 244 162 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="0.8" />
+      <!-- Iris & Pupil (Looking forward) -->
+      <ellipse cx="255" cy="162" rx="4" ry="4.5" fill="#1e293b" />
+      <!-- Light Catch / Reflection Dot -->
+      <circle cx="256.5" cy="160.5" r="1.3" fill="#ffffff" />
+      <!-- Upper Eyelid Line -->
+      <path d="M 243 162 C 248 155, 262 155, 267 162" fill="none" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round" />
+    </g>
+
+    <!-- Minimalist Nose Bridge & Tip -->
+    <path d="M 233 158 L 232 181 C 232 185, 235 186, 238 184" fill="none" stroke="#c28b68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 227 183 C 228 185, 230 185, 232 184" fill="none" stroke="#c28b68" stroke-width="1.5" stroke-linecap="round" />
+
+    <!-- Minimalist Friendly Lips / Smile -->
+    <path d="M 221 204 C 227 203, 237 203, 243 204" fill="none" stroke="#be123c" stroke-width="1.8" stroke-linecap="round" />
+    <path d="M 222 205 Q 232 211 242 205" fill="none" stroke="#9f1239" stroke-width="2" stroke-linecap="round" />
+    <path d="M 227 212 Q 232 214 237 212" fill="none" stroke="#c28b68" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+  </g>
+
+  <!-- === IDENTITY CARD HELD BESIDE FACE === -->
+  <g id="identityCard" filter="url(#cardShadow)">
+    <!-- Card Base -->
+    <rect x="290" y="138" width="148" height="96" rx="10" fill="url(#idCardBg)" stroke="#cbd5e1" stroke-width="1.5" />
+
+    <!-- Card Blue Top Strip -->
+    <path d="M 290 148 A 10 10 0 0 1 300 138 L 428 138 A 10 10 0 0 1 438 148 L 438 158 L 290 158 Z" fill="#2563eb" />
+    <!-- Card Watermark / Emblem -->
+    <circle cx="420" cy="148" r="5" fill="#ffffff" opacity="0.4" />
+
+    <!-- Gold Smart Chip (Realistic) -->
+    <rect x="306" y="172" width="20" height="15" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" />
+    <line x1="306" y1="179" x2="326" y2="179" stroke="#d97706" stroke-width="0.8" />
+    <line x1="316" y1="172" x2="316" y2="187" stroke="#d97706" stroke-width="0.8" />
+
+    <!-- ID Photo Placeholder Silhouette -->
+    <rect x="306" y="193" width="26" height="30" rx="4" fill="#e2e8f0" />
+    <circle cx="319" cy="203" r="5" fill="#94a3b8" />
+    <path d="M 309 221 C 309 214, 329 214, 329 221 Z" fill="#94a3b8" />
+
+    <!-- Abstract Identity Data Lines (No Real Text) -->
+    <rect x="340" y="174" width="76" height="5" rx="2.5" fill="#64748b" />
+    <rect x="340" y="185" width="60" height="4" rx="2" fill="#94a3b8" />
+    <rect x="340" y="195" width="70" height="4" rx="2" fill="#cbd5e1" />
+    <rect x="340" y="205" width="50" height="4" rx="2" fill="#cbd5e1" />
+    <rect x="340" y="215" width="65" height="4" rx="2" fill="#cbd5e1" />
+  </g>
+
+  <!-- === HAND HOLDING THE CARD === -->
+  <g id="hand">
+    <!-- Natural Hand Holding Card from Bottom/Side -->
+    <!-- Forearm leading up from bottom -->
+    <path d="M 390 380 L 375 280 C 375 260, 395 245, 415 240 L 440 240 L 450 380 Z" fill="#fae2d0" stroke="#d49e7d" stroke-width="1" />
+
+    <!-- Thumb holding bottom left of card -->
+    <path d="M 282 208 C 278 198, 290 190, 302 196 L 312 214 C 310 222, 298 226, 290 222 Z" fill="#fae2d0" stroke="#d49e7d" stroke-width="1.2" />
+
+    <!-- Supporting Fingers under the card -->
+    <path d="M 395 234 C 400 230, 420 230, 428 238 C 428 248, 410 252, 398 248 Z" fill="#ebd0be" stroke="#d49e7d" stroke-width="1.2" />
+  </g>
+</svg>

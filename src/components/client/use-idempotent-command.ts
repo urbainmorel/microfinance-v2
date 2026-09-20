@@ -22,6 +22,9 @@ export function useIdempotentCommand() {
       const result = await execute(pending.current.key);
       pending.current = null;
       return result;
+    } catch (error) {
+      pending.current = null;
+      throw error;
     } finally {
       active.current = false;
     }

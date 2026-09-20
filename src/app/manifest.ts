@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Microfinance UMOA",
-    short_name: "Microfinance",
+    name: "Azari Microfinance",
+    short_name: "Azari",
     description: "Espace sécurisé de gestion des demandes, prêts et remboursements en XOF.",
     start_url: "/",
     display: "standalone",

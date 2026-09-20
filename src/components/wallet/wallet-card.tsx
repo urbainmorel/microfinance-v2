@@ -1,11 +1,18 @@
 import { Clock, Lock, WalletCards } from "lucide-react";
 
 import { formatFcfa } from "@/lib/format";
+import { useActiveLoan } from "@/lib/hooks/use-active-loan";
 import { type WalletSubAccounts, type WalletSummary } from "@/lib/wallet";
 
 type Props = { summary: WalletSummary; subAccounts: WalletSubAccounts };
 
 export function WalletCard({ summary, subAccounts }: Props) {
+  const { data: loan } = useActiveLoan();
+  const isGuaranteePending =
+    Boolean(loan?.guaranteeRequired) &&
+    !loan?.guaranteeSatisfied &&
+    (loan?.remainingGuarantee ?? 0) > 0;
+
   const stats = [
     { key: "blocked", Icon: Lock, label: "Montant bloqué", value: summary.blocked },
     { key: "reserved", Icon: Clock, label: "Retrait en attente", value: summary.reserved },
@@ -36,9 +43,16 @@ export function WalletCard({ summary, subAccounts }: Props) {
         {formatFcfa(summary.available)}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium text-white/70">
+      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-medium text-white/70">
         <span>Épargne libre · {formatFcfa(subAccounts.free_savings)}</span>
-        <span>Prêt disponible · {formatFcfa(subAccounts.disbursed_loan)}</span>
+        {isGuaranteePending && subAccounts.disbursed_loan > 0 ? (
+          <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5 text-amber-200">
+            <Lock className="size-3" aria-hidden />
+            Prêt crédité · Retrait verrouillé ({formatFcfa(subAccounts.disbursed_loan)})
+          </span>
+        ) : (
+          <span>Prêt disponible · {formatFcfa(subAccounts.disbursed_loan)}</span>
+        )}
       </div>
 
       <div className="mt-7 grid grid-cols-2 gap-x-5 gap-y-5 border-t border-white/15 pt-5 sm:grid-cols-3">

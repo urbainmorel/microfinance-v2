@@ -31,7 +31,9 @@ type ClientCommandErrorCode =
   | "FORBIDDEN"
   | "VALIDATION_ERROR"
   | "INVALID_TRANSITION"
+  | "ACTIVE_LOAN_EXISTS"
   | "INSUFFICIENT_FUNDS"
+  | "GUARANTEE_REQUIRED"
   | "ALREADY_PROCESSED"
   | "OUTSIDE_WINDOW";
 
@@ -42,7 +44,9 @@ const ERROR_MESSAGES: Record<ClientCommandErrorCode, string> = {
   FORBIDDEN: "Vous n’êtes pas autorisé à effectuer cette opération.",
   VALIDATION_ERROR: "Les informations transmises sont invalides.",
   INVALID_TRANSITION: "Cette demande ne peut plus être modifiée.",
+  ACTIVE_LOAN_EXISTS: "Vous avez déjà un prêt actif ou une demande de prêt en cours de traitement.",
   INSUFFICIENT_FUNDS: "Votre solde disponible est insuffisant.",
+  GUARANTEE_REQUIRED: "Le retrait de votre prêt exige la constitution préalable de la garantie.",
   ALREADY_PROCESSED: "Cette opération a déjà été enregistrée.",
   OUTSIDE_WINDOW: "Les retraits sont traités uniquement entre 8 h et 19 h.",
 };

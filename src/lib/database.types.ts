@@ -42,9 +42,11 @@ export type Database = {
     Tables: {
       app_settings: Table<{
         audit_retention_days: number;
+        auto_loan_approval: boolean;
         default_after_days: number;
         id: boolean;
         kyc_retention_days: number;
+        platform_name: string;
         transfer_fee: number;
         updated_at: string | null;
         withdrawal_fee: number;
@@ -65,6 +67,8 @@ export type Database = {
           id_type: string | null;
           is_active: boolean | null;
           kyc_status: string | null;
+          kyc_rejection_reason: string | null;
+          kyc_ai_report: Json | null;
           lastname: string;
           monthly_income_estimate: number | null;
           phone: string | null;
@@ -669,6 +673,15 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      auto_process_kyc: {
+        Args: {
+          p_client_id: string;
+          p_decision: string;
+          p_reason?: string | null;
+          p_report?: Json | null;
+        };
+        Returns: undefined;
+      };
       get_pin_security_for_verification: {
         Args: { p_user_id: string };
         Returns: {

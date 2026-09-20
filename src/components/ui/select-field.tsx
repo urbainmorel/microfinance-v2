@@ -8,7 +8,7 @@ type Option = { value: string; label: string };
 type SelectFieldProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
   label: string;
   error?: string;
-  options: Option[];
+  options: readonly Option[];
   placeholder?: string;
 };
 

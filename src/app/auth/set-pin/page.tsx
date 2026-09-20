@@ -48,7 +48,11 @@ export default function SetPinPage() {
           inputMode="numeric"
           autoComplete="off"
           maxLength={6}
-          {...register("pin")}
+          {...register("pin", {
+            onChange: () => {
+              if (serverError) setServerError(null);
+            },
+          })}
           error={errors.pin?.message}
         />
         <FormField
@@ -58,7 +62,11 @@ export default function SetPinPage() {
           inputMode="numeric"
           autoComplete="off"
           maxLength={6}
-          {...register("confirm")}
+          {...register("confirm", {
+            onChange: () => {
+              if (serverError) setServerError(null);
+            },
+          })}
           error={errors.confirm?.message}
         />
         <Button type="submit" className="mt-2 w-full" disabled={isSubmitting}>

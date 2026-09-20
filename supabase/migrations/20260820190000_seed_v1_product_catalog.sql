@@ -34,9 +34,9 @@ insert into public.loan_products (
     '10000000-0000-4000-8000-000000000001',
     '10000000-0000-4000-8000-000000000001',
     'Prêt Essentiel',
-    'Financement court terme pour les besoins essentiels du pilote V1.',
+    'Financement court terme pour les besoins essentiels.',
     50000, 300000, 3, 6,
-    1.000, 'CONSTANT_INSTALLMENT',
+    12.000, 'CONSTANT_INSTALLMENT',
     0, 0, 0, 0, 0,
     10.000, 5.000, 0.030, true
   ),
@@ -44,13 +44,14 @@ insert into public.loan_products (
     '10000000-0000-4000-8000-000000000002',
     '10000000-0000-4000-8000-000000000002',
     'Prêt Croissance',
-    'Financement du développement d’une activité dans le pilote V1.',
+    'Financement du développement d’une activité.',
     100000, 1500000, 6, 12,
-    1.250, 'CONSTANT_INSTALLMENT',
+    15.000, 'CONSTANT_INSTALLMENT',
     0, 0, 0, 0, 0,
     10.000, 5.000, 0.030, true
   )
-on conflict (id) do nothing;
+on conflict (id) do update set
+  description = excluded.description;
 
 revoke all on function app_private.enforce_v1_product_family_limit()
 from public, anon, authenticated;

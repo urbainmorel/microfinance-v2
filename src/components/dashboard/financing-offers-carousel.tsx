@@ -1,15 +1,18 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, ExternalLink, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ExternalLink, Lock, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { FinancingOfferMetrics } from "@/components/dashboard/financing-offer-metrics";
+import { KycRequiredModal } from "@/components/kyc/kyc-required-modal";
 import { LoanRequestForm } from "@/components/loans/loan-request-form";
 import { useActiveLoanProducts } from "@/components/loans/use-loan-request";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cleanProductDescription } from "@/lib/format";
+import { useProfile } from "@/lib/hooks/use-profile";
 import { cn } from "@/lib/utils";
 
 import type { LoanProduct } from "@/lib/schemas/loan";
@@ -19,17 +22,50 @@ function shouldOpenModal(event: MouseEvent<HTMLAnchorElement>) {
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 }
 
-function cleanDescription(description: string | null) {
-  return description?.replace(/\s+(?:dans|du) pilote V1\.?$/i, ".").replace(/\.\.$/, ".");
+function FinancingOfferButton({
+  href,
+  orange,
+  isKycVerified,
+  select,
+}: {
+  href: string;
+  orange: boolean;
+  isKycVerified: boolean;
+  select: () => void;
+}) {
+  return (
+    <Link
+      href={isKycVerified ? href : "/client/kyc"}
+      onClick={(event) => {
+        if (!isKycVerified || shouldOpenModal(event)) {
+          event.preventDefault();
+          select();
+        }
+      }}
+      aria-haspopup="dialog"
+      className={cn(
+        buttonVariants({ size: "default" }),
+        "min-w-40",
+        orange
+          ? "bg-[#20150d] text-white hover:bg-[#382419]"
+          : "bg-[#111418] text-white hover:bg-[#252a30]",
+      )}
+    >
+      {!isKycVerified ? <Lock className="mr-1 size-3.5 text-warning" aria-hidden /> : null}
+      Demander ce prêt
+    </Link>
+  );
 }
 
 function FinancingOffer({
   product,
   index,
+  isKycVerified,
   select,
 }: {
   product: LoanProduct;
   index: number;
+  isKycVerified: boolean;
   select: () => void;
 }) {
   const orange = index % 2 === 1;
@@ -62,37 +98,25 @@ function FinancingOffer({
       <div className="relative z-10 grid min-h-[205px] gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-10">
         <div className="max-w-2xl">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] opacity-65">
-            <Sparkles className="size-3.5" aria-hidden />
+            <BadgeCheck className="size-3.5" aria-hidden />
             Solution {String(index + 1).padStart(2, "0")}
           </div>
           <h3 className="mt-2 font-display text-2xl font-bold tracking-[-0.035em] sm:text-3xl">
             {product.name}
           </h3>
           <p className="mt-1.5 line-clamp-2 max-w-xl text-sm leading-5 opacity-70">
-            {cleanDescription(product.description) ??
+            {cleanProductDescription(product.description) ??
               "Une solution de financement flexible, conçue pour accompagner vos projets."}
           </p>
           <FinancingOfferMetrics product={product} />
         </div>
         <div className="flex items-center lg:justify-end">
-          <Link
+          <FinancingOfferButton
             href={href}
-            onClick={(event) => {
-              if (!shouldOpenModal(event)) return;
-              event.preventDefault();
-              select();
-            }}
-            aria-haspopup="dialog"
-            className={cn(
-              buttonVariants({ size: "default" }),
-              "min-w-40",
-              orange
-                ? "bg-[#20150d] text-white hover:bg-[#382419]"
-                : "bg-[#111418] text-white hover:bg-[#252a30]",
-            )}
-          >
-            Demander ce prêt
-          </Link>
+            orange={orange}
+            isKycVerified={isKycVerified}
+            select={select}
+          />
         </div>
       </div>
     </article>
@@ -172,17 +196,19 @@ function CarouselIndicators({
 }
 
 function RequestModal({ productId, close }: { productId: string | null; close: () => void }) {
+  const handleOpenChange = (open: boolean) => {
+    if (!open) close();
+  };
+
   return (
     <Modal
       open={productId !== null}
-      onOpenChange={(open) => {
-        if (!open) close();
-      }}
+      onOpenChange={handleOpenChange}
       title="Demander un prêt"
       description="Simulez votre financement, préparez votre dossier puis confirmez votre demande."
       className="max-w-4xl"
     >
-      {productId ? <LoanRequestForm defaultProductId={productId} /> : null}
+      {productId ? <LoanRequestForm defaultProductId={productId} onClose={close} /> : null}
       {productId ? (
         <div className="mt-5 border-t border-border pt-4 text-center">
           <Link
@@ -207,11 +233,16 @@ function OffersLoading() {
 }
 
 export function FinancingOffersCarousel() {
+  const { data: profile } = useProfile();
+  const isKycVerified = profile?.kyc_status === "COMPLETED";
+  const [kycModalOpen, setKycModalOpen] = useState(false);
   const products = useActiveLoanProducts();
   const viewportRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const count = products.data?.length ?? 0;
+
+  const handleCloseModal = () => setSelectedProductId(null);
 
   if (products.isPending) return <OffersLoading />;
   if (products.isError || !products.data?.length) return null;
@@ -222,6 +253,14 @@ export function FinancingOffersCarousel() {
     const nextIndex = (index + count) % count;
     viewport.scrollTo({ left: nextIndex * viewport.clientWidth, behavior: "smooth" });
     setActiveIndex(nextIndex);
+  }
+
+  function handleSelect(productId: string) {
+    if (!isKycVerified) {
+      setKycModalOpen(true);
+      return;
+    }
+    setSelectedProductId(productId);
   }
 
   return (
@@ -248,7 +287,8 @@ export function FinancingOffersCarousel() {
               key={product.id}
               product={product}
               index={index}
-              select={() => setSelectedProductId(product.id)}
+              isKycVerified={isKycVerified}
+              select={() => handleSelect(product.id)}
             />
           ))}
         </div>
@@ -256,7 +296,13 @@ export function FinancingOffersCarousel() {
         <CarouselIndicators products={products.data} activeIndex={activeIndex} goTo={goTo} />
       </section>
 
-      <RequestModal productId={selectedProductId} close={() => setSelectedProductId(null)} />
+      <KycRequiredModal
+        open={kycModalOpen}
+        onOpenChange={setKycModalOpen}
+        status={profile?.kyc_status}
+      />
+
+      <RequestModal productId={selectedProductId} close={handleCloseModal} />
     </>
   );
 }

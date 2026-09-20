@@ -15,7 +15,7 @@ function download(report: FinancialReport) {
   );
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `rapport-microfinance-${report.from}-${report.to}.csv`;
+  anchor.download = `rapport-azari-microfinance-${report.from}-${report.to}.csv`;
   document.body.append(anchor);
   anchor.click();
   anchor.remove();

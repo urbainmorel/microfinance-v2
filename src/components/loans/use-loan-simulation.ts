@@ -3,7 +3,13 @@
 import { useMemo, useState } from "react";
 import { useWatch } from "react-hook-form";
 
+import { formatFcfa } from "@/lib/format";
 import { useSupabase } from "@/lib/hooks/use-supabase";
+import {
+  formatDurationDisplay,
+  getDynamicDurationBounds,
+  validateAmountStep,
+} from "@/lib/loans/loan-tier-rules";
 
 import type { LoanSimulation } from "@/components/loans/loan-request-types";
 import type { LoanProduct, LoanRequestInput, LoanSimulationInput } from "@/lib/schemas/loan";
@@ -15,13 +21,17 @@ function fingerprint(values: LoanSimulationInput) {
 
 function limitsError(product: LoanProduct | undefined, values: LoanRequestInput) {
   if (!product) return null;
-  const amountInvalid = values.amount < product.min_amount || values.amount > product.max_amount;
-  const durationInvalid =
-    values.durationMonths < product.min_duration_months ||
-    values.durationMonths > product.max_duration_months;
-  return amountInvalid || durationInvalid
-    ? "Le montant ou la durée ne respecte pas les limites du produit choisi."
-    : null;
+  if (values.amount < product.min_amount || values.amount > product.max_amount) {
+    return `Le montant demandé doit être compris entre ${formatFcfa(product.min_amount)} et ${formatFcfa(product.max_amount)}.`;
+  }
+  const stepError = validateAmountStep(product, values.amount);
+  if (stepError) return stepError;
+
+  const bounds = getDynamicDurationBounds(product, values.amount);
+  if (values.durationMonths < bounds.minDuration || values.durationMonths > bounds.maxDuration) {
+    return `Pour ${formatFcfa(values.amount)}, la durée autorisée est de ${formatDurationDisplay(bounds.minDuration)} à ${formatDurationDisplay(bounds.maxDuration)}.`;
+  }
+  return null;
 }
 
 export function useLoanSimulation(
@@ -61,8 +71,8 @@ export function useLoanSimulation(
     try {
       const { data, error } = await supabase.rpc("simulate_loan", {
         p_product: values.productId,
-        p_amount: values.amount,
-        p_duration: values.durationMonths,
+        p_amount: Math.trunc(Number(values.amount)),
+        p_duration: Math.trunc(Number(values.durationMonths)),
         p_start_date: values.startDate,
       });
       if (error) throw error;

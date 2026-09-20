@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -16,7 +15,6 @@ import { loginSchema, type LoginInput } from "@/lib/schemas/auth";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
@@ -25,23 +23,31 @@ export default function LoginPage() {
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
 
   async function onSubmit(values: LoginInput) {
-    setServerError(null);
-    const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
-    if (error) {
-      setServerError("Email ou mot de passe incorrect.");
-      return;
+    try {
+      setServerError(null);
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+      if (error) {
+        setServerError("Email ou mot de passe incorrect.");
+        return;
+      }
+      const { data: claimsData } = await supabase.auth.getClaims();
+      if (isAccountInactive(claimsData?.claims?.app_metadata)) {
+        await supabase.auth.signOut();
+        setServerError("Ce compte est désactivé. Contactez le chef d’agence.");
+        return;
+      }
+      const target = await resolvePostAuthPath(supabase);
+      window.location.assign(target);
+    } catch (err: unknown) {
+      console.error("Login submission error:", err);
+      setServerError(
+        "Connexion impossible pour le moment. Veuillez vérifier votre connexion réseau.",
+      );
     }
-    const { data: claimsData } = await supabase.auth.getClaims();
-    if (isAccountInactive(claimsData?.claims?.app_metadata)) {
-      await supabase.auth.signOut();
-      setServerError("Ce compte est désactivé. Contactez le chef d’agence.");
-      return;
-    }
-    router.push(await resolvePostAuthPath(supabase));
   }
 
   return (

@@ -12,7 +12,7 @@ export const messages = {
     "profile.resetPin": "Réinitialiser mon code PIN",
     "profile.logout": "Se déconnecter",
     "profile.privacy":
-      "Pour exercer vos droits sur vos données, contactez l’administrateur de la microfinance.",
+      "Pour exercer vos droits sur vos données, contactez l’administrateur d'Azari Microfinance.",
   },
   en: {
     "nav.home": "Home",
@@ -26,7 +26,8 @@ export const messages = {
     "profile.title": "Profile",
     "profile.resetPin": "Reset my PIN",
     "profile.logout": "Sign out",
-    "profile.privacy": "To exercise your data rights, contact the microfinance administrator.",
+    "profile.privacy":
+      "To exercise your data rights, contact the Azari Microfinance administrator.",
   },
 } as const;
 

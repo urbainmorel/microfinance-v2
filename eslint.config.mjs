@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "src/lib/database.types.ts",
     "supabase/**",
+    "scripts/**",
   ]),
   {
     files: ["**/*.{ts,tsx,js,mjs,cjs}"],

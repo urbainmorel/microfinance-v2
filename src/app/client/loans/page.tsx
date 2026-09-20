@@ -1,3 +1,4 @@
+import { KycNoticeBanner } from "@/components/dashboard/kyc-notice-banner";
 import { LoanCard } from "@/components/dashboard/loan-card";
 import { LoanProducts } from "@/components/loans/loan-products";
 import { PageHeader } from "@/components/ui/page-header";
@@ -9,6 +10,7 @@ export default function LoansPage() {
         title="Mon prêt"
         description="Suivez l’état de votre financement, votre garantie et vos échéances."
       />
+      <KycNoticeBanner />
       <LoanCard />
       <section>
         <h2 className="mb-4 font-display text-xl font-bold tracking-[-0.025em]">

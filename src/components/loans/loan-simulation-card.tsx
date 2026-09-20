@@ -48,6 +48,7 @@ function ScheduleTable({ rows }: { rows: ScheduleRow[] }) {
 }
 
 export function LoanSimulationCard({ simulation }: { simulation: LoanSimulation }) {
+  const monthlyAmount = simulation.schedule[0]?.total ?? simulation.totalDue;
   const summary = [
     ["Frais totaux", simulation.totalFees],
     ["Intérêts totaux", simulation.totalInterest],
@@ -57,9 +58,9 @@ export function LoanSimulationCard({ simulation }: { simulation: LoanSimulation 
   ] as const;
   return (
     <Card className="border-border bg-card p-5 shadow-none sm:p-6" aria-live="polite">
-      <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Étape 2</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Étape 3</p>
           <h2 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">
             Votre simulation
           </h2>
@@ -67,11 +68,19 @@ export function LoanSimulationCard({ simulation }: { simulation: LoanSimulation 
             Consultez le coût complet avant de poursuivre votre demande.
           </p>
         </div>
-        <div className="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 sm:text-right">
-          <p className="text-xs font-semibold text-muted-foreground">Total à rembourser</p>
-          <p className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
-            {formatFcfa(simulation.totalDue)}
-          </p>
+        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+          <div className="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 sm:text-right">
+            <p className="text-xs font-semibold text-muted-foreground">Total à rembourser</p>
+            <p className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
+              {formatFcfa(simulation.totalDue)}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 sm:text-right">
+            <p className="text-xs font-semibold text-muted-foreground">À rembourser par mois :</p>
+            <p className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
+              {formatFcfa(monthlyAmount)}
+            </p>
+          </div>
         </div>
       </div>
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">

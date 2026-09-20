@@ -23,11 +23,11 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Microfinance — Espace client",
+  title: "Azari Microfinance — Espace client",
   description: "Portail de requêtes et de suivi : épargne, prêts et opérations.",
-  applicationName: "Microfinance UMOA",
+  applicationName: "Azari Microfinance",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Microfinance" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Azari Microfinance" },
 };
 
 export const viewport: Viewport = {

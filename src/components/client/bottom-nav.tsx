@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { PlatformName } from "@/components/brand/platform-name";
 import { useClientLocale } from "@/components/i18n/client-locale-provider";
 import { cn } from "@/lib/utils";
 
@@ -29,16 +30,23 @@ const TABS: {
 export function BottomNav() {
   const pathname = usePathname();
   const { t } = useClientLocale();
-  if (pathname.startsWith("/client/kyc")) return null;
+  const isKyc = pathname.startsWith("/client/kyc");
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card lg:sticky lg:inset-auto lg:top-6 lg:flex lg:h-[calc(100dvh-3rem)] lg:flex-col lg:rounded-[22px] lg:border lg:p-3 lg:shadow-card">
+    <nav
+      className={cn(
+        "border-t border-border bg-card lg:sticky lg:inset-auto lg:top-6 lg:flex lg:h-[calc(100dvh-3rem)] lg:flex-col lg:rounded-[22px] lg:border lg:p-3 lg:shadow-card",
+        isKyc ? "hidden lg:flex" : "fixed inset-x-0 bottom-0 z-40",
+      )}
+    >
       <div className="hidden items-center gap-3 px-2 py-3 lg:flex">
         <span className="grid size-10 place-items-center rounded-xl bg-accent text-white">
           <Landmark className="size-[18px]" strokeWidth={1.9} aria-hidden />
         </span>
         <div className="min-w-0">
-          <p className="truncate font-display text-[15px] font-bold tracking-tight">Microfinance</p>
+          <p className="truncate font-display text-[15px] font-bold tracking-tight">
+            <PlatformName fallback="Azari Microfinance" />
+          </p>
           <p className="text-[11px] font-medium text-muted-foreground">Espace client</p>
         </div>
       </div>

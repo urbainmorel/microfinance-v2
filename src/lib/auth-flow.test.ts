@@ -9,12 +9,8 @@ describe("garde d'onboarding client", () => {
     );
   });
 
-  it.each([null, "NONE", "INFO_REQUESTED"])("impose le KYC pour le statut %s", (kyc_status) => {
-    expect(requiredOnboardingPath({ pin_set: true, kyc_status })).toBe("/client/kyc");
-  });
-
-  it.each(["PENDING", "IN_REVIEW", "COMPLETED", "REJECTED"])(
-    "libère l'espace client pour le statut %s",
+  it.each([null, "NONE", "INFO_REQUESTED", "PENDING", "IN_REVIEW", "COMPLETED", "REJECTED"])(
+    "libère l'espace client pour le statut KYC %s dès que le PIN est défini",
     (kyc_status) => {
       expect(requiredOnboardingPath({ pin_set: true, kyc_status })).toBeNull();
     },

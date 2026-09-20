@@ -17,7 +17,7 @@ export default function PrivacyPage() {
         <p>
           Vous pouvez demander l’accès, la correction ou l’effacement des données qui ne sont pas
           soumises à une obligation légale de conservation. Une demande peut être adressée au
-          responsable de la microfinance depuis votre espace client.
+          responsable de Azari Microfinance depuis votre espace client.
         </p>
         <p>
           Les durées définitives de conservation et les coordonnées du responsable de traitement

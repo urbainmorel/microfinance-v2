@@ -1,5 +1,7 @@
 import { ArrowUpRight, Landmark, LockKeyhole, ShieldCheck } from "lucide-react";
 
+import { PlatformName } from "@/components/brand/platform-name";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className="grid min-h-dvh bg-card lg:grid-cols-[minmax(0,1fr)_minmax(500px,0.78fr)]">
@@ -9,7 +11,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <Landmark className="size-5" strokeWidth={1.8} aria-hidden />
           </span>
           <div>
-            <p className="font-display text-lg font-bold tracking-tight">Microfinance</p>
+            <p className="font-display text-lg font-bold tracking-tight">
+              <PlatformName fallback="Azari Microfinance" />
+            </p>
             <p className="text-xs font-medium text-muted-foreground">Votre espace financier</p>
           </div>
         </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -107,14 +109,17 @@ function StepActions({
 
 function DepositWizard({
   form,
+  lockMotif,
   serverError,
   submit,
 }: {
   form: UseFormReturn<DepositRequestInput>;
+  lockMotif?: boolean;
   serverError: string | null;
   submit: (values: DepositRequestInput) => Promise<void>;
 }) {
   const [step, setStep] = useState<TransactionFormStep>(0);
+  const isGuarantee = form.watch("motif") === "GUARANTEE";
 
   async function next() {
     const valid =
@@ -137,12 +142,28 @@ function DepositWizard({
 
   return (
     <div className="flex flex-col gap-4">
+      {isGuarantee ? (
+        <div className="shadow-xs flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+            <ShieldCheck className="size-5" aria-hidden />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">
+              La garantie est remboursée à 100% à la fin du remboursement du prêt.
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Ce dépôt débloque vos retraits et vous sera intégralement reversé dès que votre crédit
+              sera soldé.
+            </p>
+          </div>
+        </div>
+      ) : null}
       <FormStepper steps={DEPOSIT_STEPS} currentStep={step} />
       <Card>
         <form className="flex flex-col gap-5" onSubmit={handleFormSubmit} noValidate>
           <FormError message={serverError} />
           {step === 2 ? <DepositReview values={form.getValues()} /> : null}
-          <DepositFields form={form} step={step} />
+          <DepositFields form={form} step={step} lockMotif={lockMotif} />
           <StepActions
             step={step}
             busy={form.formState.isSubmitting}
@@ -155,8 +176,39 @@ function DepositWizard({
   );
 }
 
-export function DepositRequestForm() {
+function handleDepositPinError(
+  error: unknown,
+  form: UseFormReturn<DepositRequestInput>,
+  setServerError: (msg: string | null) => void,
+) {
+  if (error instanceof ClientCommandError && error.code === "PIN_INVALID") {
+    form.setError("pin", {
+      type: "server",
+      message: "Code PIN incorrect. Veuillez vérifier votre saisie.",
+    });
+    setServerError(null);
+  } else if (error instanceof ClientCommandError && error.code === "PIN_LOCKED") {
+    form.setError("pin", {
+      type: "server",
+      message: "Code PIN temporairement bloqué suite à trop de tentatives.",
+    });
+    setServerError(null);
+  } else {
+    setServerError(error instanceof Error ? error.message : "Le dépôt n’a pas pu être envoyé.");
+  }
+}
+
+export function DepositRequestForm({
+  defaultMotif = "FREE_SAVINGS",
+  lockMotif = false,
+  defaultAmount,
+}: {
+  defaultMotif?: "FREE_SAVINGS" | "GUARANTEE" | "REPAYMENT";
+  lockMotif?: boolean;
+  defaultAmount?: number;
+} = {}) {
   const supabase = useSupabase();
+  const queryClient = useQueryClient();
   const runIdempotent = useIdempotentCommand();
   const [serverError, setServerError] = useState<string | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
@@ -164,8 +216,9 @@ export function DepositRequestForm() {
   const form = useForm<DepositRequestInput>({
     resolver: zodResolver(depositRequestSchema),
     defaultValues: {
+      amount: defaultAmount,
       certified: false,
-      motif: "FREE_SAVINGS",
+      motif: defaultMotif,
       paymentMethod: "MOBILE_MONEY",
       reference: "",
     },
@@ -203,12 +256,21 @@ export function DepositRequestForm() {
           throw error;
         }
       });
-      if (result) setRequestId(result.id);
+      if (result) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["client-operations"] }),
+          queryClient.invalidateQueries({ queryKey: ["wallet"] }),
+          queryClient.invalidateQueries({ queryKey: ["active-loan-status"] }),
+        ]);
+        setRequestId(result.id);
+      }
     } catch (error) {
-      setServerError(error instanceof Error ? error.message : "Le dépôt n’a pas pu être envoyé.");
+      handleDepositPinError(error, form, setServerError);
     }
   }
 
   if (requestId) return <RequestSuccess title="Demande de dépôt envoyée" reference={requestId} />;
-  return <DepositWizard form={form} serverError={serverError} submit={submit} />;
+  return (
+    <DepositWizard form={form} lockMotif={lockMotif} serverError={serverError} submit={submit} />
+  );
 }

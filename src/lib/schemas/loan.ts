@@ -24,13 +24,12 @@ export const loanRequestSchema = loanSimulationInputSchema.extend({
     .number({ invalid_type_error: "Saisissez votre revenu mensuel" })
     .int("Le revenu doit être un nombre entier")
     .nonnegative("Le revenu ne peut pas être négatif"),
-  disbursementMethod: z.enum(["INTERNAL", "MOBILE_MONEY", "BANK_TRANSFER"], {
-    message: "Choisissez un mode de décaissement",
-  }),
+  disbursementMethod: z.enum(["INTERNAL", "MOBILE_MONEY", "BANK_TRANSFER"]).default("INTERNAL"),
   documents: z
     .array(operationDocumentSchema)
-    .min(1, "Ajoutez au moins un justificatif")
-    .max(5, "Cinq documents maximum"),
+    .max(5, "Cinq documents maximum")
+    .optional()
+    .default([]),
   acceptedTerms: z
     .boolean()
     .refine((accepted) => accepted, "Vous devez accepter les conditions de la demande"),

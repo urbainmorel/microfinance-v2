@@ -112,11 +112,11 @@ insert into public.loan_products (
 values
   (
     'bbbbbbbb-0000-0000-0000-000000000001', 'MVP annuites', 10000, 500000,
-    1, 24, 1.5, 'CONSTANT_INSTALLMENT', 10, 5, 1, true
+    1, 24, 18, 'CONSTANT_INSTALLMENT', 10, 5, 1, true
   ),
   (
     'bbbbbbbb-0000-0000-0000-000000000002', 'MVP annuites sans garantie', 10000, 500000,
-    1, 24, 1, 'CONSTANT_INSTALLMENT', 0, 0, 1, true
+    1, 24, 12, 'CONSTANT_INSTALLMENT', 0, 0, 1, true
   );
 
 insert into storage.objects (bucket_id, name, owner_id, metadata)
@@ -842,7 +842,7 @@ values (
   'dddddddd-0000-0000-0000-000000000001',
   'cccccccc-0000-0000-0000-000000000002',
   'aaaaaaaa-0000-0000-0000-000000000005',
-  10000, 10000, 1, 'CONSTANT_INSTALLMENT', current_date - 31, current_date - 1, 'ACTIVE'
+  10000, 10000, 12, 'CONSTANT_INSTALLMENT', current_date - 31, current_date - 1, 'ACTIVE'
 );
 insert into public.amortization_schedules (
   id, loan_id, installment_no, due_date, due_principal, due_interest,

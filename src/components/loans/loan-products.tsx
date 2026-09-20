@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertCircle, CalendarRange, ExternalLink, HandCoins } from "lucide-react";
+import { AlertCircle, CalendarRange, ExternalLink, HandCoins, Lock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { KycRequiredModal } from "@/components/kyc/kyc-required-modal";
 import { LoanRequestForm } from "@/components/loans/loan-request-form";
 import { useActiveLoanProducts } from "@/components/loans/use-loan-request";
 import { buttonVariants } from "@/components/ui/button";
@@ -11,7 +12,8 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatFcfa } from "@/lib/format";
+import { cleanProductDescription, formatFcfa } from "@/lib/format";
+import { useProfile } from "@/lib/hooks/use-profile";
 import { cn } from "@/lib/utils";
 
 import type { LoanProduct } from "@/lib/schemas/loan";
@@ -21,8 +23,17 @@ function shouldOpenModal(event: MouseEvent<HTMLAnchorElement>) {
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 }
 
-function LoanProductCard({ product, select }: { product: LoanProduct; select: () => void }) {
-  const href = `/client/loans/request?product=${product.id}`;
+function LoanProductCard({
+  product,
+  isKycVerified,
+  select,
+}: {
+  product: LoanProduct;
+  isKycVerified: boolean;
+  select: () => void;
+}) {
+  const href = isKycVerified ? `/client/loans/request?product=${product.id}` : "/client/kyc";
+  const description = cleanProductDescription(product.description);
   return (
     <Card className="group flex h-full flex-col overflow-hidden border-border bg-card p-0 shadow-none transition-colors hover:border-accent/35">
       <div className="flex flex-1 flex-col p-5 sm:p-6">
@@ -34,12 +45,12 @@ function LoanProductCard({ product, select }: { product: LoanProduct; select: ()
             <h3 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">
               {product.name}
             </h3>
-            {product.description ? (
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{product.description}</p>
+            {description ? (
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
             ) : null}
           </div>
           <span className="shrink-0 rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-bold text-accent">
-            {Number(product.interest_rate).toLocaleString("fr-FR")} % / mois
+            {Number(product.interest_rate).toLocaleString("fr-FR")} % / an
           </span>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-border bg-muted/35 p-4 text-sm">
@@ -63,14 +74,23 @@ function LoanProductCard({ product, select }: { product: LoanProduct; select: ()
         <Link
           href={href}
           onClick={(event) => {
+            if (!isKycVerified) {
+              event.preventDefault();
+              select();
+              return;
+            }
             if (!shouldOpenModal(event)) return;
             event.preventDefault();
             select();
           }}
-          aria-haspopup="dialog"
-          className={cn(buttonVariants({ variant: "accent", size: "sm" }), "w-full")}
+          aria-haspopup={isKycVerified ? "dialog" : undefined}
+          className={cn(
+            buttonVariants({ variant: isKycVerified ? "accent" : "outline", size: "sm" }),
+            "w-full",
+          )}
         >
-          Simuler et demander ce prêt
+          {!isKycVerified ? <Lock className="mr-1.5 size-3.5 text-warning" aria-hidden /> : null}
+          Demander ce prêt
         </Link>
       </div>
     </Card>
@@ -78,17 +98,19 @@ function LoanProductCard({ product, select }: { product: LoanProduct; select: ()
 }
 
 function LoanRequestModal({ productId, close }: { productId: string | null; close: () => void }) {
+  const handleOpenChange = (open: boolean) => {
+    if (!open) close();
+  };
+
   return (
     <Modal
       open={productId !== null}
-      onOpenChange={(open) => {
-        if (!open) close();
-      }}
-      title="Simuler et demander un prêt"
+      onOpenChange={handleOpenChange}
+      title="Demander un prêt"
       description="Un parcours guidé en trois étapes pour comprendre le coût, préparer le dossier et confirmer la demande."
       className="max-w-4xl"
     >
-      {productId ? <LoanRequestForm defaultProductId={productId} /> : null}
+      {productId ? <LoanRequestForm defaultProductId={productId} onClose={close} /> : null}
       {productId ? (
         <div className="mt-5 border-t border-border pt-4 text-center">
           <Link
@@ -114,9 +136,24 @@ function ProductsLoading() {
 }
 
 export function LoanProducts() {
+  const profileQuery = useProfile();
+  const profile = profileQuery.data;
+  const isKycVerified = profile?.kyc_status === "COMPLETED";
+  const [kycModalOpen, setKycModalOpen] = useState(false);
   const products = useActiveLoanProducts();
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  if (products.isPending) return <ProductsLoading />;
+
+  const handleCloseModal = () => setSelectedProductId(null);
+
+  function handleSelect(productId: string) {
+    if (!isKycVerified) {
+      setKycModalOpen(true);
+      return;
+    }
+    setSelectedProductId(productId);
+  }
+
+  if (products.isPending || profileQuery.isPending) return <ProductsLoading />;
   if (products.isError) {
     return (
       <EmptyState
@@ -142,11 +179,20 @@ export function LoanProducts() {
           <LoanProductCard
             key={product.id}
             product={product}
-            select={() => setSelectedProductId(product.id)}
+            isKycVerified={isKycVerified}
+            select={() => handleSelect(product.id)}
           />
         ))}
       </div>
-      <LoanRequestModal productId={selectedProductId} close={() => setSelectedProductId(null)} />
+      <LoanRequestModal
+        productId={isKycVerified ? selectedProductId : null}
+        close={handleCloseModal}
+      />
+      <KycRequiredModal
+        open={kycModalOpen}
+        onOpenChange={setKycModalOpen}
+        status={profile?.kyc_status}
+      />
     </>
   );
 }

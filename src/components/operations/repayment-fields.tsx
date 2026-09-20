@@ -111,7 +111,11 @@ function RepaymentPinField({ form }: Pick<RepaymentFieldsProps, "form">) {
       autoComplete="current-password"
       maxLength={6}
       error={errors.pin?.message}
-      {...register("pin")}
+      {...register("pin", {
+        onChange: () => {
+          if (errors.pin) form.clearErrors("pin");
+        },
+      })}
     />
   );
 }

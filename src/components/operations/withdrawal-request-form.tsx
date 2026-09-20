@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -9,15 +10,24 @@ import { RequestSuccess } from "@/components/client/request-page-shell";
 import { useIdempotentCommand } from "@/components/client/use-idempotent-command";
 import {
   AlternateWithdrawalLink,
-  TransactionReview,
   WithdrawalFields,
   type TransactionFormStep,
 } from "@/components/operations/operation-form-fields";
+import {
+  checkWithdrawalGuarantee,
+  extractGuaranteeState,
+  GuaranteeBlockedWithdrawalNotice,
+  LoanGuaranteeReserveWarning,
+} from "@/components/operations/withdrawal-guarantee-notice";
+import {
+  getWithdrawalRecipient,
+  WithdrawalReview,
+} from "@/components/operations/withdrawal-review";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FormStepper } from "@/components/ui/form-stepper";
-import { invokeClientCommand } from "@/lib/client-command";
-import { formatFcfa } from "@/lib/format";
+import { ClientCommandError, invokeClientCommand } from "@/lib/client-command";
+import { useActiveLoan } from "@/lib/hooks/use-active-loan";
 import { useSupabase } from "@/lib/hooks/use-supabase";
 import { withdrawalRequestSchema, type WithdrawalRequestInput } from "@/lib/schemas/operations";
 
@@ -28,47 +38,6 @@ const WITHDRAWAL_STEPS = [
   { label: "Destination", description: "Coordonnées de réception" },
   { label: "Confirmation", description: "Vérification par PIN" },
 ] as const;
-
-function recipient(values: WithdrawalRequestInput) {
-  if (values.type === "MOBILE_MONEY")
-    return { name: values.recipientName, operator: values.operator, phone: values.phone };
-  return {
-    name: values.recipientName,
-    bank: values.bank,
-    bankCode: values.bankCode,
-    account: values.account,
-    country: values.country,
-    iban: values.iban || null,
-    motif: values.motif,
-  };
-}
-
-function destinationLabel(values: WithdrawalRequestInput) {
-  return values.type === "MOBILE_MONEY"
-    ? [values.operator, values.phone].filter(Boolean).join(" · ")
-    : [values.bank, values.bankCode, values.account].filter(Boolean).join(" · ");
-}
-
-function WithdrawalReview({ values }: { values: WithdrawalRequestInput }) {
-  const bank = values.type === "BANK_TRANSFER";
-  return (
-    <TransactionReview
-      title={bank ? "Demande de virement" : "Demande de retrait"}
-      amount={formatFcfa(Number(values.amount) || 0)}
-      items={[
-        { label: "Canal", value: bank ? "Virement bancaire" : "Mobile Money" },
-        { label: "Bénéficiaire", value: values.recipientName },
-        { label: "Destination", value: destinationLabel(values) },
-        ...(bank
-          ? [
-              { label: "Pays", value: values.country },
-              { label: "Motif", value: values.motif },
-            ]
-          : []),
-      ]}
-    />
-  );
-}
 
 function StepActions({
   step,
@@ -166,26 +135,75 @@ function WithdrawalWizard({
   );
 }
 
-export function WithdrawalRequestForm({
-  type,
+function WithdrawalFormContainer({
+  form,
+  isMomo,
+  hasPendingGuarantee,
+  withdrawableAmount,
+  totalAmount,
+  remainingGuarantee,
+  serverError,
   onSwitchType,
+  submit,
 }: {
-  type: "MOBILE_MONEY" | "BANK_TRANSFER";
+  form: UseFormReturn<WithdrawalRequestInput>;
+  isMomo: boolean;
+  hasPendingGuarantee: boolean;
+  withdrawableAmount: number;
+  totalAmount: number;
+  remainingGuarantee: number;
+  serverError: string | null;
   onSwitchType?: () => void;
+  submit: (values: WithdrawalRequestInput) => Promise<void>;
 }) {
+  const showWarning = hasPendingGuarantee && withdrawableAmount > 0;
+  return (
+    <div className="flex flex-col gap-4">
+      {showWarning ? (
+        <LoanGuaranteeReserveWarning
+          withdrawableAmount={withdrawableAmount}
+          totalAmount={totalAmount}
+          remainingGuarantee={remainingGuarantee}
+        />
+      ) : null}
+      <WithdrawalWizard
+        form={form}
+        isMomo={isMomo}
+        onSwitchType={onSwitchType}
+        serverError={serverError}
+        submit={submit}
+      />
+    </div>
+  );
+}
+
+function useWithdrawalAction(
+  hasPendingGuarantee: boolean,
+  withdrawableAmount: number,
+  remainingGuarantee: number,
+  form?: UseFormReturn<WithdrawalRequestInput>,
+) {
   const supabase = useSupabase();
+  const queryClient = useQueryClient();
   const runIdempotent = useIdempotentCommand();
   const [serverError, setServerError] = useState<string | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
-  const isMomo = type === "MOBILE_MONEY";
-  const form = useForm<WithdrawalRequestInput>({
-    resolver: zodResolver(withdrawalRequestSchema),
-    defaultValues: { type, country: "CI", iban: "", motif: "" },
-  });
 
-  async function submit(values: WithdrawalRequestInput) {
+  const submit = async (values: WithdrawalRequestInput) => {
     setServerError(null);
-    const target = recipient(values);
+    form?.clearErrors("pin");
+    const guaranteeErr = checkWithdrawalGuarantee(
+      hasPendingGuarantee,
+      Number(values.amount),
+      withdrawableAmount,
+      remainingGuarantee,
+    );
+    if (guaranteeErr) {
+      setServerError(guaranteeErr);
+      return;
+    }
+
+    const target = getWithdrawalRecipient(values);
     const fingerprint = JSON.stringify({
       type: values.type,
       amount: values.amount,
@@ -200,19 +218,74 @@ export function WithdrawalRequestForm({
           payload: { type: values.type, amount: values.amount, recipient: target },
         }),
       );
-      if (result) setRequestId(result.id);
+      if (result) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["client-operations"] }),
+          queryClient.invalidateQueries({ queryKey: ["wallet"] }),
+          queryClient.invalidateQueries({ queryKey: ["active-loan-status"] }),
+        ]);
+        setRequestId(result.id);
+      }
     } catch (error) {
-      setServerError(error instanceof Error ? error.message : "Le retrait n’a pas pu être envoyé.");
+      if (error instanceof ClientCommandError && error.code === "PIN_INVALID") {
+        form?.setError("pin", {
+          type: "server",
+          message: "Code PIN incorrect. Veuillez vérifier votre saisie.",
+        });
+        setServerError(null);
+      } else if (error instanceof ClientCommandError && error.code === "PIN_LOCKED") {
+        form?.setError("pin", {
+          type: "server",
+          message: "Code PIN temporairement bloqué suite à trop de tentatives.",
+        });
+        setServerError(null);
+      } else {
+        setServerError(
+          error instanceof Error ? error.message : "Le retrait n’a pas pu être envoyé.",
+        );
+      }
     }
-  }
+  };
+
+  return { serverError, requestId, submit };
+}
+
+export function WithdrawalRequestForm({
+  type,
+  onSwitchType,
+}: {
+  type: "MOBILE_MONEY" | "BANK_TRANSFER";
+  onSwitchType?: () => void;
+}) {
+  const { data: loan } = useActiveLoan();
+  const g = extractGuaranteeState(loan);
+  const form = useForm<WithdrawalRequestInput>({
+    resolver: zodResolver(withdrawalRequestSchema),
+    defaultValues: { type, country: "CI", iban: "", motif: "" },
+  });
+  const { serverError, requestId, submit } = useWithdrawalAction(
+    g.hasPendingGuarantee,
+    g.withdrawableAmount,
+    g.remainingGuarantee,
+    form,
+  );
 
   if (requestId) return <RequestSuccess title="Demande de retrait envoyée" reference={requestId} />;
+
+  if (g.hasPendingGuarantee) {
+    return <GuaranteeBlockedWithdrawalNotice remainingGuarantee={g.remainingGuarantee} />;
+  }
+
   return (
-    <WithdrawalWizard
+    <WithdrawalFormContainer
       form={form}
-      isMomo={isMomo}
-      onSwitchType={onSwitchType}
+      isMomo={type === "MOBILE_MONEY"}
+      hasPendingGuarantee={g.hasPendingGuarantee}
+      withdrawableAmount={g.withdrawableAmount}
+      totalAmount={g.totalAmount}
+      remainingGuarantee={g.remainingGuarantee}
       serverError={serverError}
+      onSwitchType={onSwitchType}
       submit={submit}
     />
   );

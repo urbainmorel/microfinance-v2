@@ -18,6 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 8. **Least privilege, defense in depth.** RLS on every table, role from the JWT claim only, PIN hashing/verification server-side, secrets out of the codebase, audit log append-only.
 9. **Rigor in the small.** TypeScript strict, Zod at every boundary, small reviewable commits, code that matches the surrounding idiom.
 10. **Escalate business decisions — never invent them.** Interest rates, fees, legal email copy, data-retention durations, and KYC acceptance rules belong to the microfinance. Ask; do not fabricate financial or legal parameters.
+11. **No AI cliché icons.** Never use overused AI icons (`Zap`, `Sparkles`, `Wand`, `Bot`, `Flame`, `DatabaseZap`). Use professional domain icons (`ShieldCheck`, `BadgeCheck`, `TrendingUp`, `Clock`, `Database`).
 
 **Project-level definition of done:** every roadmap lot complete; full client journeys and back-office operational; auth + KYC + PIN hardened; accounting movements atomic/idempotent under RLS; notifications (in-app + email) and audit in place; i18n fr/en with FR-only admin; PWA installable; test suite green including the D5 reference schedule; the `PRD §22` pre-production checklist validated with the business.
 

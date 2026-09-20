@@ -10,19 +10,29 @@ import { getPublicEnvSafe } from "@/lib/env";
  * `app_metadata.user_role`; les RPC privilégiées le vérifient aussi en base.
  */
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-  const response = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
+
+  const isProtectedAdmin = pathname.startsWith("/admin");
+  const isProtectedClient = pathname.startsWith("/client");
+  const isProtectedSetPin = pathname === "/auth/set-pin";
+
+  // Court-circuit immédiat pour les routes publiques : 0 compute d'authentification
+  if (!isProtectedAdmin && !isProtectedClient && !isProtectedSetPin) {
+    return NextResponse.next({ request });
+  }
+
+  const response = NextResponse.next({ request });
   const access = await resolveAccess(request, response);
 
-  if (pathname.startsWith("/admin")) {
+  if (isProtectedAdmin) {
     return guardAdmin(access, request, response);
   }
 
-  if (pathname.startsWith("/client")) {
+  if (isProtectedClient) {
     return guardClient(pathname, access, request, response);
   }
 
-  if (pathname === "/auth/set-pin" && access.role !== null) {
+  if (isProtectedSetPin && access.role !== null) {
     return guardSetPin(access, request, response);
   }
 
@@ -50,10 +60,25 @@ function guardClient(
 
   const required = requiredOnboardingPath(access.onboarding);
   if (required && pathname !== required) return redirectTo(required, request, response);
-  if (!required && pathname === "/client/kyc") {
+
+  if (access.onboarding.kyc_status === "COMPLETED" && pathname === "/client/kyc") {
     return redirectTo("/client/dashboard", request, response);
   }
+
+  if (isActionRequestPath(pathname) && access.onboarding.kyc_status !== "COMPLETED") {
+    return redirectTo("/client/dashboard", request, response);
+  }
+
   return response;
+}
+
+function isActionRequestPath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/client/deposit") ||
+    pathname.startsWith("/client/withdraw") ||
+    pathname.startsWith("/client/repay") ||
+    pathname === "/client/loans/request"
+  );
 }
 
 function guardSetPin(
@@ -92,6 +117,14 @@ async function resolveAccess(request: NextRequest, response: NextResponse): Prom
   const denied: AccessState = { emailVerified: false, onboarding: null, role: null };
   if (env === null) return denied;
 
+  // Fast-path : si aucun cookie de session Supabase n'est présent, l'accès est refusé
+  // immédiatement sans consommer de requêtes réseau vers Supabase
+  const allCookies = request.cookies.getAll();
+  const hasAuth = allCookies.some(
+    (c) => c.name.startsWith("sb-") || c.name.includes("-auth-token"),
+  );
+  if (!hasAuth) return denied;
+
   try {
     const supabase = createServerClient(
       env.NEXT_PUBLIC_SUPABASE_URL,
@@ -127,7 +160,5 @@ async function resolveAccess(request: NextRequest, response: NextResponse): Prom
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.json|.*\\.(?:png|jpg|jpeg|svg|webp)$).*)",
-  ],
+  matcher: ["/admin", "/admin/:path*", "/client", "/client/:path*", "/auth/set-pin"],
 };

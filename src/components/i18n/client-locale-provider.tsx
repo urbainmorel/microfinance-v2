@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
 
 import { messages, type ClientLocale, type MessageKey } from "@/lib/i18n/messages";
 
@@ -11,24 +11,46 @@ type LocaleContextValue = {
 };
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
+function subscribeToLocale(callback: () => void) {
+  if (typeof window === "undefined") return () => undefined;
+  window.addEventListener("storage", callback);
+  window.addEventListener("localechange", callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("localechange", callback);
+  };
+}
+
+function getClientLocaleSnapshot(): ClientLocale {
+  if (typeof window === "undefined") return "fr";
+  const stored = localStorage.getItem("mf_locale");
+  return stored === "en" || stored === "fr" ? stored : "fr";
+}
+
 export function ClientLocaleProvider({
   children,
-  initialLocale,
+  initialLocale = "fr",
 }: {
   children: React.ReactNode;
-  initialLocale: ClientLocale;
+  initialLocale?: ClientLocale;
 }) {
-  const [locale, updateLocale] = useState(initialLocale);
+  const locale = useSyncExternalStore<ClientLocale>(
+    subscribeToLocale,
+    getClientLocaleSnapshot,
+    () => initialLocale,
+  );
+
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
+
   const value = useMemo<LocaleContextValue>(
     () => ({
       locale,
       setLocale: (next) => {
-        updateLocale(next);
         localStorage.setItem("mf_locale", next);
         document.cookie = `mf_locale=${next}; Path=/; Max-Age=31536000; SameSite=Lax`;
+        window.dispatchEvent(new Event("localechange"));
       },
       t: (key) => messages[locale][key],
     }),

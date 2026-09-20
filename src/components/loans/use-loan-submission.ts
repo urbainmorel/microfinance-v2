@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useIdempotentCommand } from "@/components/client/use-idempotent-command";
@@ -12,6 +13,7 @@ import {
 import { useSupabase } from "@/lib/hooks/use-supabase";
 
 import type { LoanRequestInput } from "@/lib/schemas/loan";
+import type { UseFormReturn } from "react-hook-form";
 
 type PendingDocuments = { fingerprint: string; paths: string[] };
 
@@ -42,69 +44,113 @@ function commandFingerprint(values: LoanRequestInput) {
     amount: values.amount,
     durationMonths: values.durationMonths,
     purpose: values.purpose,
-    disbursementMethod: values.disbursementMethod,
+    disbursementMethod: values.disbursementMethod ?? "INTERNAL",
     monthlyIncomeEstimate: values.monthlyIncomeEstimate,
-    documents: values.documents.map((file) => [file.name, file.size, file.lastModified]),
+    documents: (values.documents ?? []).map((file) => [file.name, file.size, file.lastModified]),
   });
+}
+
+function buildLoanSubmissionPayload(values: LoanRequestInput, documentPaths: string[]) {
+  return {
+    productId: values.productId,
+    amount: Math.trunc(Number(values.amount)),
+    durationMonths: Math.trunc(Number(values.durationMonths)),
+    purpose: values.purpose,
+    disbursementMethod: values.disbursementMethod ?? "INTERNAL",
+    ...(values.monthlyIncomeEstimate === undefined
+      ? {}
+      : { monthlyIncomeEstimate: Math.trunc(Number(values.monthlyIncomeEstimate)) }),
+    documentPaths,
+  };
+}
+
+async function ensureUploadedDocuments(
+  supabase: ReturnType<typeof useSupabase>,
+  userId: string,
+  fingerprint: string,
+  pending: PendingDocuments | null,
+  files?: File[],
+): Promise<PendingDocuments> {
+  if (pending && pending.fingerprint !== fingerprint) {
+    await removeDocuments(supabase, pending.paths);
+    pending = null;
+  }
+  if (pending?.fingerprint === fingerprint) {
+    return pending;
+  }
+  const paths = files && files.length > 0 ? await uploadDocuments(supabase, userId, files) : [];
+  return { fingerprint, paths };
 }
 
 export function useLoanSubmission(
   simulationIsFresh: boolean,
   setError: (message: string | null) => void,
+  form?: UseFormReturn<LoanRequestInput>,
 ) {
   const supabase = useSupabase();
+  const queryClient = useQueryClient();
   const runIdempotent = useIdempotentCommand();
   const [requestId, setRequestId] = useState<string | null>(null);
   const [pendingDocuments, setPendingDocuments] = useState<PendingDocuments | null>(null);
 
   async function submit(values: LoanRequestInput) {
     setError(null);
+    form?.clearErrors("pin");
     if (!simulationIsFresh)
       return setError("Relancez la simulation avec les valeurs actuelles avant de soumettre.");
     const fingerprint = commandFingerprint(values);
     try {
       const result = await runIdempotent(fingerprint, async (key) => {
         const userId = await getAuthenticatedUserId(supabase);
-        if (pendingDocuments && pendingDocuments.fingerprint !== fingerprint) {
-          await removeDocuments(supabase, pendingDocuments.paths);
-          setPendingDocuments(null);
-        }
-        const paths =
-          pendingDocuments?.fingerprint === fingerprint ? [...pendingDocuments.paths] : [];
-        if (!paths.length) {
-          paths.push(...(await uploadDocuments(supabase, userId, values.documents)));
-          setPendingDocuments({ fingerprint, paths });
-        }
+        const uploaded = await ensureUploadedDocuments(
+          supabase,
+          userId,
+          fingerprint,
+          pendingDocuments,
+          values.documents,
+        );
+        setPendingDocuments(uploaded);
         try {
           return await invokeClientCommand(supabase, {
             action: "loan.submit",
             pin: values.pin,
             idempotencyKey: key,
-            payload: {
-              productId: values.productId,
-              amount: values.amount,
-              durationMonths: values.durationMonths,
-              purpose: values.purpose,
-              disbursementMethod: values.disbursementMethod,
-              ...(values.monthlyIncomeEstimate === undefined
-                ? {}
-                : { monthlyIncomeEstimate: values.monthlyIncomeEstimate }),
-              documentPaths: paths,
-            },
+            payload: buildLoanSubmissionPayload(values, uploaded.paths),
           });
         } catch (error) {
           if (error instanceof ClientCommandError && error.code) {
-            await removeDocuments(supabase, paths);
+            await removeDocuments(supabase, uploaded.paths);
             setPendingDocuments(null);
           }
           throw error;
         }
       });
-      if (result) setRequestId(result.id);
+      if (result) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["active-loan-status"] }),
+          queryClient.invalidateQueries({ queryKey: ["wallet"] }),
+          queryClient.invalidateQueries({ queryKey: ["active-loans-for-repayment"] }),
+        ]);
+        setRequestId(result.id);
+      }
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "La demande de prêt n’a pas pu être envoyée.",
-      );
+      if (error instanceof ClientCommandError && error.code === "PIN_INVALID") {
+        form?.setError("pin", {
+          type: "server",
+          message: "Code PIN incorrect. Veuillez vérifier votre saisie.",
+        });
+        setError(null);
+      } else if (error instanceof ClientCommandError && error.code === "PIN_LOCKED") {
+        form?.setError("pin", {
+          type: "server",
+          message: "Code PIN temporairement bloqué suite à trop de tentatives.",
+        });
+        setError(null);
+      } else {
+        setError(
+          error instanceof Error ? error.message : "La demande de prêt n’a pas pu être envoyée.",
+        );
+      }
     }
   }
 

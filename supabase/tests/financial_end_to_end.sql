@@ -38,7 +38,7 @@ insert into public.loan_products (
   late_penalty_rate, is_active
 ) values (
   'e2e00000-0000-4000-8000-000000000010', 'Produit E2E financier',
-  10000, 500000, 1, 24, 1.5, 'CONSTANT_INSTALLMENT', 10, 5, 1, true
+  10000, 500000, 1, 24, 18, 'CONSTANT_INSTALLMENT', 10, 5, 1, true
 );
 
 insert into storage.objects (bucket_id, name, owner_id, metadata)

@@ -52,6 +52,11 @@ function useModalInteractions(
   panelRef: RefObject<HTMLDivElement | null>,
   closeButtonRef: RefObject<HTMLButtonElement | null>,
 ) {
+  const onOpenChangeRef = useRef(onOpenChange);
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange;
+  }, [onOpenChange]);
+
   useEffect(() => {
     if (!open) return;
     const previousFocus =
@@ -63,7 +68,7 @@ function useModalInteractions(
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        if (!panelRef.current?.querySelector('[aria-busy="true"]')) onOpenChange(false);
+        if (!panelRef.current?.querySelector('[aria-busy="true"]')) onOpenChangeRef.current(false);
       } else if (event.key === "Tab" && panelRef.current) {
         trapTabKey(event, panelRef.current);
       }
@@ -75,7 +80,7 @@ function useModalInteractions(
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus();
     };
-  }, [closeButtonRef, onOpenChange, open, panelRef]);
+  }, [closeButtonRef, open, panelRef]);
 }
 
 function ModalHeader({

@@ -35,6 +35,7 @@ type PublicErrorCode =
   | "FORBIDDEN"
   | "VALIDATION_ERROR"
   | "INVALID_TRANSITION"
+  | "ACTIVE_LOAN_EXISTS"
   | "INSUFFICIENT_FUNDS"
   | "ALREADY_PROCESSED"
   | "OUTSIDE_WINDOW";
@@ -311,7 +312,7 @@ function validatePayload(
           ] as const),
           p_documents: ownedDocumentPaths(payload.documentPaths, userId),
         },
-        fallbackStatus: "SUBMITTED",
+        fallbackStatus: "ACTIVE",
       };
     }
 
@@ -369,11 +370,25 @@ function mapRpcError(error: PostgrestError): CommandError {
   if (error.code === "23505" || sqlCode.includes("ALREADY_PROCESSED")) {
     return new CommandError("ALREADY_PROCESSED", 409, "Operation deja traitee");
   }
+  if (sqlCode.includes("GUARANTEE_REQUIRED")) {
+    return new CommandError(
+      "GUARANTEE_REQUIRED",
+      409,
+      "Le retrait du prêt exige la constitution préalable de la garantie.",
+    );
+  }
   if (sqlCode.includes("INSUFFICIENT_FUNDS")) {
     return new CommandError("INSUFFICIENT_FUNDS", 409, "Solde insuffisant");
   }
   if (sqlCode.includes("OUTSIDE_WINDOW")) {
     return new CommandError("OUTSIDE_WINDOW", 409, "Operation hors plage autorisee");
+  }
+  if (sqlCode.includes("ONLY_MOBILE_MONEY_ALLOWED")) {
+    return new CommandError(
+      "VALIDATION_ERROR",
+      400,
+      "Seul le dépôt par Mobile Money est autorisé pour cette opération.",
+    );
   }
   if (
     error.code === "22023" ||
@@ -404,10 +419,16 @@ function mapRpcError(error: PostgrestError): CommandError {
   ) {
     return new CommandError("FORBIDDEN", 403, "Operation interdite");
   }
+  if (sqlCode.includes("ACTIVE_LOAN_EXISTS")) {
+    return new CommandError(
+      "ACTIVE_LOAN_EXISTS",
+      409,
+      "Vous avez déjà un prêt actif ou une demande de prêt en cours de traitement.",
+    );
+  }
   if (
     error.code === "23514" ||
     sqlCode.includes("INVALID_TRANSITION") ||
-    sqlCode.includes("ACTIVE_LOAN_EXISTS") ||
     sqlCode.includes("OVERPAYMENT") ||
     sqlCode.includes("ACTIVE_LOAN_NOT_FOUND")
   ) {

@@ -23,7 +23,7 @@ export function FinancingOfferMetrics({ product }: { product: LoanProduct }) {
       </div>
       <div className="pl-4 sm:pl-6">
         <dt className="text-[10px] font-bold uppercase tracking-[0.08em] opacity-55">
-          Taux / mois
+          Taux annuel
         </dt>
         <dd className="mt-1 text-xs font-bold leading-5 sm:text-sm">
           {Number(product.interest_rate).toLocaleString("fr-FR")} %

@@ -10,7 +10,7 @@ export default async function LoanRequestPage({
   return (
     <RequestPageShell
       title="Demander un prêt"
-      description="Simulez l’échéancier, ajoutez vos justificatifs puis confirmez la demande avec votre PIN."
+      description="Consultez votre échéancier et validez votre contrat avec votre PIN pour un versement immédiat."
       backHref="/client/loans"
     >
       <LoanRequestForm defaultProductId={product} />

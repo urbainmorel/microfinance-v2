@@ -10,7 +10,7 @@ where id = '15151515-1515-1515-1515-151515151515';
 insert into public.loan_products (
   id, name, min_amount, max_amount, min_duration_months, max_duration_months,
   interest_rate, interest_method, guarantee_rate
-) values ('16161616-1616-1616-1616-161616161616', 'Contrat V1', 10000, 200000, 3, 12, 1,
+) values ('16161616-1616-1616-1616-161616161616', 'Contrat V1', 10000, 200000, 3, 12, 12,
   'CONSTANT_INSTALLMENT', 10);
 insert into public.loan_requests (
   id, client_id, product_id, amount, duration_months, purpose, status,

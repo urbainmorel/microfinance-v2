@@ -11,7 +11,7 @@ type NumericKey = Exclude<
 const numericFields: Array<{ label: string; key: NumericKey; min?: number; step?: number }> = [
   { label: "Montant minimum", key: "minAmount", min: 1 },
   { label: "Montant maximum", key: "maxAmount", min: 1 },
-  { label: "Taux d’intérêt (%)", key: "interestRate", step: 0.001 },
+  { label: "Taux d’intérêt annuel (%)", key: "interestRate", step: 0.01 },
   { label: "Durée minimum (mois)", key: "minDurationMonths", min: 1 },
   { label: "Durée maximum (mois)", key: "maxDurationMonths", min: 1 },
   { label: "Garantie (%)", key: "guaranteeRate", step: 0.001 },

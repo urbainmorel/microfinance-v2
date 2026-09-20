@@ -104,7 +104,6 @@ Une modification future du profil ne réécrit pas le contrat signé.
 - montant demandé ;
 - montant approuvé ;
 - durée ;
-- canal de décaissement ;
 - coût effectif ;
 - coût total ;
 - échéancier ;
@@ -347,7 +346,7 @@ L'approbation ne vaut pas décaissement. Le contrat devient effectif à la confi
 
 ### Article 3 — Mise à disposition
 
-> Après satisfaction des conditions préalables, les fonds sont mis à disposition par le canal indiqué dans l'offre. Le décaissement est confirmé par une référence interne ou externe unique.
+> Après satisfaction des conditions préalables et signature du contrat, les fonds sont crédités directement sur le portefeuille du client (solde déboursé). Le décaissement est confirmé par une référence comptable unique.
 
 ### Article 4 — Intérêts et amortissement
 

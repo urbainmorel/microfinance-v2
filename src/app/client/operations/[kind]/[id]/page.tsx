@@ -85,12 +85,14 @@ function CancellationDialog({
   pending,
   pin,
   setPin,
+  onClearError,
   submit,
 }: {
   error: string | null;
   pending: boolean;
   pin: string;
   setPin: (value: string) => void;
+  onClearError?: () => void;
   submit: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -104,7 +106,10 @@ function CancellationDialog({
         onOpenChange={(next) => {
           if (pending) return;
           setOpen(next);
-          if (!next) setPin("");
+          if (!next) {
+            setPin("");
+            onClearError?.();
+          }
         }}
         title="Annuler cette demande"
         description="La somme éventuellement réservée sera libérée après confirmation."
@@ -123,7 +128,10 @@ function CancellationDialog({
             autoComplete="current-password"
             maxLength={6}
             value={pin}
-            onChange={(event) => setPin(event.target.value)}
+            onChange={(event) => {
+              setPin(event.target.value);
+              if (error) onClearError?.();
+            }}
             error={error ?? undefined}
           />
           <div className="grid grid-cols-2 gap-3 border-t border-separator pt-5">
@@ -133,6 +141,7 @@ function CancellationDialog({
               onClick={() => {
                 setOpen(false);
                 setPin("");
+                onClearError?.();
               }}
             >
               Retour
@@ -209,6 +218,7 @@ export default function OperationDetailPage() {
           pending={cancellation.isPending}
           pin={pin}
           setPin={setPin}
+          onClearError={() => setCancelError(null)}
           submit={() => {
             setCancelError(null);
             cancellation.mutate();

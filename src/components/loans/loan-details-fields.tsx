@@ -1,19 +1,35 @@
 import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { useEffect, useRef } from "react";
 
-import { DocumentField } from "@/components/operations/document-field";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
-import { SelectField } from "@/components/ui/select-field";
 
 import type { LoanRequestInput } from "@/lib/schemas/loan";
 import type { UseFormReturn } from "react-hook-form";
 
 function PurposeField({ form }: { form: UseFormReturn<LoanRequestInput> }) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const {
     register,
     formState: { errors },
   } = form;
+
+  useEffect(() => {
+    const focusAndSelect = () => {
+      if (textareaRef.current) {
+        textareaRef.current.focus({ preventScroll: true });
+        const length = textareaRef.current.value.length;
+        textareaRef.current.setSelectionRange(length, length);
+      }
+    };
+    focusAndSelect();
+    const frameId = requestAnimationFrame(focusAndSelect);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
+  const { ref: formRef, ...rest } = register("purpose");
+
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor="loan-purpose" className="text-xs font-semibold text-muted-foreground">
@@ -21,11 +37,16 @@ function PurposeField({ form }: { form: UseFormReturn<LoanRequestInput> }) {
       </label>
       <textarea
         id="loan-purpose"
+        ref={(element) => {
+          formRef(element);
+          textareaRef.current = element;
+        }}
+        autoFocus
         rows={4}
         className="w-full rounded-[14px] border border-border bg-card px-4 py-3 text-base text-foreground focus-visible:border-ring focus-visible:outline-none"
         aria-invalid={Boolean(errors.purpose)}
         aria-describedby={errors.purpose ? "loan-purpose-error" : undefined}
-        {...register("purpose")}
+        {...rest}
       />
       {errors.purpose ? (
         <p id="loan-purpose-error" className="text-xs font-medium text-warning">
@@ -64,32 +85,19 @@ function RequestInformationFields({ form }: { form: UseFormReturn<LoanRequestInp
     formState: { errors },
   } = form;
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <PurposeField form={form} />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          id="loan-income"
-          label="Revenu mensuel estimé (FCFA)"
-          type="number"
-          min={0}
-          step={1}
-          inputMode="numeric"
-          error={errors.monthlyIncomeEstimate?.message}
-          {...register("monthlyIncomeEstimate")}
-        />
-        <SelectField
-          id="loan-disbursement"
-          label="Mode de décaissement souhaité"
-          options={[
-            { value: "INTERNAL", label: "Portefeuille interne" },
-            { value: "MOBILE_MONEY", label: "Mobile Money" },
-            { value: "BANK_TRANSFER", label: "Virement bancaire" },
-          ]}
-          error={errors.disbursementMethod?.message}
-          {...register("disbursementMethod")}
-        />
-      </div>
-    </>
+      <FormField
+        id="loan-income"
+        label="Revenu mensuel estimé (FCFA)"
+        type="number"
+        min={0}
+        step={1}
+        inputMode="numeric"
+        error={errors.monthlyIncomeEstimate?.message}
+        {...register("monthlyIncomeEstimate")}
+      />
+    </div>
   );
 }
 
@@ -105,9 +113,13 @@ function ConfirmationFields({ form }: { form: UseFormReturn<LoanRequestInput> })
           <ShieldCheck className="size-4" aria-hidden />
         </span>
         <div>
-          <p className="text-sm font-semibold text-foreground">Confirmation sécurisée</p>
+          <p className="text-sm font-semibold text-foreground">
+            Transmission et analyse du dossier
+          </p>
           <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-            Vérifiez les conditions puis utilisez votre code PIN pour signer la demande.
+            Confirmez les conditions avec votre code PIN pour lancer l’analyse sécurisée de votre
+            dossier. Dès validation, vous pourrez consulter et signer électroniquement votre contrat
+            de prêt officiel.
           </p>
         </div>
       </div>
@@ -121,7 +133,11 @@ function ConfirmationFields({ form }: { form: UseFormReturn<LoanRequestInput> })
           autoComplete="current-password"
           maxLength={6}
           error={errors.pin?.message}
-          {...register("pin")}
+          {...register("pin", {
+            onChange: () => {
+              if (errors.pin) form.clearErrors("pin");
+            },
+          })}
         />
       </div>
     </div>
@@ -163,29 +179,19 @@ export function LoanDetailsFields({
   simulationIsFresh: boolean;
   onBack: () => void;
 }) {
-  const { setValue, watch, formState } = form;
+  const { formState } = form;
   return (
     <Card className="flex flex-col gap-5 border-border bg-card p-5 shadow-none sm:p-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Étape 3</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Étape 4</p>
         <h2 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">
           Finalisez votre dossier
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          Ajoutez les informations utiles, vos justificatifs et confirmez avec votre PIN.
+          Ajoutez les informations utiles et confirmez avec votre PIN.
         </p>
       </div>
       <RequestInformationFields form={form} />
-      <DocumentField
-        id="loan-documents"
-        label="Justificatifs de la demande (1 à 5)"
-        multiple
-        error={formState.errors.documents?.message}
-        selectedFiles={watch("documents")}
-        onChange={(files) =>
-          setValue("documents", files, { shouldDirty: true, shouldValidate: true })
-        }
-      />
       <ConfirmationFields form={form} />
       <FormActions
         isSubmitting={formState.isSubmitting}

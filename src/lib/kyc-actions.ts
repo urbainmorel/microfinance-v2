@@ -1,6 +1,7 @@
 import {
   KYC_BUCKET,
   kycDocumentSchema,
+  normalizeFcfaCountry,
   type KycDocType,
   type KycField,
   type KycInput,
@@ -76,7 +77,12 @@ export async function loadKyc(supabase: DatabaseClient): Promise<Partial<KycInpu
     .select("income_source, monthly_charges, momo_operator, momo_number, usual_bank")
     .eq("client_id", user.id)
     .maybeSingle();
-  return { ...(profile ?? {}), ...(financials ?? {}) } as Partial<KycInput>;
+  const country = normalizeFcfaCountry(profile?.country);
+  return {
+    ...(profile ?? {}),
+    ...(country ? { country } : {}),
+    ...(financials ?? {}),
+  } as Partial<KycInput>;
 }
 
 /** Liste les types de pièces déjà téléversées, pour restaurer l'état du wizard. */
