@@ -19,7 +19,6 @@ describe("parseAiDecision", () => {
         id_number_extracted: true,
         birth_date_extracted: true,
         not_expired: true,
-        face_match: true,
         document_authentic: true,
       },
       summary: "Dossier parfaitement conforme.",
@@ -34,20 +33,19 @@ describe("parseAiDecision", () => {
   it("rejette avec motif explicite si une anomalie est détectée", () => {
     const json = JSON.stringify({
       decision: "REJECT",
-      reason: "Le selfie ne correspond pas à la photo figurant sur la pièce d'identité.",
+      reason: "La pièce d'identité est expirée ou illisible.",
       confidence_score: 42,
       checks: {
         name_match: true,
-        id_number_match: true,
-        not_expired: true,
-        face_match: false,
-        document_authentic: true,
+        id_number_extracted: false,
+        not_expired: false,
+        document_authentic: false,
       },
     });
 
     const res = parseAiDecision(json);
     expect(res.decision).toBe("REJECT");
-    expect(res.reason).toContain("Le selfie ne correspond pas");
+    expect(res.reason).toContain("La pièce d'identité est expirée");
   });
 
   it("gère les réponses corrompues ou invalides sans lever d'exception", () => {
@@ -74,7 +72,7 @@ describe("parseAiDecision", () => {
     "id_number": "CI0012345"
   },
   "checks": {
-    "face_match": true,
+    "document_authentic": true,
     "not_expired": true
   }
 }

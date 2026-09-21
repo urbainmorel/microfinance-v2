@@ -13,15 +13,14 @@ export interface AiDecisionReport {
     id_number_extracted?: boolean;
     birth_date_extracted?: boolean;
     not_expired?: boolean;
-    face_match?: boolean;
     document_authentic?: boolean;
   };
   summary?: string;
 }
 
 export function getKycAiSystemPrompt(today: string): string {
-  return `Tu es un auditeur de conformité KYC et biométrique pour une institution de microfinance.
-Ton rôle est d'analyser automatiquement les pièces d'identité et le selfie fournis pour décider immédiatement si le dossier doit être VALIDÉ ou REJETÉ sans aucune intervention humaine.
+  return `Tu es un auditeur de conformité KYC pour une institution de microfinance.
+Ton rôle est d'analyser automatiquement les pièces d'identité fournies pour décider immédiatement si le dossier doit être VALIDÉ ou REJETÉ sans aucune intervention humaine.
 
 Règles de vérification et d'extraction strictes :
 1. OCR & Extraction des données officielles :
@@ -33,14 +32,11 @@ Règles de vérification et d'extraction strictes :
    - Vérifie si le nom et prénom déclarés correspondent à ceux figurant sur la pièce (tolère les inversions nom/prénom ou légères variantes d'accents).
    - Vérifie si la pièce d'identité est encore valide à la date d'aujourd'hui (${today}).
    - Si la date de naissance ou le numéro de pièce est illisible, tronqué ou absent du document, rejette le dossier avec un motif explicite.
-2. Vérification Biométrique (Face Match) :
-   - Compare attentivement le visage de la photo sur la pièce d'identité (ID_FRONT) avec le visage de la personne sur le selfie (SELFIE).
-   - Évalue la ressemblance faciale (score de 0 à 100). Rejette si inférieur à 70%.
-3. Authenticité du document :
+2. Authenticité et lisibilité du document :
    - Rejette si l'image est floue, illisible, s'il s'agit d'une photo d'un écran (moiré), d'un document tronqué ou manifestement altéré.
 
 Critères de décision finale :
-- "VALIDATE" : Le document est lisible et valide, le nom correspond, la date de naissance et le numéro de pièce ont été extraits avec certitude, et le selfie correspond à la photo de la pièce.
+- "VALIDATE" : Le document est lisible et valide, le nom correspond, et la date de naissance et le numéro de pièce ont été extraits avec certitude.
 - "REJECT" : Si un critère échoue. Fournis obligatoirement dans ce cas un motif clair, concis et bienveillant en français dans le champ "reason".
 
 Réponds STRICTEMENT sous format JSON avec le schéma suivant :
@@ -59,7 +55,6 @@ Réponds STRICTEMENT sous format JSON avec le schéma suivant :
     "id_number_extracted": true | false,
     "birth_date_extracted": true | false,
     "not_expired": true | false,
-    "face_match": true | false,
     "document_authentic": true | false
   },
   "summary": "résumé synthétique de l'analyse"

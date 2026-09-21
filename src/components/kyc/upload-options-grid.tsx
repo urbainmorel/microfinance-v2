@@ -2,18 +2,15 @@
 
 import { Camera, FileUp } from "lucide-react";
 
-import { type KycDocType } from "@/lib/schemas/kyc";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  docType: KycDocType;
   busy: boolean;
   onOpenCamera: () => void;
   onOpenGallery: () => void;
 };
 
-export function UploadOptionsGrid({ docType, busy, onOpenCamera, onOpenGallery }: Props) {
-  const isSelfie = docType === "SELFIE";
+export function UploadOptionsGrid({ busy, onOpenCamera, onOpenGallery }: Props) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <button
@@ -29,14 +26,8 @@ export function UploadOptionsGrid({ docType, busy, onOpenCamera, onOpenGallery }
           <Camera className="size-5" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold text-foreground">
-            {isSelfie
-              ? "Prendre votre selfie avec votre pièce proche de votre visage"
-              : "Prendre une photo"}
-          </span>
-          <span className="block text-xs text-muted-foreground">
-            {isSelfie ? "Caméra selfie directe" : "Caméra ou webcam directe"}
-          </span>
+          <span className="block text-sm font-semibold text-foreground">Prendre une photo</span>
+          <span className="block text-xs text-muted-foreground">Caméra ou webcam directe</span>
         </div>
       </button>
 
@@ -56,9 +47,7 @@ export function UploadOptionsGrid({ docType, busy, onOpenCamera, onOpenGallery }
           <span className="block text-sm font-semibold text-foreground">
             Choisir dans la galerie
           </span>
-          <span className="block text-xs text-muted-foreground">
-            {isSelfie ? "Images uniquement (JPG, PNG)" : "Galerie ou fichiers locaux"}
-          </span>
+          <span className="block text-xs text-muted-foreground">Galerie ou fichiers locaux</span>
         </div>
       </button>
     </div>

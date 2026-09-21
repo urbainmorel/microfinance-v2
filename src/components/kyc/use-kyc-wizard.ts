@@ -152,7 +152,7 @@ async function advanceWizardStep(
 function formatSubmitKycError(rpcError: { message?: string }): string {
   const msg = rpcError.message ?? "";
   if (msg.includes("KYC_DOCUMENTS_INCOMPLETE")) {
-    return "Pièces justificatives incomplètes : veuillez fournir le recto et le selfie (le verso est requis sauf pour un passeport).";
+    return "Pièces justificatives incomplètes : veuillez fournir le recto de votre pièce (le verso est requis sauf pour un passeport).";
   }
   if (msg.includes("KYC_PROFILE_INCOMPLETE")) {
     return "Profil incomplet : veuillez vérifier que toutes vos informations personnelles sont renseignées.";
@@ -195,12 +195,6 @@ function handleFileUpload(
   setError: React.Dispatch<React.SetStateAction<string | null>>,
 ) {
   setError(null);
-  if (docType === "SELFIE" && file.type === "application/pdf") {
-    setError(
-      "Les fichiers PDF ne sont pas autorisés pour le selfie. Veuillez choisir une image (JPG ou PNG).",
-    );
-    return;
-  }
   const uploadId = Date.now();
   activeUploads.set(docType, uploadId);
   setStagedDocs((prev) => new Set(prev).add(docType));

@@ -20,11 +20,7 @@ function isComplete(item: KycQueueItem) {
   const types = new Set(
     item.documents.filter((document) => document.verified).map((document) => document.type),
   );
-  return (
-    types.has("ID_FRONT") &&
-    types.has("SELFIE") &&
-    (item.idType === "PASSPORT" || types.has("ID_BACK"))
-  );
+  return types.has("ID_FRONT") && (item.idType === "PASSPORT" || types.has("ID_BACK"));
 }
 
 function facts(item: KycQueueItem) {

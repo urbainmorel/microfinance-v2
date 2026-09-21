@@ -113,7 +113,7 @@ export type KycInput = z.infer<typeof kycSchema>;
 export type KycField = keyof KycInput;
 
 /** Types de pièces stockées (contrainte CHECK sur kyc_documents.doc_type). */
-export const KYC_DOC_TYPES = ["ID_FRONT", "ID_BACK", "SELFIE"] as const;
+export const KYC_DOC_TYPES = ["ID_FRONT", "ID_BACK"] as const;
 export type KycDocType = (typeof KYC_DOC_TYPES)[number];
 
 /** Contraintes d'upload (PRD §6.4 : JPG/PNG/PDF, 5 Mo max). */
@@ -137,7 +137,7 @@ export type KycStep =
   | { title: string; kind: "upload"; docType: KycDocType; optionalForPassport?: boolean }
   | { title: string; kind: "confirm" };
 
-/** Les 8 sous-étapes du KYC (PRD §6.4). Sauvegarde automatique par étape. */
+/** Les 7 sous-étapes du KYC (PRD §6.4). Sauvegarde automatique par étape. */
 export const KYC_STEPS = [
   {
     title: "Informations personnelles",
@@ -165,6 +165,5 @@ export const KYC_STEPS = [
   },
   { title: "Recto de la pièce", kind: "upload", docType: "ID_FRONT" },
   { title: "Verso de la pièce", kind: "upload", docType: "ID_BACK", optionalForPassport: true },
-  { title: "Selfie de vérification", kind: "upload", docType: "SELFIE" },
   { title: "Confirmation", kind: "confirm" },
 ] as const satisfies readonly KycStep[];

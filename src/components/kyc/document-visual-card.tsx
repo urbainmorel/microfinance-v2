@@ -24,7 +24,7 @@ interface DocVisualMeta {
   illustrationSrc: string;
   illustrationAlt: string;
   statusRecorded: string;
-  icon: typeof IdCard | typeof Camera;
+  icon: typeof IdCard;
 }
 
 const DOC_CONFIG: Record<KycDocType, DocVisualMeta> = {
@@ -51,18 +51,6 @@ const DOC_CONFIG: Record<KycDocType, DocVisualMeta> = {
     illustrationAlt: "Exemple du verso d’une pièce d’identité",
     statusRecorded: "Pièce enregistrée",
     icon: IdCard,
-  },
-  SELFIE: {
-    titleDefault: "Exemple de photo de vérification",
-    titleUploaded: "Votre photo de vérification",
-    descDefault:
-      "Prenez votre photo en tenant votre pièce d’identité proche de votre visage. Veillez à ce que votre visage et les informations de la pièce soient nets et lisibles.",
-    descUploaded:
-      "Votre photo a bien été enregistrée. Vous pouvez la reprendre, la changer ou la supprimer ci-dessous.",
-    illustrationSrc: "/images/kyc-selfie.webp",
-    illustrationAlt: "Exemple d’un selfie avec pièce d’identité",
-    statusRecorded: "Photo enregistrée",
-    icon: Camera,
   },
 };
 

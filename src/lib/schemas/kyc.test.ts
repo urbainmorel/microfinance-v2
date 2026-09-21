@@ -28,13 +28,12 @@ describe("KYC Schema & Types", () => {
   });
 
   it("validates doc types for upload steps", () => {
-    expect(KYC_DOC_TYPES).toEqual(["ID_FRONT", "ID_BACK", "SELFIE"]);
+    expect(KYC_DOC_TYPES).toEqual(["ID_FRONT", "ID_BACK"]);
     const uploadSteps = KYC_STEPS.filter((s) => s.kind === "upload");
-    expect(uploadSteps).toHaveLength(3);
+    expect(uploadSteps).toHaveLength(2);
     expect(uploadSteps.map((s) => (s as { docType: string }).docType)).toEqual([
       "ID_FRONT",
       "ID_BACK",
-      "SELFIE",
     ]);
   });
 
@@ -53,9 +52,10 @@ describe("KYC Schema & Types", () => {
     expect(result.success).toBe(true);
   });
 
-  it("defines the 8 KYC steps without financial information", () => {
-    expect(KYC_STEPS).toHaveLength(8);
+  it("defines the 7 KYC steps without financial information and without selfie", () => {
+    expect(KYC_STEPS).toHaveLength(7);
     const titles: readonly string[] = KYC_STEPS.map((s) => s.title);
     expect(titles).not.toContain("Informations financières");
+    expect(titles).not.toContain("Selfie de vérification");
   });
 });

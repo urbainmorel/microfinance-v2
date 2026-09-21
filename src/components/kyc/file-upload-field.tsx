@@ -73,10 +73,6 @@ export function FileUploadField({
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (file) {
-      if (docType === "SELFIE" && file.type === "application/pdf") {
-        event.target.value = "";
-        return;
-      }
       onSelect(file);
     }
     event.target.value = "";
@@ -116,7 +112,6 @@ export function FileUploadField({
 
       {!hasDocument ? (
         <UploadOptionsGrid
-          docType={docType}
           busy={busy}
           onOpenCamera={() => setCameraOpen(true)}
           onOpenGallery={() => inputRef.current?.click()}

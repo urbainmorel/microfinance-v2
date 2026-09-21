@@ -20,7 +20,6 @@ type ProfileData = {
 type SignedDocUrls = {
   frontUrl: string;
   backUrl: string | null;
-  selfieUrl: string;
 };
 
 type KycDocRow = { id: string; doc_type: string; url: string | null };
@@ -38,12 +37,11 @@ async function getAuthenticatedUser() {
 function findRequiredDocs(documents: KycDocRow[], requiresBack: boolean) {
   const front = documents.find((d) => d.doc_type === "ID_FRONT");
   const back = documents.find((d) => d.doc_type === "ID_BACK");
-  const selfie = documents.find((d) => d.doc_type === "SELFIE");
 
-  if (!front || !selfie || (requiresBack && !back)) {
+  if (!front || (requiresBack && !back)) {
     return null;
   }
-  return { front, back, selfie };
+  return { front, back };
 }
 
 async function getSignedUrl(
@@ -58,19 +56,17 @@ async function getSignedUrl(
 async function resolveSignedUrls(
   adminClient: ReturnType<typeof createSupabaseAdminClient>,
   frontPath: string,
-  selfiePath: string,
   backPath: string | null,
 ): Promise<SignedDocUrls | null> {
-  const [frontUrl, selfieUrl, backUrl] = await Promise.all([
+  const [frontUrl, backUrl] = await Promise.all([
     getSignedUrl(adminClient, frontPath),
-    getSignedUrl(adminClient, selfiePath),
     getSignedUrl(adminClient, backPath),
   ]);
 
-  if (!frontUrl || !selfieUrl) return null;
+  if (!frontUrl) return null;
   if (backPath && !backUrl) return null;
 
-  return { frontUrl, backUrl, selfieUrl };
+  return { frontUrl, backUrl };
 }
 
 async function prepareDocuments(
@@ -95,8 +91,7 @@ async function prepareDocuments(
   const requiresBack = idType !== "PASSPORT";
   const docs = findRequiredDocs(documents, requiresBack);
   if (!docs) {
-    const reason =
-      "Dossier incomplet : le recto, le selfie et le verso (si requis) doivent être fournis.";
+    const reason = "Dossier incomplet : le recto et le verso (si requis) doivent être fournis.";
     await adminClient.rpc("auto_process_kyc", {
       p_client_id: userId,
       p_decision: "REJECT",
@@ -111,7 +106,6 @@ async function prepareDocuments(
   const urls = await resolveSignedUrls(
     adminClient,
     docs.front.url || `${userId}/ID_FRONT`,
-    docs.selfie.url || `${userId}/SELFIE`,
     requiresBack ? docs.back?.url || `${userId}/ID_BACK` : null,
   );
 
@@ -146,7 +140,7 @@ Note importante : Le client n'a pas eu à saisir sa date de naissance ni son num
 
 Justificatifs joints dans l'ordre :
 1. Pièce d'identité — Recto (ID_FRONT)
-${urls.backUrl ? "2. Pièce d'identité — Verso (ID_BACK)\n3. Selfie de contrôle (SELFIE)" : "2. Selfie de contrôle (SELFIE)"}
+${urls.backUrl ? "2. Pièce d'identité — Verso (ID_BACK)" : ""}
 
 Analyse ces images et retourne le diagnostic en JSON strict.`,
     },
@@ -156,7 +150,6 @@ Analyse ces images et retourne le diagnostic en JSON strict.`,
   if (urls.backUrl) {
     content.push({ type: "image_url", image_url: { url: urls.backUrl } });
   }
-  content.push({ type: "image_url", image_url: { url: urls.selfieUrl } });
 
   return { systemPrompt, content };
 }

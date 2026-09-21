@@ -53,8 +53,8 @@ function VerifyingView() {
         Vérification automatique
       </h3>
       <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
-        Notre intelligence artificielle contrôle vos justificatifs et compare votre selfie avec
-        votre pièce d’identité.
+        Notre intelligence artificielle contrôle vos justificatifs et extrait vos informations
+        officielles.
       </p>
 
       <div className="mt-6 flex w-full flex-col gap-2 rounded-2xl border border-border bg-muted/30 p-3.5 text-left text-xs sm:p-4">
@@ -64,7 +64,7 @@ function VerifyingView() {
         </div>
         <div className="flex items-center gap-2.5 text-foreground">
           <UserCheck className="size-4 text-accent" />
-          <span>Comparaison biométrique faciale (Face Match)</span>
+          <span>Conformité de l’identité</span>
         </div>
         <div className="flex items-center gap-2.5 text-foreground">
           <ShieldCheck className="size-4 text-accent" />
@@ -156,7 +156,7 @@ function DiagnosticChecks({ checks }: { checks?: AiDecisionReport["checks"] }) {
   if (!checks) return null;
   const items = [
     { label: "Document lisible et authentique", passed: checks.document_authentic },
-    { label: "Correspondance faciale (Selfie / Pièce)", passed: checks.face_match },
+    { label: "Correspondance du nom et prénom", passed: checks.name_match },
     { label: "Document en cours de validité", passed: checks.not_expired },
   ];
   return (

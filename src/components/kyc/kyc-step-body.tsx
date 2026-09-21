@@ -23,7 +23,6 @@ type Props = {
 const UPLOAD_LABEL: Record<KycDocType, string> = {
   ID_FRONT: "",
   ID_BACK: "",
-  SELFIE: "",
 };
 
 function KycConfirmStep({
@@ -96,21 +95,14 @@ export function KycStepBody({
 
   if (step.kind === "upload") {
     const optional = Boolean(step.optionalForPassport && isPassport);
-    const isSelfie = step.docType === "SELFIE";
 
     return (
       <div className="flex w-full flex-col gap-5">
         <FileUploadField
           docType={step.docType}
           label={UPLOAD_LABEL[step.docType]}
-          hint={
-            isSelfie
-              ? "JPG ou PNG — 5 Mo maximum (images uniquement)"
-              : optional
-                ? "Non requis pour un passeport"
-                : "JPG, PNG ou PDF — 5 Mo maximum"
-          }
-          accept={isSelfie ? ".jpg,.jpeg,.png,image/jpeg,image/png" : ACCEPTED_DOC_ATTR}
+          hint={optional ? "Non requis pour un passeport" : "JPG, PNG ou PDF — 5 Mo maximum"}
+          accept={ACCEPTED_DOC_ATTR}
           uploaded={docs.has(step.docType)}
           busy={uploading === step.docType}
           optional={optional}

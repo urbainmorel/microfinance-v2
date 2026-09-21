@@ -28,7 +28,7 @@ describe("KycVerificationModal", () => {
     expect(html).toContain("Vérification automatique");
     expect(html).toContain("Analyse IA en cours");
     expect(html).toContain("Authenticité et lisibilité de la pièce");
-    expect(html).toContain("Comparaison biométrique faciale");
+    expect(html).toContain("Conformité de l’identité");
   });
 
   it("renders success state with celebratory elements and dashboard button", () => {
@@ -55,10 +55,10 @@ describe("KycVerificationModal", () => {
   it("renders rejected state with reason, diagnostic checks, and modify button", () => {
     const mockReport: AiDecisionReport = {
       decision: "REJECT",
-      reason: "Le selfie ne correspond pas à la pièce d’identité.",
+      reason: "Le document fourni est flou ou illisible.",
       checks: {
-        document_authentic: true,
-        face_match: false,
+        document_authentic: false,
+        name_match: true,
         not_expired: true,
       },
     };
@@ -74,7 +74,7 @@ describe("KycVerificationModal", () => {
     );
 
     expect(html).toContain("Vérification non validée");
-    expect(html).toContain("Le selfie ne correspond pas à la pièce d’identité.");
+    expect(html).toContain("Le document fourni est flou ou illisible.");
     expect(html).toContain("Diagnostic détaillé :");
     expect(html).toContain("Modifier mes justificatifs");
   });

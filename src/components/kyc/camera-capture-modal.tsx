@@ -35,34 +35,23 @@ function captureVideoFrame(video: HTMLVideoElement, onCapture: (blob: Blob) => v
   );
 }
 
-function CameraOverlay({ docType }: { docType: KycDocType }) {
-  const isSelfie = docType === "SELFIE";
+function CameraOverlay() {
   return (
     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center p-4">
-      <div
-        className={
-          isSelfie
-            ? "h-4/5 w-4/5 max-w-sm rounded-[32px] border-2 border-dashed border-accent/80 bg-accent/5 shadow-lg"
-            : "aspect-[1.586] w-5/6 max-w-md rounded-2xl border-2 border-dashed border-accent/80 bg-accent/5 shadow-lg"
-        }
-      />
+      <div className="aspect-[1.586] w-5/6 max-w-md rounded-2xl border-2 border-dashed border-accent/80 bg-accent/5 shadow-lg" />
       <span className="mt-3 rounded-full bg-foreground/70 px-3 py-1 text-center text-xs font-medium text-background backdrop-blur-sm">
-        {isSelfie
-          ? "Tenez votre pièce proche de votre visage"
-          : "Cadrez votre document dans le rectangle"}
+        Cadrez votre document dans le rectangle
       </span>
     </div>
   );
 }
 
 function CameraViewfinder({
-  docType,
   facingMode,
   onFlip,
   onCaptureBlob,
   onError,
 }: {
-  docType: KycDocType;
   facingMode: "user" | "environment";
   onFlip: () => void;
   onCaptureBlob: (blob: Blob) => void;
@@ -70,7 +59,6 @@ function CameraViewfinder({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const isSelfie = docType === "SELFIE";
 
   useEffect(() => {
     let active = true;
@@ -102,17 +90,15 @@ function CameraViewfinder({
     <div className="flex flex-col items-center gap-4">
       <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-inner">
         <video ref={videoRef} autoPlay playsInline muted className="size-full object-cover" />
-        <CameraOverlay docType={docType} />
-        {!isSelfie ? (
-          <button
-            type="button"
-            onClick={onFlip}
-            className="absolute right-3 top-3 grid size-10 place-items-center rounded-xl bg-foreground/60 text-background backdrop-blur-sm transition-colors hover:bg-foreground/80"
-            aria-label="Changer de caméra"
-          >
-            <FlipHorizontal className="size-5" aria-hidden />
-          </button>
-        ) : null}
+        <CameraOverlay />
+        <button
+          type="button"
+          onClick={onFlip}
+          className="absolute right-3 top-3 grid size-10 place-items-center rounded-xl bg-foreground/60 text-background backdrop-blur-sm transition-colors hover:bg-foreground/80"
+          aria-label="Changer de caméra"
+        >
+          <FlipHorizontal className="size-5" aria-hidden />
+        </button>
       </div>
       <button
         type="button"
@@ -158,10 +144,7 @@ function CapturedReview({
 }
 
 export function CameraCaptureModal({ open, onOpenChange, docType, onCapture }: Props) {
-  const isSelfie = docType === "SELFIE";
-  const [facingMode, setFacingMode] = useState<"user" | "environment">(() =>
-    isSelfie ? "user" : "environment",
-  );
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [error, setError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -195,16 +178,8 @@ export function CameraCaptureModal({ open, onOpenChange, docType, onCapture }: P
         if (!next) handleRetake();
         onOpenChange(next);
       }}
-      title={
-        isSelfie
-          ? "Prendre votre selfie avec votre pièce proche de votre visage"
-          : "Prendre la photo de votre pièce"
-      }
-      description={
-        isSelfie
-          ? "Tenez votre pièce d’identité bien visible à côté de votre visage sous un bon éclairage."
-          : "Positionnez votre pièce dans le cadre sous un bon éclairage."
-      }
+      title="Prendre la photo de votre pièce"
+      description="Positionnez votre pièce dans le cadre sous un bon éclairage."
     >
       {error ? (
         <div className="flex flex-col items-center gap-3 p-6 text-center">
@@ -219,8 +194,7 @@ export function CameraCaptureModal({ open, onOpenChange, docType, onCapture }: P
         <CapturedReview url={preview} onRetake={handleRetake} onConfirm={handleConfirm} />
       ) : (
         <CameraViewfinder
-          docType={docType}
-          facingMode={isSelfie ? "user" : facingMode}
+          facingMode={facingMode}
           onFlip={() => setFacingMode((m) => (m === "user" ? "environment" : "user"))}
           onCaptureBlob={handleBlob}
           onError={setError}
