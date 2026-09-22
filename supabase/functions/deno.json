@@ -5,7 +5,7 @@
   },
   "lint": {
     "rules": {
-      "exclude": ["no-control-regex"]
+      "exclude": ["no-control-regex", "no-import-prefix"]
     }
   }
 }

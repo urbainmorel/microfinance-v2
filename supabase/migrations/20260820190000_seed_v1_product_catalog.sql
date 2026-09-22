@@ -36,7 +36,7 @@ insert into public.loan_products (
     'Prêt Essentiel',
     'Financement court terme pour les besoins essentiels.',
     50000, 300000, 3, 6,
-    12.000, 'CONSTANT_INSTALLMENT',
+    1.000, 'CONSTANT_INSTALLMENT',
     0, 0, 0, 0, 0,
     10.000, 5.000, 0.030, true
   ),
@@ -46,7 +46,7 @@ insert into public.loan_products (
     'Prêt Croissance',
     'Financement du développement d’une activité.',
     100000, 1500000, 6, 12,
-    15.000, 'CONSTANT_INSTALLMENT',
+    1.250, 'CONSTANT_INSTALLMENT',
     0, 0, 0, 0, 0,
     10.000, 5.000, 0.030, true
   )

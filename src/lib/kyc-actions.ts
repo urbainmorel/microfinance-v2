@@ -1,5 +1,6 @@
 import {
   KYC_BUCKET,
+  KYC_DOC_TYPES,
   kycDocumentSchema,
   normalizeFcfaCountry,
   type KycDocType,
@@ -92,5 +93,7 @@ export async function loadKycDocuments(supabase: DatabaseClient): Promise<KycDoc
   } = await supabase.auth.getUser();
   if (!user) return [];
   const { data } = await supabase.from("kyc_documents").select("doc_type").eq("client_id", user.id);
-  return (data ?? []).map((r) => r.doc_type as KycDocType);
+  return (data ?? [])
+    .map((r) => r.doc_type)
+    .filter((d): d is KycDocType => (KYC_DOC_TYPES as readonly string[]).includes(d));
 }
