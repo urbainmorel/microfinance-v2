@@ -25,6 +25,20 @@ async function main() {
   const user = listData.users.find((u) => u.email === DEMO_EMAIL);
   if (!user) throw new Error("Utilisateur démo introuvable");
 
+  await adminClient.from("loans").delete().eq("client_id", user.id);
+  await adminClient.from("loan_contracts").delete().eq("client_id", user.id);
+  await adminClient.from("loan_requests").delete().eq("client_id", user.id);
+  await adminClient
+    .from("wallets")
+    .update({
+      disbursed_loan: 0,
+      free_savings: 0,
+      blocked_guarantee: 0,
+      reserved_amount: 0,
+      mandatory_savings: 0,
+    })
+    .eq("client_id", user.id);
+
   const { data: wallet } = await adminClient
     .from("wallets")
     .select("*")

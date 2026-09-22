@@ -123,7 +123,7 @@ async function run() {
 
     if v_auto_approval then
       -- =========================================================================
-      -- MODE AUTOMATIQUE (Instant Loan)
+      -- MODE AUTOMATIQUE (Pré-approbation avec contrat généré pour signature explicite)
       -- =========================================================================
       insert into public.loan_requests (
         client_id, product_id, amount, approved_amount, duration_months, purpose,
@@ -134,10 +134,10 @@ async function run() {
         idempotency_key, correlation_id
       ) values (
         p_client, p_product, p_amount, p_amount, p_duration, trim(p_purpose),
-        p_monthly_income, 'INTERNAL', 'DISBURSED',
+        p_monthly_income, 'INTERNAL', 'ACCEPTED',
         v_guarantee, 0,
         v_terms, gen_random_uuid(),
-        now(), p_client,
+        null, null,
         p_idempotency_key, coalesce(p_correlation_id, gen_random_uuid())
       ) returning id into v_id;
 
@@ -151,7 +151,7 @@ async function run() {
         end loop;
       end if;
 
-      -- Génération et signature automatique du contrat
+      -- Génération du contrat prêt pour signature explicite par l'emprunteur
       v_contract_content := jsonb_build_object(
         'schemaVersion', 1,
         'contractNumber', 'MF-' || to_char(current_date, 'YYYY') || '-' || upper(substr(replace(v_id::text, '-', ''), 1, 12)),
@@ -178,48 +178,8 @@ async function run() {
       ) values (
         v_id, p_client, v_contract_content ->> 'contractNumber', gen_random_uuid(),
         v_contract_content, encode(extensions.digest(v_contract_content::text, 'sha256'), 'hex'),
-        now(), 'PIN', p_idempotency_key, coalesce(p_correlation_id, gen_random_uuid())
+        null, null, null, null
       ) on conflict (request_id) do nothing;
-
-      -- Création du prêt actif
-      insert into public.loans (
-        request_id, client_id, total_amount, remaining_principal, interest_rate,
-        interest_method, start_date, end_date, status
-      ) values (
-        v_id, p_client, p_amount, p_amount, v_product.interest_rate,
-        v_product.interest_method, current_date,
-        (current_date + make_interval(months => p_duration))::date, 'ACTIVE'
-      ) returning id into v_loan;
-
-      -- Création de l'échéancier
-      v_mandatory_rate := coalesce(v_product.mandatory_savings_rate, 0);
-      v_total_fees := round(p_amount * coalesce(v_product.processing_fee_percent, 0) / 100)::bigint
-        + coalesce(v_product.processing_fee_flat, 0)
-        + round(p_amount * coalesce(v_product.management_fee_percent, 0) / 100)::bigint
-        + coalesce(v_product.management_fee_flat, 0)
-        + round(p_amount * coalesce(v_product.insurance_rate, 0) / 100)::bigint;
-      v_fee := v_total_fees / p_duration;
-      v_fee_remainder := v_total_fees - v_fee * p_duration;
-
-      for a in select * from public.amortization_rows(
-        p_amount, (v_product.interest_rate / 12.0) / 100.0, p_duration, v_product.interest_method
-      ) loop
-        v_mandatory := round((a.due_principal + a.due_interest + v_fee
-          + case when a.installment_no = p_duration then v_fee_remainder else 0 end)
-          * v_mandatory_rate / 100)::bigint;
-        insert into public.amortization_schedules (
-          loan_id, installment_no, due_date, due_principal, due_interest, due_fees, due_mandatory_savings
-        ) values (
-          v_loan, a.installment_no, (current_date + make_interval(months => a.installment_no))::date,
-          a.due_principal, a.due_interest,
-          v_fee + case when a.installment_no = p_duration then v_fee_remainder else 0 end,
-          v_mandatory
-        );
-      end loop;
-
-      -- Crédit immédiat des fonds dans le portefeuille
-      insert into public.wallets (client_id) values (p_client) on conflict (client_id) do nothing;
-      perform app_private.credit_wallet(p_client, 'disbursed_loan', p_amount);
 
     else
       -- =========================================================================

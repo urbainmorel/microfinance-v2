@@ -143,11 +143,40 @@ async function testModes() {
     contractAuto?.signed_at,
   );
 
-  if (reqAuto.status !== "DISBURSED" || walletAuto.disbursed_loan !== product.min_amount) {
-    throw new Error("ÉCHEC DU TEST MODE AUTOMATIQUE");
+  // Mode automatique : La demande est pré-approuvée (ACCEPTED) et le contrat généré
+  if (reqAuto.status !== "ACCEPTED") {
+    throw new Error(`Statut attendu ACCEPTED, obtenu: ${reqAuto.status}`);
   }
   console.log(
-    "--> SUCCÈS MODE AUTOMATIQUE : Le prêt est approuvé et le portefeuille est RÉELLEMENT crédité de",
+    "--> Pré-approbation automatique validée : Statut ACCEPTED, contrat généré non signé.",
+  );
+
+  // Signature explicite par le client
+  const { error: signErr } = await adminClient.rpc("sign_loan_contract", {
+    p_client: user.id,
+    p_request: reqAutoId,
+    p_idempotency_key: crypto.randomUUID(),
+  });
+  if (signErr) throw signErr;
+
+  // Re-vérifier après signature
+  const { data: reqSigned } = await adminClient
+    .from("loan_requests")
+    .select("status, disbursed_at")
+    .eq("id", reqAutoId)
+    .single();
+
+  const { data: walletAfterSign } = await adminClient
+    .from("wallets")
+    .select("disbursed_loan")
+    .eq("client_id", user.id)
+    .single();
+
+  if (reqSigned.status !== "DISBURSED" || walletAfterSign.disbursed_loan !== product.min_amount) {
+    throw new Error("ÉCHEC DU DÉCAISSEMENT APRÈS SIGNATURE");
+  }
+  console.log(
+    "--> SUCCÈS MODE AUTOMATIQUE : Le contrat a été signé et le portefeuille est RÉELLEMENT crédité de",
     product.min_amount,
     "FCFA !",
   );
