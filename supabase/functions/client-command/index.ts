@@ -38,7 +38,8 @@ type PublicErrorCode =
   | "ACTIVE_LOAN_EXISTS"
   | "INSUFFICIENT_FUNDS"
   | "ALREADY_PROCESSED"
-  | "OUTSIDE_WINDOW";
+  | "OUTSIDE_WINDOW"
+  | "GUARANTEE_REQUIRED";
 
 type JsonObject = Record<string, unknown>;
 type ValidatedCommand = {

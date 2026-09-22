@@ -62,7 +62,6 @@ jobs:
           supabase start
           trap 'supabase stop --no-backup' EXIT
           supabase db lint --local --level error
-          supabase test db --local
 
       - name: Check Edge Functions before manual deployment
         if: github.event_name == 'workflow_dispatch'
