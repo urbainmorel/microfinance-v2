@@ -1,4 +1,4 @@
-import { Landmark, ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, Landmark, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { PlatformName } from "@/components/brand/platform-name";
@@ -57,19 +57,19 @@ export function LandingHeader() {
         </nav>
 
         {/* CTA Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/auth/login"
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground shadow-sm transition hover:border-foreground/20 hover:bg-muted/60"
+            className="inline-flex h-9 items-center justify-center rounded-xl border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-sm transition hover:border-foreground/20 hover:bg-muted/60 sm:h-11 sm:px-4 sm:text-sm"
           >
             Se connecter
           </Link>
           <Link
             href="/auth/register"
-            className="hidden h-11 items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-accent-foreground shadow-md shadow-accent/25 transition hover:bg-finance-deep active:translate-y-px sm:inline-flex"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-accent px-3.5 text-xs font-semibold text-accent-foreground shadow-md shadow-accent/25 transition hover:bg-finance-deep active:translate-y-px sm:h-11 sm:gap-2 sm:px-5 sm:text-sm"
           >
-            <span>Obtenir un prêt</span>
-            <ArrowRight className="size-4" />
+            <span>Créer un compte</span>
+            <ArrowRight className="size-3.5 sm:size-4" />
           </Link>
         </div>
       </div>

@@ -86,3 +86,22 @@
     scrollbar-width: thin;
   }
 }
+
+/* Suppression absolue de la bulle et du drawer flottant Netlify */
+#netlify-badge,
+.netlify-badge,
+[data-netlify-drawer],
+netlify-drawer,
+iframe#netlify-drawer,
+div[class*="netlify-drawer"],
+div[class*="netlify-badge"],
+[data-netlify-feedback] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}
