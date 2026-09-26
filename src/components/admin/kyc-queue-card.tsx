@@ -6,6 +6,7 @@ import { StaffActions } from "@/components/admin/staff-actions";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/admin/format";
+import { isKycComplete as isComplete } from "@/lib/admin/rules/kyc-completeness";
 import { cn } from "@/lib/utils";
 
 import type { KycQueueItem } from "@/lib/admin/types";
@@ -15,13 +16,6 @@ const LABELS: Record<string, string> = {
   ID_BACK: "Pièce — verso",
   SELFIE: "Selfie de contrôle",
 };
-
-function isComplete(item: KycQueueItem) {
-  const types = new Set(
-    item.documents.filter((document) => document.verified).map((document) => document.type),
-  );
-  return types.has("ID_FRONT") && (item.idType === "PASSPORT" || types.has("ID_BACK"));
-}
 
 function facts(item: KycQueueItem) {
   return [

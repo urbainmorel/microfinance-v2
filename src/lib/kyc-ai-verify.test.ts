@@ -86,3 +86,57 @@ Fin de transmission.`;
     expect(res.report.extracted_data?.id_number).toBe("CI0012345");
   });
 });
+
+describe("parseAiDecision - invariants de sécurité", () => {
+  it("rejette si decision=VALIDATE mais document_authentic=false (fail-closed)", () => {
+    const json = JSON.stringify({
+      decision: "VALIDATE",
+      reason: null,
+      confidence_score: 95,
+      extracted_data: { id_number: "CI0012345" },
+      checks: { document_authentic: false },
+    });
+    const res = parseAiDecision(json);
+    expect(res.decision).toBe("REJECT");
+    expect(res.reason).toContain("authentique");
+  });
+
+  it("rejette si decision=VALIDATE mais pièce expirée (not_expired=false)", () => {
+    const json = JSON.stringify({
+      decision: "VALIDATE",
+      reason: null,
+      confidence_score: 95,
+      extracted_data: { id_number: "CI0012345" },
+      checks: { not_expired: false },
+    });
+    const res = parseAiDecision(json);
+    expect(res.decision).toBe("REJECT");
+    expect(res.reason).toContain("expirée");
+  });
+
+  it("rejette si decision=VALIDATE mais numéro de pièce manquant", () => {
+    const json = JSON.stringify({
+      decision: "VALIDATE",
+      reason: null,
+      confidence_score: 95,
+      extracted_data: { id_number: "" },
+      checks: { document_authentic: true, not_expired: true },
+    });
+    const res = parseAiDecision(json);
+    expect(res.decision).toBe("REJECT");
+    expect(res.reason).toContain("numéro officiel");
+  });
+
+  it("rejette si decision=VALIDATE mais score de confiance trop faible (<50)", () => {
+    const json = JSON.stringify({
+      decision: "VALIDATE",
+      reason: null,
+      confidence_score: 35,
+      extracted_data: { id_number: "CI0012345" },
+      checks: { document_authentic: true, not_expired: true },
+    });
+    const res = parseAiDecision(json);
+    expect(res.decision).toBe("REJECT");
+    expect(res.reason).toContain("score de confiance");
+  });
+});

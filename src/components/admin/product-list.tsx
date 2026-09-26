@@ -4,7 +4,7 @@ import { QueueCard } from "@/components/admin/queue-card";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/admin/format";
-import { cleanProductDescription } from "@/lib/format";
+import { cleanProductDescription } from "@/lib/loans/format";
 
 import type { LoanProduct } from "@/lib/admin/types";
 

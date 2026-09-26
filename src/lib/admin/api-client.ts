@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export type DbRecord = Record<string, unknown>;
 
 export const adminSupabase = createSupabaseBrowserClient() as unknown as SupabaseClient;
+export const browserClient = adminSupabase;
 
 export function textValue(value: unknown): string {
   return typeof value === "string" ? value : "";

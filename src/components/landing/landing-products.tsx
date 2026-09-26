@@ -1,4 +1,4 @@
-import { ArrowRight, BadgeCheck, BadgePercent, Check, Clock, Shield } from "lucide-react";
+import { ArrowRight, BadgePercent, Check, Clock, Shield } from "lucide-react";
 import Link from "next/link";
 
 function EssentialProductCard() {
@@ -167,8 +167,7 @@ export function LandingProducts() {
     <section id="produits" className="border-y border-border/70 bg-muted/40 py-20 md:py-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent">
-            <BadgeCheck className="size-3.5" />
+          <div className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent">
             <span>Nos solutions de financement</span>
           </div>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">

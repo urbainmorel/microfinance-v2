@@ -7,8 +7,22 @@ import { adminClient, getUserId } from "../_shared/supabase.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "METHOD_NOT_ALLOWED", message: "Méthode non autorisée" }),
+      {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          Allow: "POST, OPTIONS",
+        },
+      },
+    );
+  }
 
   const userId = await getUserId(req);
+
   if (!userId) return jsonResponse({ error: "Non authentifié" }, 401);
 
   const body = await req.json().catch(() => null);

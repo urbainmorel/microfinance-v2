@@ -5,8 +5,7 @@ import Link from "next/link";
 function HeroContent() {
   return (
     <div className="flex flex-col items-start lg:col-span-7">
-      <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-finance-soft px-3.5 py-1.5 text-xs font-bold text-accent shadow-sm">
-        <ShieldCheck className="size-3.5 text-accent" />
+      <div className="mb-6 inline-flex items-center rounded-full bg-finance-soft px-3.5 py-1.5 text-xs font-bold text-accent">
         <span>Financement rapide & sécurisé pour particuliers et professionnels</span>
       </div>
 

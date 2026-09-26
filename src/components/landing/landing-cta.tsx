@@ -1,4 +1,4 @@
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export function LandingCta() {
@@ -17,8 +17,7 @@ export function LandingCta() {
           />
 
           <div className="relative z-10 mx-auto max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-md">
-              <Clock className="size-3.5" />
+            <div className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-md">
               <span>Votre demande en ligne en moins de 5 minutes</span>
             </div>
 

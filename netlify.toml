@@ -6,6 +6,14 @@
   NODE_VERSION = "22"
   PNPM_VERSION = "11"
   NETLIFY_NEXT_SKEW_PROTECTION = "true"
+  APP_URL = "https://azari-microfinance.site"
+
+# Redirection sous-domaine www vers domaine principal officiel
+[[redirects]]
+  from = "https://www.azari-microfinance.site/*"
+  to = "https://azari-microfinance.site/:splat"
+  status = 301
+  force = true
 
 # L'adaptateur OpenNext est détecté et maintenu automatiquement par Netlify.
 # Ces routes financières ne doivent jamais être mises en cache par un CDN partagé.

@@ -4,6 +4,7 @@ export type AppSettings = {
   auditRetentionDays: number;
   autoLoanApproval: boolean;
   defaultAfterDays: number;
+  depositPhone: string;
   kycRetentionDays: number;
   platformName: string;
   transferFee: number;
@@ -24,6 +25,10 @@ export async function getAppSettings(): Promise<AppSettings> {
     auditRetentionDays: numberValue(row.audit_retention_days),
     autoLoanApproval: Boolean(row.auto_loan_approval),
     defaultAfterDays: numberValue(row.default_after_days),
+    depositPhone:
+      typeof row.deposit_phone === "string" && row.deposit_phone.trim()
+        ? row.deposit_phone.trim()
+        : "",
     kycRetentionDays: numberValue(row.kyc_retention_days),
     platformName:
       typeof row.platform_name === "string" && row.platform_name.trim()

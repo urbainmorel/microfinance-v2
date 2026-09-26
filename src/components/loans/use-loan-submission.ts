@@ -4,13 +4,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useIdempotentCommand } from "@/components/client/use-idempotent-command";
-import {
-  ClientCommandError,
-  getAuthenticatedUserId,
-  invokeClientCommand,
-  uploadClientDocument,
-} from "@/lib/client-command";
+import { ClientCommandError, invokeClientCommand } from "@/lib/client-command";
 import { useSupabase } from "@/lib/hooks/use-supabase";
+import { getAuthenticatedUserId, uploadClientDocument } from "@/lib/storage-actions";
 
 import type { LoanRequestInput } from "@/lib/schemas/loan";
 import type { UseFormReturn } from "react-hook-form";

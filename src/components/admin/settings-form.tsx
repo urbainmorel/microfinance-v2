@@ -8,7 +8,10 @@ import { cn } from "@/lib/utils";
 
 import type { AppSettings } from "@/lib/admin/api-settings";
 
-type NumericSettingKey = Exclude<keyof AppSettings, "platformName" | "autoLoanApproval">;
+type NumericSettingKey = Exclude<
+  keyof AppSettings,
+  "platformName" | "autoLoanApproval" | "depositPhone"
+>;
 
 const NUMERIC_FIELDS: Array<{ key: NumericSettingKey; label: string; min: number; max?: number }> =
   [
@@ -26,7 +29,7 @@ function validate(value: AppSettings) {
     return "Le nom de la plateforme ne peut pas être vide.";
   }
   if (value.withdrawalWindowEnd <= value.withdrawalWindowStart)
-    return "L’heure de fin doit suivre l’heure de début.";
+    return "L'heure de fin doit suivre l'heure de début.";
   if (
     NUMERIC_FIELDS.some(
       (field) =>
@@ -59,7 +62,37 @@ function PlatformNameField({
           className="max-w-md font-semibold text-foreground"
         />
         <p className="text-xs text-muted-foreground">
-          Ce nom s’applique dynamiquement à la vitrine, à l’espace client et au centre d’opérations.
+          Ce nom s&apos;applique dynamiquement à la vitrine, à l&apos;espace client et au centre
+          d&apos;opérations.
+        </p>
+      </label>
+    </div>
+  );
+}
+
+function DepositPhoneField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  return (
+    <div className="mb-6 rounded-xl border border-border/70 bg-muted/20 p-4">
+      <label className="block space-y-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Numéro Mobile Money de dépôt
+        </span>
+        <Input
+          type="tel"
+          placeholder="Ex : +22507XXXXXXXX"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="max-w-md font-semibold text-foreground"
+        />
+        <p className="text-xs text-muted-foreground">
+          Ce numéro sera affiché aux clients sur les pages de dépôt d&apos;épargne et de garantie.
+          Laissez vide pour ne pas l&apos;afficher.
         </p>
       </label>
     </div>
@@ -79,7 +112,7 @@ function ApprovalModeSwitch({
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Mode d’approbation des demandes de prêt
+              Mode d&apos;approbation des demandes de prêt
             </span>
             <span
               className={cn(
@@ -139,6 +172,11 @@ export function SettingsForm({
       <PlatformNameField
         value={value.platformName}
         onChange={(platformName) => setValue((curr) => ({ ...curr, platformName }))}
+      />
+
+      <DepositPhoneField
+        value={value.depositPhone}
+        onChange={(depositPhone) => setValue((curr) => ({ ...curr, depositPhone }))}
       />
 
       <ApprovalModeSwitch

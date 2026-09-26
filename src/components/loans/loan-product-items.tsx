@@ -1,6 +1,7 @@
 import { CheckCircle2 } from "lucide-react";
 
-import { cleanProductDescription, formatFcfa } from "@/lib/format";
+import { formatFcfa } from "@/lib/format";
+import { cleanProductDescription } from "@/lib/loans/format";
 import { cn } from "@/lib/utils";
 
 import type { LoanProduct } from "@/lib/schemas/loan";

@@ -12,8 +12,9 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cleanProductDescription, formatFcfa } from "@/lib/format";
+import { formatFcfa } from "@/lib/format";
 import { useProfile } from "@/lib/hooks/use-profile";
+import { cleanProductDescription } from "@/lib/loans/format";
 import { cn } from "@/lib/utils";
 
 import type { LoanProduct } from "@/lib/schemas/loan";

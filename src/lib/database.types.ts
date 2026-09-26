@@ -44,6 +44,7 @@ export type Database = {
         audit_retention_days: number;
         auto_loan_approval: boolean;
         default_after_days: number;
+        deposit_phone: string | null;
         id: boolean;
         kyc_retention_days: number;
         platform_name: string;

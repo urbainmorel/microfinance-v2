@@ -1,4 +1,4 @@
-import { Quote, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
 interface Testimonial {
   name: string;
@@ -109,8 +109,7 @@ export function LandingTestimonials() {
     <section id="avis" className="border-t border-border/70 bg-muted/30 py-20 md:py-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-finance-soft px-3 py-1 text-xs font-bold text-accent">
-            <Quote className="size-3.5" />
+          <div className="inline-flex items-center rounded-full bg-finance-soft px-3 py-1 text-xs font-bold text-accent">
             <span>Retours d’expérience</span>
           </div>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">

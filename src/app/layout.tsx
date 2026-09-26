@@ -23,6 +23,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://azari-microfinance.site"),
   title: "Azari Microfinance — Espace client",
   description: "Portail de requêtes et de suivi : épargne, prêts et opérations.",
   applicationName: "Azari Microfinance",

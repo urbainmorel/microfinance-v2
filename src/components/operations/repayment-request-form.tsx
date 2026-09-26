@@ -21,15 +21,11 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormStepper } from "@/components/ui/form-stepper";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ClientCommandError,
-  getAuthenticatedUserId,
-  invokeClientCommand,
-  uploadClientDocument,
-} from "@/lib/client-command";
+import { ClientCommandError, invokeClientCommand } from "@/lib/client-command";
 import { formatFcfa } from "@/lib/format";
 import { useSupabase } from "@/lib/hooks/use-supabase";
 import { repaymentRequestSchema, type RepaymentRequestInput } from "@/lib/schemas/operations";
+import { getAuthenticatedUserId, uploadClientDocument } from "@/lib/storage-actions";
 import { cn } from "@/lib/utils";
 
 import type { UseFormReturn } from "react-hook-form";

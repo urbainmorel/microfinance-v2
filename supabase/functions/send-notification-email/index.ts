@@ -142,10 +142,95 @@ async function loadTemplate(
   return template;
 }
 
+type EmailProvider =
+  | { type: "brevo"; apiKey: string }
+  | { type: "resend"; apiKey: string };
+
+function resolveEmailProvider(): EmailProvider {
+  const brevoKey = Deno.env.get("BREVO_API_KEY");
+  if (brevoKey) return { type: "brevo", apiKey: brevoKey };
+
+  const resendKey = Deno.env.get("RESEND_API_KEY");
+  if (resendKey) return { type: "resend", apiKey: resendKey };
+
+  throw new DeliveryError("MISSING_BREVO_API_KEY");
+}
+
+function parseSender(senderString: string): { email: string; name?: string } {
+  const match = senderString.match(/^(?:(?:"?([^"]*)"?\s)?<([^>]+)>|([^<>\s]+))$/);
+  if (match) {
+    const name = match[1]?.trim();
+    const email = (match[2] ?? match[3])?.trim();
+    if (email) {
+      return name ? { email, name } : { email };
+    }
+  }
+  return { email: senderString.trim() };
+}
+
+async function deliverWithBrevo(
+  apiKey: string,
+  emailFrom: string,
+  recipientEmail: string,
+  subject: string,
+  html: string,
+  dedupeKey: string,
+  tag: string,
+): Promise<void> {
+  const sender = parseSender(emailFrom);
+  const payload: Record<string, unknown> = {
+    sender,
+    to: [{ email: recipientEmail }],
+    subject,
+    htmlContent: html,
+    tags: [tag],
+    headers: {
+      "X-Mailin-Custom": dedupeKey,
+    },
+  };
+
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": apiKey,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => "");
+    console.error(`Brevo delivery failed [${response.status}]:`, errText);
+    throw new DeliveryError(`BREVO_HTTP_${response.status}`);
+  }
+}
+
+async function deliverWithResend(
+  apiKey: string,
+  emailFrom: string,
+  recipientEmail: string,
+  subject: string,
+  html: string,
+  dedupeKey: string,
+): Promise<void> {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": dedupeKey,
+    },
+    body: JSON.stringify({ from: emailFrom, to: [recipientEmail], subject, html }),
+  });
+
+  if (!response.ok) throw new DeliveryError(`RESEND_HTTP_${response.status}`);
+}
+
 async function deliver(
   admin: SupabaseClient,
   row: OutboxRow,
-  resendApiKey: string,
+  provider: EmailProvider,
   emailFrom: string,
 ): Promise<void> {
   const { data: userData, error: userError } = await admin.auth.admin.getUserById(
@@ -173,17 +258,26 @@ async function deliver(
   const subject = renderTemplate(template.subject, variables, payload, false);
   const html = renderTemplate(template.body_html, variables, payload, true);
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": row.dedupe_key,
-    },
-    body: JSON.stringify({ from: emailFrom, to: [email], subject, html }),
-  });
-
-  if (!response.ok) throw new DeliveryError(`RESEND_HTTP_${response.status}`);
+  if (provider.type === "brevo") {
+    await deliverWithBrevo(
+      provider.apiKey,
+      emailFrom,
+      email,
+      subject,
+      html,
+      row.dedupe_key,
+      row.template_slug,
+    );
+  } else {
+    await deliverWithResend(
+      provider.apiKey,
+      emailFrom,
+      email,
+      subject,
+      html,
+      row.dedupe_key,
+    );
+  }
 }
 
 function safeFailureCode(error: unknown): string {
@@ -207,7 +301,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const resendApiKey = requiredEnv("RESEND_API_KEY");
+    const provider = resolveEmailProvider();
     const emailFrom = requiredEnv("EMAIL_FROM");
     const admin = adminClient();
     const rows = await reserveBatch(admin);
@@ -216,7 +310,7 @@ Deno.serve(async (req: Request) => {
 
     for (const row of rows) {
       try {
-        await deliver(admin, row, resendApiKey, emailFrom);
+        await deliver(admin, row, provider, emailFrom);
         const { error } = await admin.rpc("complete_notification_outbox", {
           p_id: row.id,
           p_success: true,

@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { isAccountInactive, roleFromAppMetadata } from "@/lib/access-control";
 import { requiredOnboardingPath, type OnboardingState } from "@/lib/auth-flow";
+import { ROUTES } from "@/lib/constants/routes";
 import { getPublicEnvSafe } from "@/lib/env";
 
 /**
@@ -44,7 +45,7 @@ function guardAdmin(
   request: NextRequest,
   response: NextResponse,
 ): NextResponse {
-  return access.role === "admin" ? response : redirectTo("/auth/login", request, response);
+  return access.role === "admin" ? response : redirectTo(ROUTES.AUTH.LOGIN, request, response);
 }
 
 function guardClient(
@@ -53,20 +54,21 @@ function guardClient(
   request: NextRequest,
   response: NextResponse,
 ): NextResponse {
-  if (access.role === null) return redirectTo("/auth/login", request, response);
-  if (!access.emailVerified) return redirectTo("/auth/verify-email", request, response);
-  if (access.role === "admin") return redirectTo("/admin", request, response);
-  if (!access.onboarding) return redirectTo("/auth/login?reason=session", request, response);
+  if (access.role === null) return redirectTo(ROUTES.AUTH.LOGIN, request, response);
+  if (!access.emailVerified) return redirectTo(ROUTES.AUTH.VERIFY_EMAIL, request, response);
+  if (access.role === "admin") return redirectTo(ROUTES.ADMIN.HOME, request, response);
+  if (!access.onboarding)
+    return redirectTo(`${ROUTES.AUTH.LOGIN}?reason=session`, request, response);
 
   const required = requiredOnboardingPath(access.onboarding);
   if (required && pathname !== required) return redirectTo(required, request, response);
 
-  if (access.onboarding.kyc_status === "COMPLETED" && pathname === "/client/kyc") {
-    return redirectTo("/client/dashboard", request, response);
+  if (access.onboarding.kyc_status === "COMPLETED" && pathname === ROUTES.CLIENT.KYC) {
+    return redirectTo(ROUTES.CLIENT.DASHBOARD, request, response);
   }
 
   if (isActionRequestPath(pathname) && access.onboarding.kyc_status !== "COMPLETED") {
-    return redirectTo("/client/dashboard", request, response);
+    return redirectTo(ROUTES.CLIENT.DASHBOARD, request, response);
   }
 
   return response;
@@ -74,10 +76,10 @@ function guardClient(
 
 function isActionRequestPath(pathname: string): boolean {
   return (
-    pathname.startsWith("/client/deposit") ||
-    pathname.startsWith("/client/withdraw") ||
-    pathname.startsWith("/client/repay") ||
-    pathname === "/client/loans/request"
+    pathname.startsWith(ROUTES.CLIENT.DEPOSIT) ||
+    pathname.startsWith(ROUTES.CLIENT.WITHDRAW) ||
+    pathname.startsWith(ROUTES.CLIENT.REPAY) ||
+    pathname === ROUTES.CLIENT.LOAN_REQUEST
   );
 }
 
@@ -86,13 +88,14 @@ function guardSetPin(
   request: NextRequest,
   response: NextResponse,
 ): NextResponse {
-  if (!access.emailVerified) return redirectTo("/auth/verify-email", request, response);
-  if (access.role === "admin") return redirectTo("/admin", request, response);
-  if (!access.onboarding) return redirectTo("/auth/login?reason=session", request, response);
+  if (!access.emailVerified) return redirectTo(ROUTES.AUTH.VERIFY_EMAIL, request, response);
+  if (access.role === "admin") return redirectTo(ROUTES.ADMIN.HOME, request, response);
+  if (!access.onboarding)
+    return redirectTo(`${ROUTES.AUTH.LOGIN}?reason=session`, request, response);
   const required = requiredOnboardingPath(access.onboarding);
-  return required === "/auth/set-pin"
+  return required === ROUTES.AUTH.SET_PIN
     ? response
-    : redirectTo(required ?? "/client/dashboard", request, response);
+    : redirectTo(required ?? ROUTES.CLIENT.DASHBOARD, request, response);
 }
 
 function redirectTo(path: string, request: NextRequest, source: NextResponse): NextResponse {
