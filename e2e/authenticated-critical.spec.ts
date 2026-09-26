@@ -24,7 +24,7 @@ function hasCredentials(
 async function login(page: Page, credentials: { email: string; password: string }) {
   await page.goto("/auth/login");
   await page.getByLabel("Adresse email").fill(credentials.email);
-  await page.getByLabel("Mot de passe").fill(credentials.password);
+  await page.getByLabel("Mot de passe", { exact: true }).fill(credentials.password);
 
   await Promise.all([
     page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 30_000 }),

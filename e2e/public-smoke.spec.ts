@@ -29,7 +29,7 @@ test.describe("parcours publics", () => {
     expect(response?.ok()).toBeTruthy();
     await expect(page.getByRole("heading", { name: "Connexion" })).toBeVisible();
     await expect(page.getByLabel("Adresse email")).toBeVisible();
-    await expect(page.getByLabel("Mot de passe")).toBeVisible();
+    await expect(page.getByLabel("Mot de passe", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Se connecter" })).toBeVisible();
   });
 
