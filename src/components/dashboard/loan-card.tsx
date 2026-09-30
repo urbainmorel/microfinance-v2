@@ -103,7 +103,9 @@ export function LoanCard() {
           )}
           {remaining > 0 ? (
             <div className="rounded-xl bg-muted/75 p-3">
-              <p className="text-xs font-semibold text-muted-foreground">Garantie restante</p>
+              <p className="text-xs font-semibold text-muted-foreground">
+                Dépôt de garantie restant
+              </p>
               <p className="mt-1 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
                 {formatFcfa(remaining)}
               </p>

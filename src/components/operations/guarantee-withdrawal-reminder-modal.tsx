@@ -48,7 +48,9 @@ function GuaranteeNotice({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-border bg-card p-3.5">
-          <span className="text-[11px] font-semibold text-muted-foreground">Garantie requise</span>
+          <span className="text-[11px] font-semibold text-muted-foreground">
+            Dépôt de garantie requis
+          </span>
           <p className="mt-1 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
             {formatFcfa(guaranteeRequired)}
           </p>
@@ -63,7 +65,7 @@ function GuaranteeNotice({
 
       {guaranteeBlocked > 0 ? (
         <p className="text-xs text-muted-foreground">
-          Montant déjà constitué en garantie :{" "}
+          Montant déjà constitué en dépôt de garantie :{" "}
           <span className="font-semibold text-foreground">{formatFcfa(guaranteeBlocked)}</span>
         </p>
       ) : null}
@@ -71,11 +73,14 @@ function GuaranteeNotice({
       <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3.5 text-xs leading-5 text-foreground">
         <div className="flex items-center gap-2 font-bold text-emerald-600 dark:text-emerald-400">
           <ShieldCheck className="size-4 shrink-0" aria-hidden />
-          100% remboursée à la fin de votre prêt
+          Le « dépôt de garantie » est remboursé à 100% à la fin du remboursement du prêt
         </div>
         <p className="mt-1 text-muted-foreground">
-          Cette somme n’est pas un frais : elle vous est intégralement reversée dès le remboursement
-          complet de votre prêt.
+          Le <strong className="font-semibold text-foreground">dépôt de garantie</strong> (ou
+          épargne préalable) est une somme d&apos;argent bloquée par un client dans une microfinance
+          pour garantir un crédit. Il sert de couverture en cas d&apos;impayé et est intégralement
+          restitué une fois le prêt soldé, conformément à la réglementation de la{" "}
+          <strong className="font-semibold text-foreground">BCEAO</strong>.
         </p>
       </div>
     </>
@@ -103,7 +108,7 @@ function ModalActionButtons({
     <div className="flex flex-col gap-2.5 pt-2">
       <Button type="button" variant="accent" onClick={onDeposit} className="w-full gap-2">
         <Smartphone className="size-4" aria-hidden />
-        Déposer {formatFcfa(remainingGuarantee)} par Mobile Money
+        Faire mon « dépôt de garantie » ({formatFcfa(remainingGuarantee)})
       </Button>
 
       {canBlockFromSavings && hasRequest ? (
@@ -207,7 +212,7 @@ export function GuaranteeWithdrawalReminderModal({
       open={open}
       onOpenChange={handleOpenChange}
       title="Dépôt de garantie obligatoire"
-      description="Pour débloquer vos retraits, vous devez constituer votre garantie de prêt."
+      description="Pour débloquer vos retraits, vous devez constituer votre « dépôt de garantie »."
       className="max-w-lg"
     >
       <div className="flex flex-col gap-5">

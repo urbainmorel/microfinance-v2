@@ -16,8 +16,9 @@ const DIALOG_COPY: Record<
     description: "Effectuez votre dépôt Mobile Money puis confirmez avec votre PIN.",
   },
   "deposit-guarantee": {
-    title: "Déposer une garantie de prêt",
-    description: "Constituez la garantie de votre prêt pour débloquer immédiatement vos retraits.",
+    title: "Faire votre « dépôt de garantie »",
+    description:
+      "Constituez le dépôt de garantie de votre prêt pour débloquer immédiatement vos retraits.",
   },
   "withdraw-momo": {
     title: "Retrait Mobile Money",

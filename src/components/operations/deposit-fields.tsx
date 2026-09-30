@@ -49,7 +49,7 @@ function DepositDetailsFields({ form, lockMotif }: Pick<DepositFieldsProps, "for
           <p className="text-xs font-semibold text-muted-foreground">Destination du dépôt</p>
           <div className="mt-1.5 flex h-11 items-center rounded-xl border border-border bg-muted/60 px-3.5 text-sm font-semibold text-foreground">
             {currentMotif === "GUARANTEE"
-              ? "Garantie de prêt (100% remboursable)"
+              ? "Dépôt de garantie (100% remboursable)"
               : "Épargne libre"}
           </div>
         </div>
@@ -59,7 +59,7 @@ function DepositDetailsFields({ form, lockMotif }: Pick<DepositFieldsProps, "for
           label="Destination du dépôt"
           options={[
             { value: "FREE_SAVINGS", label: "Épargne libre" },
-            { value: "GUARANTEE", label: "Garantie de prêt" },
+            { value: "GUARANTEE", label: "Dépôt de garantie" },
             { value: "REPAYMENT", label: "Remboursement" },
           ]}
           error={errors.motif?.message}

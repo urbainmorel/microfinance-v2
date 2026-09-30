@@ -36,7 +36,7 @@ export function GuaranteeReminderBanner() {
 
   return (
     <aside
-      aria-label="Constitution de votre garantie obligatoire"
+      aria-label="Constitution de votre dépôt de garantie obligatoire"
       className="relative overflow-hidden rounded-[20px] border border-amber-500/30 bg-[linear-gradient(135deg,rgba(255,251,235,0.95)_0%,rgba(254,243,199,0.55)_100%)] p-5 text-foreground shadow-sm dark:border-amber-500/25 dark:bg-[linear-gradient(135deg,rgba(35,26,10,0.95)_0%,rgba(48,34,14,0.70)_100%)] sm:p-6"
     >
       <div className="flex flex-col gap-3.5">
@@ -56,7 +56,7 @@ export function GuaranteeReminderBanner() {
               "gap-2 font-bold shadow-sm sm:w-auto",
             )}
           >
-            <span>Déposer ma garantie ({formatFcfa(remainingGuarantee)})</span>
+            <span>Faire mon « dépôt de garantie » ({formatFcfa(remainingGuarantee)})</span>
             <ArrowRight className="size-4 shrink-0" aria-hidden />
           </Link>
           <p className="text-xs text-muted-foreground sm:ml-2">

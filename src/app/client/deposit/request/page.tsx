@@ -15,10 +15,10 @@ export default async function DepositRequestPage({
       : undefined;
   return (
     <RequestPageShell
-      title={isGuarantee ? "Dépôt de garantie de prêt" : "Déposer une épargne"}
+      title={isGuarantee ? "Faire votre « dépôt de garantie »" : "Déposer une épargne"}
       description={
         isGuarantee
-          ? "Effectuez votre transfert Mobile Money pour débloquer vos retraits. La garantie est remboursée à 100% à la fin du remboursement du prêt."
+          ? undefined
           : "Envoyez votre capture Mobile Money pour alimenter votre épargne libre."
       }
       backHref="/client/dashboard"

@@ -37,7 +37,7 @@ function GuaranteeModalContent({
     <div className="space-y-5">
       <dl className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-border bg-card p-4">
-          <dt className="text-xs font-semibold text-muted-foreground">Garantie requise</dt>
+          <dt className="text-xs font-semibold text-muted-foreground">Dépôt de garantie requis</dt>
           <dd className="mt-1 font-display text-lg font-bold [font-variant-numeric:tabular-nums]">
             {formatFcfa(state.guaranteeRequired ?? 0)}
           </dd>
@@ -141,7 +141,7 @@ export function GuaranteeActions({ state }: { state: ActiveLoanState }) {
         href={`/client/deposit/request?motif=GUARANTEE&amount=${remaining}`}
         className="text-center text-sm font-semibold text-accent hover:underline"
       >
-        Déposer ma garantie par Mobile Money ({formatFcfa(remaining)})
+        Faire mon « dépôt de garantie » par Mobile Money ({formatFcfa(remaining)})
       </Link>
 
       <Modal
@@ -151,7 +151,7 @@ export function GuaranteeActions({ state }: { state: ActiveLoanState }) {
           if (next) setOpen(true);
           else closeModal();
         }}
-        title="Constituer la garantie"
+        title="Constituer le dépôt de garantie"
         description="Vérifiez le montant qui sera bloqué sur votre épargne avant de confirmer."
         className="max-w-lg"
       >

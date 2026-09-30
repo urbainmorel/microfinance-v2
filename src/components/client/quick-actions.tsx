@@ -20,8 +20,8 @@ const ACTIONS: Array<{ id: QuickActionType; label: string; hint: string; icon: L
   },
   {
     id: "deposit-guarantee",
-    label: "Déposer une garantie",
-    hint: "Garantie de prêt",
+    label: "Dépôt de garantie",
+    hint: "Dépôt de garantie",
     icon: ShieldCheck,
   },
   {
@@ -55,7 +55,7 @@ function QuickActionButton({
   const hintText = !isKycVerified
     ? "Vérification requise"
     : isRestricted
-      ? "Garantie requise"
+      ? "Dépôt de garantie requis"
       : hint;
 
   return (

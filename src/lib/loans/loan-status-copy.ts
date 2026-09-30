@@ -10,9 +10,18 @@ export const LOAN_STATE_COPY: Record<number, { title: string; body: string }> = 
     title: "Informations complémentaires",
     body: "Un agent attend des éléments supplémentaires.",
   },
-  4: { title: "Prêt accepté", body: "Constituez la garantie pour poursuivre le décaissement." },
-  5: { title: "Garantie incomplète", body: "Un dépôt de garantie complémentaire est nécessaire." },
-  6: { title: "Garantie constituée", body: "Votre prêt est prêt pour le décaissement." },
+  4: {
+    title: "Prêt accepté",
+    body: "Constituez le dépôt de garantie pour poursuivre le décaissement.",
+  },
+  5: {
+    title: "Dépôt de garantie incomplet",
+    body: "Un dépôt de garantie complémentaire est nécessaire.",
+  },
+  6: {
+    title: "Dépôt de garantie constitué",
+    body: "Votre prêt est prêt pour le décaissement.",
+  },
   7: { title: "Prêt décaissé", body: "Les fonds sont disponibles selon le mode choisi." },
   8: { title: "Prêt en remboursement", body: "Consultez votre solde restant et vos échéances." },
   9: { title: "Prêt terminé", body: "Vos fonds bloqués ont été automatiquement libérés." },
@@ -32,8 +41,8 @@ export function getLoanCardCopy(
   }
   if (displayState === 7 && remainingGuarantee > 0) {
     return {
-      title: "Prêt approuvé • Garantie requise",
-      body: "Vos fonds sont crédités. Déposez votre garantie pour débloquer vos retraits.",
+      title: "Prêt approuvé • Dépôt de garantie requis",
+      body: "Vos fonds sont crédités. Faites votre « dépôt de garantie » pour débloquer vos retraits.",
     };
   }
   return LOAN_STATE_COPY[displayState] ?? DEFAULT_LOAN_COPY;

@@ -35,7 +35,7 @@ const DEPOSIT_STEPS = [
 
 const MOTIF_LABELS: Record<DepositRequestInput["motif"], string> = {
   FREE_SAVINGS: "Épargne libre",
-  GUARANTEE: "Garantie de prêt",
+  GUARANTEE: "Dépôt de garantie",
   REPAYMENT: "Remboursement",
 };
 
@@ -139,17 +139,20 @@ function DepositWizard({
   return (
     <div className="flex flex-col gap-4">
       {isGuarantee ? (
-        <div className="shadow-xs flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+        <div className="shadow-xs flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
           <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
             <ShieldCheck className="size-5" aria-hidden />
           </div>
-          <div>
+          <div className="space-y-1">
             <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">
-              La garantie est remboursée à 100% à la fin du remboursement du prêt.
+              Le « dépôt de garantie » est remboursé à 100% à la fin du remboursement du prêt.
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Ce dépôt débloque vos retraits et vous sera intégralement reversé dès que votre crédit
-              sera soldé.
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Le <strong className="font-semibold text-foreground">dépôt de garantie</strong> (ou
+              épargne préalable) est une somme d&apos;argent bloquée par un client dans une
+              microfinance pour garantir un crédit. Il sert de couverture en cas d&apos;impayé et
+              est intégralement restitué une fois le prêt soldé, conformément à la réglementation de
+              la <strong className="font-semibold text-foreground">BCEAO</strong>.
             </p>
           </div>
         </div>

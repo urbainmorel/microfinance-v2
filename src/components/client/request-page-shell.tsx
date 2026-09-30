@@ -13,7 +13,7 @@ export function RequestPageShell({
   children,
 }: {
   title: string;
-  description: string;
+  description?: string;
   backHref: string;
   children: ReactNode;
 }) {

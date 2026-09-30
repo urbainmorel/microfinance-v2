@@ -51,16 +51,25 @@ export function GuaranteeBlockedWithdrawalNotice({
         constitution du dépôt de garantie obligatoire de{" "}
         <strong className="text-foreground">{formatFcfa(remainingGuarantee)}</strong>.
       </p>
-      <div className="mx-auto flex items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3.5 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-        <ShieldCheck className="size-4 shrink-0" aria-hidden />
-        Garantie 100% récupérable à la fin du prêt
+      <div className="flex flex-col gap-1.5 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3.5 text-left text-xs leading-5 text-foreground">
+        <div className="flex items-center gap-2 font-bold text-emerald-600 dark:text-emerald-400">
+          <ShieldCheck className="size-4 shrink-0" aria-hidden />
+          Le « dépôt de garantie » est remboursé à 100% à la fin du remboursement du prêt
+        </div>
+        <p className="leading-relaxed text-muted-foreground">
+          Le <strong className="font-semibold text-foreground">dépôt de garantie</strong> (ou
+          épargne préalable) est une somme d&apos;argent bloquée par un client dans une microfinance
+          pour garantir un crédit. Il sert de couverture en cas d&apos;impayé et est intégralement
+          restitué une fois le prêt soldé, conformément à la réglementation de la{" "}
+          <strong className="font-semibold text-foreground">BCEAO</strong>.
+        </p>
       </div>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:justify-center">
         <Link
           href={`/client/deposit/request?motif=GUARANTEE&amount=${remainingGuarantee}`}
           className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground transition hover:opacity-90"
         >
-          Déposer ma garantie ({formatFcfa(remainingGuarantee)})
+          Faire mon « dépôt de garantie » ({formatFcfa(remainingGuarantee)})
         </Link>
         <Link
           href="/client/dashboard"
@@ -84,12 +93,14 @@ export function LoanGuaranteeReserveWarning({
 }) {
   return (
     <div className="rounded-2xl border border-accent/30 bg-finance-soft/50 p-4 text-xs leading-5 text-foreground">
-      <p className="font-bold text-accent">Attention : fonds de prêt en réserve de garantie</p>
+      <p className="font-bold text-accent">
+        Attention : fonds de prêt en réserve de dépôt de garantie
+      </p>
       <p className="mt-0.5 text-muted-foreground">
         Seule votre épargne libre de{" "}
         <strong className="text-foreground">{formatFcfa(withdrawableAmount)}</strong> est
         actuellement retirable. Votre prêt de {formatFcfa(totalAmount)} sera débloqué après le
-        versement de la garantie ({formatFcfa(remainingGuarantee)}).
+        versement du dépôt de garantie ({formatFcfa(remainingGuarantee)}).
       </p>
     </div>
   );

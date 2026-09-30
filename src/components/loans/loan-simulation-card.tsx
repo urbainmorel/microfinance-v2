@@ -198,8 +198,8 @@ function RecoverableBanner({
               Total montant récupérable : {formatFcfa(recoverableAmount)}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
-              Garantie ({formatFcfa(guaranteeRequired)}) et total des épargnes obligatoires (
-              {formatFcfa(mandatorySavingsTotal)}) restitués au terme du remboursement (non inclus
+              Dépôt de garantie ({formatFcfa(guaranteeRequired)}) et total des épargnes obligatoires
+              ({formatFcfa(mandatorySavingsTotal)}) restitués au terme du remboursement (non inclus
               dans les coûts du prêt).
             </p>
           </div>
@@ -219,7 +219,7 @@ export function LoanSimulationCard({ simulation }: { simulation: LoanSimulation 
     ["Frais totaux", simulation.totalFees],
     ["Intérêts totaux", simulation.totalInterest],
     ["Épargne mensuelle obligatoire", metrics.monthlySavings],
-    ["Garantie requise (100% Remboursable)", simulation.guaranteeRequired],
+    ["Dépôt de garantie (100% remboursable)", simulation.guaranteeRequired],
     ["Total épargne obligatoire", simulation.mandatorySavingsTotal],
     ["Total montant récupérable", metrics.recoverableAmount],
   ] as const;
