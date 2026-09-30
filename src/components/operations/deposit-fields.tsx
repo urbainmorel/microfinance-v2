@@ -2,7 +2,11 @@ import { DepositPhoneCallout } from "@/components/operations/deposit-phone-callo
 import { DocumentField } from "@/components/operations/document-field";
 import { FormField } from "@/components/ui/form-field";
 import { SelectField } from "@/components/ui/select-field";
-import { useDepositInstruction, useDepositPhone } from "@/lib/hooks/use-deposit-phone";
+import {
+  useDepositInstruction,
+  useDepositOperator,
+  useDepositPhone,
+} from "@/lib/hooks/use-deposit-phone";
 
 import type { DepositRequestInput } from "@/lib/schemas/operations";
 import type { UseFormReturn } from "react-hook-form";
@@ -76,13 +80,18 @@ function DepositProofFields({ form }: Pick<DepositFieldsProps, "form">) {
   const proof = watch("proof");
   const depositPhone = useDepositPhone();
   const depositInstruction = useDepositInstruction();
+  const depositOperator = useDepositOperator();
 
   return (
     <>
       <input type="hidden" value="MOBILE_MONEY" {...register("paymentMethod")} />
 
       {depositPhone ? (
-        <DepositPhoneCallout phone={depositPhone} instruction={depositInstruction} />
+        <DepositPhoneCallout
+          phone={depositPhone}
+          instruction={depositInstruction}
+          operator={depositOperator}
+        />
       ) : null}
 
       <FormField

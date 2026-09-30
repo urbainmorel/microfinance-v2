@@ -5,6 +5,7 @@ export type AppSettings = {
   autoLoanApproval: boolean;
   defaultAfterDays: number;
   depositInstruction: string;
+  depositOperator: string;
   depositPhone: string;
   kycRetentionDays: number;
   platformName: string;
@@ -30,6 +31,10 @@ export async function getAppSettings(): Promise<AppSettings> {
       typeof row.deposit_instruction === "string" && row.deposit_instruction.trim()
         ? row.deposit_instruction.trim()
         : "Effectuez votre transfert Mobile Money vers ce numéro, puis renseignez la référence de transaction et joignez la capture d'écran ci-dessous.",
+    depositOperator:
+      typeof row.deposit_operator === "string" && row.deposit_operator.trim()
+        ? row.deposit_operator.trim()
+        : "",
     depositPhone:
       typeof row.deposit_phone === "string" && row.deposit_phone.trim()
         ? row.deposit_phone.trim()

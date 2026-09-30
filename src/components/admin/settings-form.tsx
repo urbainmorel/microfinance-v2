@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { DepositOperatorField } from "@/components/admin/deposit-operator-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -10,7 +11,7 @@ import type { AppSettings } from "@/lib/admin/api-settings";
 
 type NumericSettingKey = Exclude<
   keyof AppSettings,
-  "platformName" | "autoLoanApproval" | "depositPhone" | "depositInstruction"
+  "platformName" | "autoLoanApproval" | "depositPhone" | "depositInstruction" | "depositOperator"
 >;
 
 const NUMERIC_FIELDS: Array<{ key: NumericSettingKey; label: string; min: number; max?: number }> =
@@ -206,6 +207,11 @@ export function SettingsForm({
       <DepositPhoneField
         value={value.depositPhone}
         onChange={(depositPhone) => setValue((curr) => ({ ...curr, depositPhone }))}
+      />
+
+      <DepositOperatorField
+        value={value.depositOperator}
+        onChange={(depositOperator) => setValue((curr) => ({ ...curr, depositOperator }))}
       />
 
       <DepositInstructionField

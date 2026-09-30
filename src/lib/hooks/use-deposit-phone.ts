@@ -56,3 +56,26 @@ export function useDepositInstruction(): string {
   });
   return data || DEFAULT_DEPOSIT_INSTRUCTION;
 }
+
+export function useDepositOperator(): string | null {
+  const supabase = useSupabase();
+  const { data } = useQuery({
+    queryKey: ["app_settings", "deposit_operator"],
+    staleTime: 1000 * 60 * 5,
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from("app_settings")
+          .select("deposit_operator")
+          .eq("id", true)
+          .single();
+        if (error || !data) return null;
+        const row = data as { deposit_operator?: string | null };
+        return row.deposit_operator?.trim() || null;
+      } catch {
+        return null;
+      }
+    },
+  });
+  return data ?? null;
+}

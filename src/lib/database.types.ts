@@ -46,6 +46,7 @@ export type Database = {
         default_after_days: number;
         deposit_phone: string | null;
         deposit_instruction: string | null;
+        deposit_operator: string | null;
         id: boolean;
         kyc_retention_days: number;
         platform_name: string;
