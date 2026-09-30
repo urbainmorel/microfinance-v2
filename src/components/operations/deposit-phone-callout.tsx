@@ -3,6 +3,7 @@
 import { Check, Copy, Phone } from "lucide-react";
 import { useState } from "react";
 
+import { DEFAULT_DEPOSIT_INSTRUCTION } from "@/lib/hooks/use-deposit-phone";
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -34,13 +35,18 @@ function CopyButton({ text }: { text: string }) {
     </button>
   );
 }
-
 /**
  * Bandeau informatif affichant le numéro Mobile Money de dépôt
  * configuré par l'administrateur, avec bouton "Copier en un clic".
  * Ne s'affiche que si le numéro est fourni.
  */
-export function DepositPhoneCallout({ phone }: { phone: string }) {
+export function DepositPhoneCallout({
+  phone,
+  instruction,
+}: {
+  phone: string;
+  instruction?: string | null;
+}) {
   return (
     <div className="flex flex-col gap-2.5 rounded-xl border border-accent/25 bg-finance-soft/60 p-3.5">
       <div className="flex items-center gap-2 text-xs font-semibold text-accent">
@@ -53,9 +59,8 @@ export function DepositPhoneCallout({ phone }: { phone: string }) {
         </span>
         <CopyButton text={phone} />
       </div>
-      <p className="text-xs leading-5 text-muted-foreground">
-        Effectuez votre transfert Mobile Money vers ce numéro, puis renseignez la référence de
-        transaction et joignez la capture d&apos;écran ci-dessous.
+      <p className="whitespace-pre-line text-xs leading-5 text-muted-foreground">
+        {instruction?.trim() || DEFAULT_DEPOSIT_INSTRUCTION}
       </p>
     </div>
   );

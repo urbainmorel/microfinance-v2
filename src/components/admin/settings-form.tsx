@@ -10,7 +10,7 @@ import type { AppSettings } from "@/lib/admin/api-settings";
 
 type NumericSettingKey = Exclude<
   keyof AppSettings,
-  "platformName" | "autoLoanApproval" | "depositPhone"
+  "platformName" | "autoLoanApproval" | "depositPhone" | "depositInstruction"
 >;
 
 const NUMERIC_FIELDS: Array<{ key: NumericSettingKey; label: string; min: number; max?: number }> =
@@ -99,6 +99,35 @@ function DepositPhoneField({
   );
 }
 
+function DepositInstructionField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  return (
+    <div className="mb-6 rounded-xl border border-border/70 bg-muted/20 p-4">
+      <label className="block space-y-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Consignes du transfert Mobile Money
+        </span>
+        <textarea
+          rows={3}
+          placeholder="Effectuez votre transfert Mobile Money vers ce numéro, puis renseignez la référence de transaction et joignez la capture d'écran ci-dessous."
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="shadow-xs w-full rounded-xl border border-input bg-transparent px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        />
+        <p className="text-xs text-muted-foreground">
+          Ce texte d&apos;instruction s&apos;affiche directement sous le numéro de téléphone sur le
+          formulaire de dépôt Mobile Money.
+        </p>
+      </label>
+    </div>
+  );
+}
+
 function ApprovalModeSwitch({
   enabled,
   onChange,
@@ -177,6 +206,11 @@ export function SettingsForm({
       <DepositPhoneField
         value={value.depositPhone}
         onChange={(depositPhone) => setValue((curr) => ({ ...curr, depositPhone }))}
+      />
+
+      <DepositInstructionField
+        value={value.depositInstruction}
+        onChange={(depositInstruction) => setValue((curr) => ({ ...curr, depositInstruction }))}
       />
 
       <ApprovalModeSwitch

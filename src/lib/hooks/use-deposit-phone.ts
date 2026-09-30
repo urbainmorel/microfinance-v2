@@ -30,3 +30,29 @@ export function useDepositPhone(): string | null {
   });
   return data ?? null;
 }
+
+export const DEFAULT_DEPOSIT_INSTRUCTION =
+  "Effectuez votre transfert Mobile Money vers ce numéro, puis renseignez la référence de transaction et joignez la capture d'écran ci-dessous.";
+
+export function useDepositInstruction(): string {
+  const supabase = useSupabase();
+  const { data } = useQuery({
+    queryKey: ["app_settings", "deposit_instruction"],
+    staleTime: 1000 * 60 * 5,
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from("app_settings")
+          .select("deposit_instruction")
+          .eq("id", true)
+          .single();
+        if (error || !data) return null;
+        const row = data as { deposit_instruction?: string | null };
+        return row.deposit_instruction?.trim() || null;
+      } catch {
+        return null;
+      }
+    },
+  });
+  return data || DEFAULT_DEPOSIT_INSTRUCTION;
+}

@@ -1,10 +1,8 @@
-import { Smartphone } from "lucide-react";
-
 import { DepositPhoneCallout } from "@/components/operations/deposit-phone-callout";
 import { DocumentField } from "@/components/operations/document-field";
 import { FormField } from "@/components/ui/form-field";
 import { SelectField } from "@/components/ui/select-field";
-import { useDepositPhone } from "@/lib/hooks/use-deposit-phone";
+import { useDepositInstruction, useDepositPhone } from "@/lib/hooks/use-deposit-phone";
 
 import type { DepositRequestInput } from "@/lib/schemas/operations";
 import type { UseFormReturn } from "react-hook-form";
@@ -77,22 +75,15 @@ function DepositProofFields({ form }: Pick<DepositFieldsProps, "form">) {
   } = form;
   const proof = watch("proof");
   const depositPhone = useDepositPhone();
+  const depositInstruction = useDepositInstruction();
 
   return (
     <>
       <input type="hidden" value="MOBILE_MONEY" {...register("paymentMethod")} />
 
-      {depositPhone ? <DepositPhoneCallout phone={depositPhone} /> : null}
-
-      <div className="rounded-xl border border-accent/25 bg-finance-soft/40 p-3.5 text-xs leading-5 text-foreground">
-        <div className="flex items-center gap-2 font-semibold text-accent">
-          <Smartphone className="size-4 shrink-0" aria-hidden />
-          Dépôt exclusif par Mobile Money (Wave, MTN, Orange, Moov)
-        </div>
-        <p className="mt-1 text-muted-foreground">
-          Effectuez votre transfert puis joignez ci-dessous la capture d’écran de confirmation.
-        </p>
-      </div>
+      {depositPhone ? (
+        <DepositPhoneCallout phone={depositPhone} instruction={depositInstruction} />
+      ) : null}
 
       <FormField
         id="deposit-reference"
