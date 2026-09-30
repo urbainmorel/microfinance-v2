@@ -12,8 +12,7 @@ async function run() {
     browser = await chromium.launch({ channel: "msedge" });
   }
 
-  const outDir =
-    "C:\\Users\\DELL\\.gemini\antigravity\\brain\\96194b1e-0b7b-4d13-b6df-8d9c8c946b82";
+  const outDir = "C:/Users/DELL/.gemini/antigravity/brain/96194b1e-0b7b-4d13-b6df-8d9c8c946b82";
   const localDir = path.resolve("audit-screenshots");
   if (!fs.existsSync(localDir)) fs.mkdirSync(localDir, { recursive: true });
 
@@ -26,11 +25,13 @@ async function run() {
   await desktopPage.goto("http://localhost:3001", { waitUntil: "networkidle" });
   await desktopPage.waitForTimeout(1000);
 
-  await desktopPage.screenshot({ path: path.join(localDir, "desktop-hero-new.png") });
-  await desktopPage.screenshot({
-    path: path.join(localDir, "desktop-full-new.png"),
-    fullPage: true,
-  });
+  async function snap(page, filename, options = {}) {
+    await page.screenshot({ path: path.join(localDir, filename), ...options });
+    await page.screenshot({ path: path.join(outDir, filename), ...options });
+  }
+
+  await snap(desktopPage, "desktop-hero-new.png");
+  await snap(desktopPage, "desktop-full-new.png", { fullPage: true });
   console.log("Desktop new screenshots captured!");
 
   // 2. Mobile 390px
@@ -43,19 +44,19 @@ async function run() {
   await mobilePage.goto("http://localhost:3001", { waitUntil: "networkidle" });
   await mobilePage.waitForTimeout(1000);
 
-  await mobilePage.screenshot({ path: path.join(localDir, "mobile-hero-new.png") });
+  await snap(mobilePage, "mobile-hero-new.png");
   await mobilePage.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await mobilePage.waitForTimeout(500);
   await mobilePage.evaluate(() => window.scrollTo(0, 0));
   await mobilePage.waitForTimeout(300);
-  await mobilePage.screenshot({ path: path.join(localDir, "mobile-full-new.png"), fullPage: true });
+  await snap(mobilePage, "mobile-full-new.png", { fullPage: true });
 
   // Click burger to capture opened mobile menu!
   const menuButton = mobilePage.locator('button[aria-label="Ouvrir le menu de navigation"]');
   if (await menuButton.isVisible()) {
     await menuButton.click();
     await mobilePage.waitForTimeout(500);
-    await mobilePage.screenshot({ path: path.join(localDir, "mobile-menu-opened.png") });
+    await snap(mobilePage, "mobile-menu-opened.png");
     console.log("Mobile menu opened screenshot captured!");
   }
 
@@ -69,7 +70,7 @@ async function run() {
   await mobileSmallPage.goto("http://localhost:3001", { waitUntil: "networkidle" });
   await mobileSmallPage.waitForTimeout(1000);
 
-  await mobileSmallPage.screenshot({ path: path.join(localDir, "mobile-360-header-new.png") });
+  await snap(mobileSmallPage, "mobile-360-header-new.png");
   console.log("Mobile 360 new screenshot captured!");
 
   await browser.close();

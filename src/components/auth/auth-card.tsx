@@ -1,5 +1,6 @@
-import { Landmark } from "lucide-react";
 import * as React from "react";
+
+import { BrandSymbol } from "@/components/brand/brand-symbol";
 
 export function AuthCard({
   title,
@@ -13,8 +14,8 @@ export function AuthCard({
   return (
     <div className="rounded-[22px] border border-foreground/[0.07] bg-card p-6 shadow-lift sm:p-8">
       <div className="mb-8">
-        <span className="mb-6 flex size-11 items-center justify-center rounded-xl bg-finance-soft text-accent lg:hidden">
-          <Landmark className="size-5" strokeWidth={1.8} aria-hidden />
+        <span className="mb-6 flex size-11 items-center justify-center rounded-xl border border-border/80 bg-white p-2 shadow-sm lg:hidden">
+          <BrandSymbol size={28} className="size-full" />
         </span>
         <div>
           <h1 className="font-display text-[30px] font-bold tracking-[-0.03em] text-foreground">

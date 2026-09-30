@@ -1,16 +1,17 @@
 "use client";
 
-import { ArrowRight, Landmark, Menu, ShieldCheck, User, X } from "lucide-react";
+import { ArrowRight, Menu, ShieldCheck, User, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { BrandSymbol } from "@/components/brand/brand-symbol";
 import { PlatformName } from "@/components/brand/platform-name";
 
 function BrandLogo({ onSelect }: { onSelect: () => void }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5" onClick={onSelect}>
-      <span className="flex size-9 items-center justify-center rounded-xl bg-accent text-white shadow-sm shadow-accent/20 transition-transform duration-200 group-hover:scale-105 sm:size-10">
-        <Landmark className="size-4.5 sm:size-5" strokeWidth={2} aria-hidden />
+      <span className="flex size-9 items-center justify-center rounded-xl border border-border/80 bg-white p-1 shadow-sm transition-transform duration-200 group-hover:scale-105 sm:size-10 sm:p-1.5">
+        <BrandSymbol size={28} priority className="size-full" />
       </span>
       <div className="flex flex-col">
         <div className="flex items-center gap-2">

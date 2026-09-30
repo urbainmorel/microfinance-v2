@@ -13,12 +13,12 @@ import {
   Mail,
   PackageOpen,
   ReceiptText,
-  ShieldCheck,
   Settings,
   UserRoundCog,
 } from "lucide-react";
 import Link from "next/link";
 
+import { BrandSymbol } from "@/components/brand/brand-symbol";
 import { PlatformName } from "@/components/brand/platform-name";
 import { formatRole } from "@/lib/admin/format";
 import { cn } from "@/lib/utils";
@@ -44,8 +44,8 @@ const navigation = [
 function Brand() {
   return (
     <div className="flex items-center gap-3 border-b border-border px-4 py-5 pr-14 lg:pr-4">
-      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground shadow-sm">
-        <ShieldCheck className="size-[18px]" strokeWidth={1.9} aria-hidden />
+      <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-border/80 bg-white p-1.5 shadow-sm">
+        <BrandSymbol size={26} className="size-full" />
       </div>
       <div className="min-w-0">
         <p className="truncate font-display text-[15px] font-bold text-foreground">

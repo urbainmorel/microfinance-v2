@@ -1,5 +1,6 @@
-import { ArrowUpRight, Landmark, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, LockKeyhole, ShieldCheck } from "lucide-react";
 
+import { BrandSymbol } from "@/components/brand/brand-symbol";
 import { PlatformName } from "@/components/brand/platform-name";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -7,8 +8,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <main className="grid min-h-dvh bg-card lg:grid-cols-[minmax(0,1fr)_minmax(500px,0.78fr)]">
       <section className="relative hidden overflow-hidden border-r border-border bg-card p-12 lg:flex lg:flex-col xl:p-16">
         <div className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-xl bg-accent text-white">
-            <Landmark className="size-5" strokeWidth={1.8} aria-hidden />
+          <span className="grid size-11 place-items-center rounded-xl border border-border/80 bg-white p-2 shadow-sm">
+            <BrandSymbol size={30} priority className="size-full" />
           </span>
           <div>
             <p className="font-display text-lg font-bold tracking-tight">

@@ -1,6 +1,7 @@
-import { Landmark, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
+import { BrandSymbol } from "@/components/brand/brand-symbol";
 import { PlatformName } from "@/components/brand/platform-name";
 
 function FooterLinks() {
@@ -67,8 +68,8 @@ function FooterBrand() {
   return (
     <div className="lg:col-span-2">
       <Link href="/" className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-xl bg-accent text-white shadow-sm">
-          <Landmark className="size-5" />
+        <span className="flex size-10 items-center justify-center rounded-xl border border-border/80 bg-white p-1.5 shadow-sm">
+          <BrandSymbol size={28} className="size-full" />
         </span>
         <PlatformName
           fallback="Azari Microfinance"

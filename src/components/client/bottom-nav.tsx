@@ -1,17 +1,10 @@
 "use client";
 
-import {
-  HandCoins,
-  History,
-  Home,
-  Landmark,
-  LockKeyhole,
-  User,
-  type LucideIcon,
-} from "lucide-react";
+import { HandCoins, History, Home, LockKeyhole, User, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { BrandSymbol } from "@/components/brand/brand-symbol";
 import { PlatformName } from "@/components/brand/platform-name";
 import { useClientLocale } from "@/components/i18n/client-locale-provider";
 import { cn } from "@/lib/utils";
@@ -40,8 +33,8 @@ export function BottomNav() {
       )}
     >
       <div className="hidden items-center gap-3 px-2 py-3 lg:flex">
-        <span className="grid size-10 place-items-center rounded-xl bg-accent text-white">
-          <Landmark className="size-[18px]" strokeWidth={1.9} aria-hidden />
+        <span className="grid size-10 place-items-center rounded-xl border border-border/80 bg-white p-1.5 shadow-sm">
+          <BrandSymbol size={26} className="size-full" />
         </span>
         <div className="min-w-0">
           <p className="truncate font-display text-[15px] font-bold tracking-tight">
