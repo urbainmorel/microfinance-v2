@@ -94,5 +94,8 @@ describe("LoanSimulationCard", () => {
     expect(html).toContain("371");
     expect(html).toContain("Total montant récupérable");
     expect(html).toContain("non inclus dans les coûts du prêt");
+    expect(html).toContain("Épargne mensuelle obligatoire :");
+    expect(html).toContain("Garantie requise (100% Remboursable)");
+    expect(html).toContain("Total épargne obligatoire");
   });
 });

@@ -142,6 +142,28 @@ function SimulationHeader({
       </div>
       <div className="flex flex-wrap items-center gap-3 sm:justify-end">
         <div className="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 sm:text-right">
+          <p className="text-xs font-semibold text-muted-foreground">À rembourser par mois :</p>
+          <p className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
+            {formatFcfa(monthlyCreditPayment)}
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">Mensualité du prêt</p>
+        </div>
+
+        {hasSavings ? (
+          <div className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 sm:text-right">
+            <p className="text-accent-deep text-xs font-semibold">
+              Épargne mensuelle obligatoire :
+            </p>
+            <p className="mt-1 font-display text-2xl font-bold tracking-tight text-accent">
+              {formatFcfa(monthlySavings)}
+            </p>
+            <p className="mt-0.5 text-[11px] font-semibold text-accent/80">
+              100% récupérable (total prélevé : {formatFcfa(monthlyTotalDebited)})
+            </p>
+          </div>
+        ) : null}
+
+        <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-sm sm:text-right">
           <p className="text-xs font-semibold text-muted-foreground">Total à rembourser</p>
           <p className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
             {formatFcfa(totalLoanRepaid)}
@@ -149,18 +171,6 @@ function SimulationHeader({
           {hasSavings ? (
             <p className="mt-0.5 text-[11px] text-muted-foreground">
               Soit {formatFcfa(totalDue)} prélevé avec l’épargne
-            </p>
-          ) : null}
-        </div>
-        <div className="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 sm:text-right">
-          <p className="text-xs font-semibold text-muted-foreground">À rembourser par mois :</p>
-          <p className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
-            {formatFcfa(monthlyCreditPayment)}
-          </p>
-          {hasSavings ? (
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              + {formatFcfa(monthlySavings)} / mois d’épargne (total :{" "}
-              {formatFcfa(monthlyTotalDebited)})
             </p>
           ) : null}
         </div>
@@ -188,8 +198,8 @@ function RecoverableBanner({
               Total montant récupérable : {formatFcfa(recoverableAmount)}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Garantie ({formatFcfa(guaranteeRequired)}) et épargne obligatoire (
-              {formatFcfa(mandatorySavingsTotal)}) restituées au terme du remboursement (non inclus
+              Garantie ({formatFcfa(guaranteeRequired)}) et total des épargnes obligatoires (
+              {formatFcfa(mandatorySavingsTotal)}) restitués au terme du remboursement (non inclus
               dans les coûts du prêt).
             </p>
           </div>
@@ -208,9 +218,10 @@ export function LoanSimulationCard({ simulation }: { simulation: LoanSimulation 
   const summary = [
     ["Frais totaux", simulation.totalFees],
     ["Intérêts totaux", simulation.totalInterest],
-    ["Garantie requise", simulation.guaranteeRequired],
-    ["Épargne obligatoire", simulation.mandatorySavingsTotal],
-    ["Montant récupérable", metrics.recoverableAmount],
+    ["Épargne mensuelle obligatoire", metrics.monthlySavings],
+    ["Garantie requise (100% Remboursable)", simulation.guaranteeRequired],
+    ["Total épargne obligatoire", simulation.mandatorySavingsTotal],
+    ["Total montant récupérable", metrics.recoverableAmount],
   ] as const;
 
   return (
