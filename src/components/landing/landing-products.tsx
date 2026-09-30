@@ -50,17 +50,17 @@ function EssentialProductCard() {
           </div>
         </div>
 
-        <ul className="mt-6 space-y-2.5 text-xs text-muted-foreground">
+        <ul className="mt-6 space-y-2.5 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
-            <Check className="size-3.5 text-success" />
+            <Check className="size-4 text-success" />
             <span>Validation express sous 24h ouvrées</span>
           </li>
           <li className="flex items-center gap-2">
-            <Check className="size-3.5 text-success" />
+            <Check className="size-4 text-success" />
             <span>Remboursement souple par mensualités</span>
           </li>
           <li className="flex items-center gap-2">
-            <Check className="size-3.5 text-success" />
+            <Check className="size-4 text-success" />
             <span>Garantie restituée à la fin du crédit</span>
           </li>
         </ul>
@@ -133,17 +133,17 @@ function GrowthProductCard() {
           </div>
         </div>
 
-        <ul className="mt-6 space-y-2.5 text-xs text-muted-foreground">
+        <ul className="mt-6 space-y-2.5 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
-            <Check className="size-3.5 font-bold text-accent" />
+            <Check className="size-4 font-bold text-accent" />
             <span>Taux avantageux de 5% par an</span>
           </li>
           <li className="flex items-center gap-2">
-            <Check className="size-3.5 font-bold text-accent" />
+            <Check className="size-4 font-bold text-accent" />
             <span>Dépôt de garantie minime de 5%</span>
           </li>
           <li className="flex items-center gap-2">
-            <Check className="size-3.5 font-bold text-accent" />
+            <Check className="size-4 font-bold text-accent" />
             <span>Accompagnement dédié et suivi sur-mesure</span>
           </li>
         </ul>

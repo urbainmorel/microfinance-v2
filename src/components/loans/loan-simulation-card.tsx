@@ -146,7 +146,7 @@ function SimulationHeader({
           <p className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
             {formatFcfa(monthlyCreditPayment)}
           </p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">Mensualité du prêt</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Mensualité du prêt</p>
         </div>
 
         {hasSavings ? (
@@ -157,7 +157,7 @@ function SimulationHeader({
             <p className="mt-1 font-display text-2xl font-bold tracking-tight text-accent">
               {formatFcfa(monthlySavings)}
             </p>
-            <p className="mt-0.5 text-[11px] font-semibold text-accent/80">
+            <p className="mt-0.5 text-xs font-semibold text-accent/80">
               100% récupérable (total prélevé : {formatFcfa(monthlyTotalDebited)})
             </p>
           </div>
@@ -169,7 +169,7 @@ function SimulationHeader({
             {formatFcfa(totalLoanRepaid)}
           </p>
           {hasSavings ? (
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Soit {formatFcfa(totalDue)} prélevé avec l’épargne
             </p>
           ) : null}
@@ -194,10 +194,10 @@ function RecoverableBanner({
         <div className="flex items-start gap-3">
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
           <div>
-            <p className="text-sm font-bold text-foreground">
+            <p className="text-sm font-bold text-foreground sm:text-base">
               Total montant récupérable : {formatFcfa(recoverableAmount)}
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
               Garantie ({formatFcfa(guaranteeRequired)}) et total des épargnes obligatoires (
               {formatFcfa(mandatorySavingsTotal)}) restitués au terme du remboursement (non inclus
               dans les coûts du prêt).
@@ -238,8 +238,10 @@ export function LoanSimulationCard({ simulation }: { simulation: LoanSimulation 
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
         {summary.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-xs text-muted-foreground">{label}</dt>
-            <dd className="mt-1 text-sm font-bold text-foreground">{formatFcfa(value)}</dd>
+            <dt className="text-xs text-muted-foreground sm:text-sm">{label}</dt>
+            <dd className="mt-1 text-sm font-bold text-foreground sm:text-base">
+              {formatFcfa(value)}
+            </dd>
           </div>
         ))}
       </dl>

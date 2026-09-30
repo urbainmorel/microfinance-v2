@@ -30,20 +30,20 @@ export function WalletCard({ summary, subAccounts }: Props) {
       />
 
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-[13px] font-semibold text-white/75">
+        <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
           <WalletCards className="size-4" strokeWidth={1.8} aria-hidden />
           Solde disponible
         </div>
-        <span className="rounded-full border border-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/75">
+        <span className="rounded-full border border-white/20 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.14em] text-white/75">
           Portefeuille
         </span>
       </div>
 
-      <p className="mt-5 font-display text-[40px] font-bold leading-none tracking-[-0.045em] [font-variant-numeric:tabular-nums] sm:text-[48px]">
+      <p className="mt-5 font-display text-[38px] font-bold leading-none tracking-[-0.045em] [font-variant-numeric:tabular-nums] sm:text-[48px]">
         {formatFcfa(summary.available)}
       </p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-medium text-white/70">
+      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-medium text-white/75 sm:text-sm">
         <span>Épargne libre · {formatFcfa(subAccounts.free_savings)}</span>
         {isGuaranteePending && subAccounts.disbursed_loan > 0 ? (
           <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5 text-amber-200">
@@ -58,9 +58,9 @@ export function WalletCard({ summary, subAccounts }: Props) {
       <div className="mt-7 grid grid-cols-2 gap-x-5 gap-y-5 border-t border-white/15 pt-5 sm:grid-cols-3">
         {stats.map(({ key, Icon, label, value }) => (
           <div key={key}>
-            <div className="flex items-center gap-1.5 text-white/60">
+            <div className="flex items-center gap-1.5 text-white/70">
               <Icon className="size-3.5" strokeWidth={1.8} aria-hidden />
-              <span className="text-[11px] font-semibold">{label}</span>
+              <span className="text-xs font-semibold">{label}</span>
             </div>
             <p className="mt-1.5 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
               {formatFcfa(value)}
@@ -68,7 +68,7 @@ export function WalletCard({ summary, subAccounts }: Props) {
           </div>
         ))}
         <div className="col-span-2 sm:col-span-1">
-          <p className="text-[11px] font-semibold text-white/60">Patrimoine total</p>
+          <p className="text-xs font-semibold text-white/70">Patrimoine total</p>
           <p className="mt-1.5 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
             {formatFcfa(summary.netWorth)}
           </p>

@@ -12,7 +12,7 @@ function FeatureCardsGrid() {
         <h3 className="mt-5 font-display text-xl font-bold text-foreground">
           Dépôt de garantie protégé
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
           Seulement 5% à 10% de garantie selon l’offre choisie. Votre dépôt reste votre propriété,
           bloqué sur un compte de cantonnement et restitué dès l’achèvement du prêt.
         </p>
@@ -25,7 +25,7 @@ function FeatureCardsGrid() {
         <h3 className="mt-5 font-display text-xl font-bold text-foreground">
           Sécurité bancaire & Code PIN
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
           Chaque opération sensible, décaissement ou confirmation de contrat est verrouillée par
           votre code PIN confidentiel et un protocole de chiffrement éprouvé.
         </p>
@@ -38,7 +38,7 @@ function FeatureCardsGrid() {
         <h3 className="mt-5 font-display text-xl font-bold text-foreground">
           Gestion 100% en ligne
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
           Fini les files d’attente au guichet. Soumettez vos justificatifs, suivez l’avancement en
           direct et pilotez vos échéances depuis votre tableau de bord.
         </p>
@@ -91,21 +91,21 @@ function ExpansionShowcase() {
           <div className="mt-6 space-y-3">
             <div className="flex items-start gap-3">
               <CheckCircle className="mt-0.5 size-5 shrink-0 text-accent" />
-              <p className="text-sm text-foreground">
+              <p className="text-sm text-foreground sm:text-base">
                 <strong>Taux fixe garanti :</strong> Aucun frais surprise, mensualités connues à
                 l’avance.
               </p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="mt-0.5 size-5 shrink-0 text-accent" />
-              <p className="text-sm text-foreground">
+              <p className="text-sm text-foreground sm:text-base">
                 <strong>Restitution totale du dépôt :</strong> Votre garantie vous revient à 100% au
                 terme du remboursement.
               </p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="mt-0.5 size-5 shrink-0 text-accent" />
-              <p className="text-sm text-foreground">
+              <p className="text-sm text-foreground sm:text-base">
                 <strong>Service client réactif :</strong> Une équipe à votre écoute pour vous
                 conseiller.
               </p>
@@ -115,7 +115,7 @@ function ExpansionShowcase() {
           <div className="mt-8">
             <Link
               href="/auth/register"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 font-display text-sm font-bold text-accent-foreground shadow-md shadow-accent/25 transition hover:bg-finance-deep"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 font-display text-sm font-bold text-accent-foreground shadow-md shadow-accent/25 transition hover:bg-finance-deep sm:text-base"
             >
               <span>Obtenir un prêt</span>
               <ArrowRight className="size-4" />
@@ -132,13 +132,13 @@ export function LandingFeatures() {
     <section id="avantages" className="overflow-hidden bg-background py-20 md:py-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="rounded-full bg-finance-soft px-3 py-1 text-xs font-bold text-accent">
+          <span className="rounded-full bg-finance-soft px-3.5 py-1 text-xs font-bold text-accent sm:text-sm">
             Pourquoi nous faire confiance ?
           </span>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
             Une microfinance humaine, sécurisée et directe
           </h2>
-          <p className="mt-4 text-base text-muted-foreground">
+          <p className="mt-4 text-base text-muted-foreground sm:text-lg">
             Nous combinons la solidité des standards bancaires de la zone UMOA avec une technologie
             rapide et accessible depuis votre mobile.
           </p>

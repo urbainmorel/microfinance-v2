@@ -62,7 +62,7 @@ export function BottomNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex min-h-[58px] flex-col items-center justify-center gap-1 pt-2 text-[10px] font-semibold transition-colors lg:min-h-11 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-3 lg:pt-0 lg:text-[13px]",
+                  "relative flex min-h-[58px] flex-col items-center justify-center gap-1 pt-2 text-xs font-semibold transition-colors lg:min-h-11 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-3 lg:pt-0 lg:text-sm",
                   active
                     ? "text-accent lg:bg-finance-soft"
                     : "text-muted-foreground hover:text-foreground lg:hover:bg-muted/70",

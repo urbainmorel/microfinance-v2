@@ -81,34 +81,34 @@ export function LoanCard() {
         <span className="grid size-10 place-items-center rounded-xl bg-finance-soft text-accent">
           <HandCoins className="size-[18px]" strokeWidth={1.8} aria-hidden />
         </span>
-        <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+        <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
           Mon prêt
         </span>
       </div>
 
-      <p className="mt-5 font-display text-xl font-bold tracking-[-0.025em] text-foreground">
+      <p className="mt-5 font-display text-xl font-bold tracking-[-0.025em] text-foreground sm:text-2xl">
         {copy.title}
       </p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.body}</p>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">{copy.body}</p>
 
       {state.remainingPrincipal === undefined && remaining <= 0 ? null : (
         <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
           {state.remainingPrincipal === undefined ? null : (
             <div className="rounded-xl bg-muted/75 p-3">
-              <p className="text-[11px] font-semibold text-muted-foreground">Capital restant</p>
-              <p className="mt-1 font-display text-sm font-bold [font-variant-numeric:tabular-nums]">
+              <p className="text-xs font-semibold text-muted-foreground">Capital restant</p>
+              <p className="mt-1 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
                 {formatFcfa(state.remainingPrincipal)}
               </p>
             </div>
           )}
           {remaining > 0 ? (
             <div className="rounded-xl bg-muted/75 p-3">
-              <p className="text-[11px] font-semibold text-muted-foreground">Garantie restante</p>
-              <p className="mt-1 font-display text-sm font-bold [font-variant-numeric:tabular-nums]">
+              <p className="text-xs font-semibold text-muted-foreground">Garantie restante</p>
+              <p className="mt-1 font-display text-base font-bold [font-variant-numeric:tabular-nums]">
                 {formatFcfa(remaining)}
               </p>
-              <p className="mt-1.5 flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                <ShieldCheck className="size-3 shrink-0" aria-hidden />
+              <p className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                <ShieldCheck className="size-3.5 shrink-0" aria-hidden />
                 100% récupérable à la fin du prêt
               </p>
             </div>

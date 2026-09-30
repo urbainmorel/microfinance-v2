@@ -76,8 +76,8 @@ function QuickActionButton({
         ) : null}
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-[12px] font-bold text-foreground">{label}</span>
-        <span className="mt-0.5 hidden truncate text-[10px] text-muted-foreground lg:block">
+        <span className="block truncate text-xs font-bold text-foreground">{label}</span>
+        <span className="mt-0.5 hidden truncate text-xs text-muted-foreground lg:block">
           {hintText}
         </span>
       </span>

@@ -5,31 +5,31 @@ import Link from "next/link";
 function HeroContent() {
   return (
     <div className="flex flex-col items-start lg:col-span-7">
-      <div className="mb-6 inline-flex items-center rounded-full bg-finance-soft px-3.5 py-1.5 text-xs font-bold text-accent">
+      <div className="mb-6 inline-flex items-center rounded-full bg-finance-soft px-3.5 py-1.5 text-xs font-bold text-accent sm:text-sm">
         <span>Financement rapide & sécurisé pour particuliers et professionnels</span>
       </div>
 
-      <h1 className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl lg:leading-[1.12]">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl lg:leading-[1.12]">
         Des offres de prêts flexibles pour faire grandir votre activité.
       </h1>
 
-      <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+      <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-xl">
         Accédez à des solutions de crédit claires et transparentes à partir de{" "}
         <strong>5% par an</strong>. Des conditions avantageuses, sans lourdeur administrative, avec
         déblocage direct.
       </p>
 
-      <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-foreground/85">
+      <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2.5 text-sm font-semibold text-foreground/85 sm:text-base">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="size-4 text-accent" />
+          <CheckCircle2 className="size-4.5 text-accent" />
           <span>Taux clairs dès 5%</span>
         </div>
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="size-4 text-accent" />
+          <CheckCircle2 className="size-4.5 text-accent" />
           <span>Dépôt de garantie dès 5%</span>
         </div>
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="size-4 text-accent" />
+          <CheckCircle2 className="size-4.5 text-accent" />
           <span>Réponse en 24h à 48h</span>
         </div>
       </div>
@@ -51,7 +51,7 @@ function HeroContent() {
         </Link>
       </div>
 
-      <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground">
+      <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground sm:text-sm">
         <ShieldCheck className="size-5 text-accent" />
         <span>Protection des données certifiée • Dépôt de garantie séquestré et sécurisé</span>
       </div>
@@ -89,7 +89,7 @@ function HeroVisual() {
         </div>
 
         <div className="absolute -right-2 -top-4 rounded-2xl border border-accent/20 bg-accent px-4 py-2.5 text-accent-foreground shadow-lg shadow-accent/30 sm:-right-6">
-          <p className="text-[11px] font-medium uppercase tracking-wider opacity-90">Taux dès</p>
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-90">Taux dès</p>
           <p className="font-display text-lg font-extrabold leading-none">5% / an</p>
         </div>
       </div>

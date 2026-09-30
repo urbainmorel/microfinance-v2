@@ -15,7 +15,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(func
   const errorId = error ? `${id}-error` : undefined;
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
+      <label htmlFor={id} className="text-sm font-semibold text-foreground">
         {label}
       </label>
       <Input

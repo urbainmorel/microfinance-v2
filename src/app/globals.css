@@ -87,12 +87,18 @@
   }
 }
 
-/* Suppression absolue de la bulle et du drawer flottant Netlify */
+/* Suppression absolue de la bulle, du HUD et du badge flottant Netlify */
+#nl-badge-frame,
+#nl-hud-frame,
+iframe[id^="nl-"],
+iframe[title*="Netlify" i],
+iframe[title*="Powered by" i],
+iframe[srcdoc*="netlify" i],
+iframe#netlify-drawer,
 #netlify-badge,
 .netlify-badge,
 [data-netlify-drawer],
 netlify-drawer,
-iframe#netlify-drawer,
 div[class*="netlify-drawer"],
 div[class*="netlify-badge"],
 [data-netlify-feedback] {
@@ -103,5 +109,6 @@ div[class*="netlify-badge"],
   width: 0 !important;
   height: 0 !important;
   position: absolute !important;
-  z-index: -9999 !important;
+  clip-path: path("M0 0Z") !important;
+  z-index: -999999 !important;
 }

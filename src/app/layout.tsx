@@ -37,10 +37,26 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const purgeNetlifyHudScript = `(function(){
+  function removeHud(){
+    var b = document.getElementById("nl-badge-frame") || document.getElementById("nl-hud-frame");
+    if (b) b.remove();
+    var s = document.querySelector("script[data-nf-variant]");
+    if (s) { s.removeAttribute("data-nf-variant"); s.remove(); }
+  }
+  removeHud();
+  if (typeof MutationObserver !== "undefined") {
+    new MutationObserver(removeHud).observe(document.documentElement, { childList: true, subtree: true });
+  }
+  window.addEventListener("DOMContentLoaded", removeHud);
+  window.addEventListener("load", removeHud);
+})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${dmSans.variable} ${manrope.variable}`}>
       <body className="min-h-dvh">
+        <script dangerouslySetInnerHTML={{ __html: purgeNetlifyHudScript }} />
         <Providers>{children}</Providers>
         <ServiceWorkerRegistration />
       </body>

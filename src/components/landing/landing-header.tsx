@@ -60,16 +60,16 @@ export function LandingHeader() {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/auth/login"
-            className="inline-flex h-9 items-center justify-center rounded-xl border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-sm transition hover:border-foreground/20 hover:bg-muted/60 sm:h-11 sm:px-4 sm:text-sm"
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-border bg-card px-3.5 text-sm font-semibold text-foreground shadow-sm transition hover:border-foreground/20 hover:bg-muted/60 sm:h-11 sm:px-4"
           >
             Se connecter
           </Link>
           <Link
             href="/auth/register"
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-accent px-3.5 text-xs font-semibold text-accent-foreground shadow-md shadow-accent/25 transition hover:bg-finance-deep active:translate-y-px sm:h-11 sm:gap-2 sm:px-5 sm:text-sm"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-accent-foreground shadow-md shadow-accent/25 transition hover:bg-finance-deep active:translate-y-px sm:h-11 sm:px-5"
           >
             <span>Créer un compte</span>
-            <ArrowRight className="size-3.5 sm:size-4" />
+            <ArrowRight className="size-4" />
           </Link>
         </div>
       </div>
