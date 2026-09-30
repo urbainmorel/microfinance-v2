@@ -45,14 +45,9 @@ export function WalletCard({ summary, subAccounts }: Props) {
 
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-medium text-white/75 sm:text-sm">
         <span>Épargne libre · {formatFcfa(subAccounts.free_savings)}</span>
-        {isGuaranteePending && subAccounts.disbursed_loan > 0 ? (
-          <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5 text-amber-200">
-            <Lock className="size-3" aria-hidden />
-            Prêt crédité · Retrait verrouillé ({formatFcfa(subAccounts.disbursed_loan)})
-          </span>
-        ) : (
+        {!isGuaranteePending && subAccounts.disbursed_loan > 0 ? (
           <span>Prêt disponible · {formatFcfa(subAccounts.disbursed_loan)}</span>
-        )}
+        ) : null}
       </div>
 
       <div className="mt-7 grid grid-cols-2 gap-x-5 gap-y-5 border-t border-white/15 pt-5 sm:grid-cols-3">
