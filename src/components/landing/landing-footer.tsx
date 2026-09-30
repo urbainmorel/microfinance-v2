@@ -7,24 +7,24 @@ function FooterLinks() {
   return (
     <>
       <div>
-        <h4 className="font-display text-xs font-bold uppercase tracking-wider text-slate-900">
-          Formules de Prêt
+        <h4 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+          Nos Formules de Prêt
         </h4>
-        <ul className="mt-4 space-y-2.5 text-xs text-slate-600">
+        <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
           <li>
-            <Link href="#produits" className="transition hover:text-slate-900">
+            <Link href="#produits" className="transition hover:text-accent">
               Prêt Essentiel (Court terme)
             </Link>
           </li>
           <li>
-            <Link href="#produits" className="transition hover:text-slate-900">
+            <Link href="#produits" className="transition hover:text-accent">
               Prêt Croissance (Moyen terme)
             </Link>
           </li>
           <li>
             <Link
               href="/auth/register"
-              className="font-bold text-slate-900 transition hover:underline"
+              className="font-semibold text-accent transition hover:underline"
             >
               Demande de prêt en ligne →
             </Link>
@@ -33,28 +33,28 @@ function FooterLinks() {
       </div>
 
       <div>
-        <h4 className="font-display text-xs font-bold uppercase tracking-wider text-slate-900">
-          Conformité & Contact
+        <h4 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+          Informations & Contact
         </h4>
-        <ul className="mt-4 space-y-2.5 text-xs text-slate-600">
+        <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
           <li>
-            <Link href="/contact" className="transition hover:text-slate-900">
-              Assistance & Agences
+            <Link href="/contact" className="transition hover:text-accent">
+              Contactez-nous & Agences
             </Link>
           </li>
           <li>
-            <Link href="/privacy" className="transition hover:text-slate-900">
-              Protection des données & Sécurité
+            <Link href="/privacy" className="transition hover:text-accent">
+              Politique de confidentialité
             </Link>
           </li>
           <li>
-            <Link href="/privacy" className="transition hover:text-slate-900">
-              Conditions réglementaires UMOA
+            <Link href="/privacy" className="transition hover:text-accent">
+              Conformité réglementaire UMOA
             </Link>
           </li>
           <li>
-            <Link href="/auth/login" className="transition hover:text-slate-900">
-              Accès espace client sécurisé
+            <Link href="/auth/login" className="transition hover:text-accent">
+              Espace client sécurisé
             </Link>
           </li>
         </ul>
@@ -66,23 +66,23 @@ function FooterLinks() {
 function FooterBrand() {
   return (
     <div className="lg:col-span-2">
-      <Link href="/" className="flex items-center gap-2.5">
-        <span className="flex size-9 items-center justify-center rounded-lg bg-slate-900 text-white shadow-sm">
-          <Landmark className="size-4.5" />
+      <Link href="/" className="flex items-center gap-3">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-accent text-white shadow-sm">
+          <Landmark className="size-5" />
         </span>
         <PlatformName
           fallback="Azari Microfinance"
-          className="font-display text-lg font-extrabold tracking-tight text-slate-900"
+          className="font-display text-xl font-bold tracking-tight text-foreground"
         />
       </Link>
-      <p className="mt-3.5 max-w-md text-xs leading-relaxed text-slate-600">
-        Établissement de microfinance soumis aux normes prudentielles de l’UMOA. Financements
-        responsables avec taux annuels dès 5% et garantie séquestrée restituée dès le terme du
-        contrat.
+      <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+        Institution de microfinance régie par la réglementation UMOA. Nous proposons des solutions
+        de crédit inclusives, transparentes et équitables avec des taux à partir de 5% par an et un
+        dépôt de garantie strictement garanti.
       </p>
-      <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-700">
+      <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-accent">
         <ShieldCheck className="size-4" />
-        <span>Conforme aux normes financières de la Banque Centrale (BCEAO / UMOA)</span>
+        <span>Conforme aux normes de régulation financière UMOA</span>
       </div>
     </div>
   );
@@ -92,23 +92,23 @@ export function LandingFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-slate-200 bg-white text-slate-900">
-      <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <footer className="border-t border-border bg-card text-foreground">
+      <div className="container mx-auto px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <FooterBrand />
           <FooterLinks />
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-8 text-center text-xs text-slate-500 sm:flex-row sm:text-left">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-center text-xs text-muted-foreground sm:flex-row sm:text-left">
           <p>
             © {currentYear} <PlatformName fallback="Azari Microfinance" />. Tous droits réservés.
           </p>
           <div className="flex gap-6 font-medium">
-            <Link href="/privacy" className="hover:text-slate-900">
+            <Link href="/privacy" className="hover:text-foreground">
               Confidentialité
             </Link>
-            <Link href="/contact" className="hover:text-slate-900">
-              Support Client
+            <Link href="/contact" className="hover:text-foreground">
+              Support & Assistance
             </Link>
           </div>
         </div>
