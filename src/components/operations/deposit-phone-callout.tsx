@@ -3,7 +3,7 @@
 import { Check, Copy, Phone } from "lucide-react";
 import { useState } from "react";
 
-import { OperatorLogo } from "@/components/ui/operator-logo";
+import { getOperatorInfo, OperatorLogo } from "@/components/ui/operator-logo";
 import { DEFAULT_DEPOSIT_INSTRUCTION } from "@/lib/hooks/use-deposit-phone";
 
 function CopyButton({ text }: { text: string }) {
@@ -39,9 +39,8 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /**
- * Bandeau informatif affichant le numéro Mobile Money de dépôt
- * configuré par l'administrateur, avec le logo de l'opérateur et le bouton "Copier".
- * Ne s'affiche que si le numéro est fourni.
+ * Bandeau informatif affichant le logo de l'opérateur au ratio 1:1 au-dessus du
+ * numéro Mobile Money de transfert, avec bouton "Copier".
  */
 export function DepositPhoneCallout({
   phone,
@@ -52,21 +51,36 @@ export function DepositPhoneCallout({
   instruction?: string | null;
   operator?: string | null;
 }) {
+  const opInfo = getOperatorInfo(operator);
+
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl border border-accent/25 bg-finance-soft/60 p-3.5">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-xs font-semibold text-accent">
-          <Phone className="size-4 shrink-0" aria-hidden />
-          <span>Numéro Mobile Money de transfert</span>
-        </div>
-        {operator ? <OperatorLogo operator={operator} className="h-6 w-auto shrink-0" /> : null}
+    <div className="flex flex-col gap-3 rounded-2xl border border-accent/25 bg-finance-soft/60 p-4">
+      <div className="flex items-center gap-2 text-xs font-semibold text-accent">
+        <Phone className="size-4 shrink-0" aria-hidden />
+        <span>Numéro Mobile Money pour votre transfert</span>
       </div>
-      <div className="flex items-center justify-between gap-3">
-        <span className="font-mono text-base font-bold tracking-wider text-foreground sm:text-lg">
+
+      {opInfo ? (
+        <div className="flex flex-col items-center justify-center gap-1.5 pt-1">
+          <div className="size-16 overflow-hidden rounded-2xl border border-border/60 shadow-md sm:size-20">
+            <OperatorLogo
+              operator={opInfo.id}
+              size={80}
+              priority
+              className="size-full object-cover"
+            />
+          </div>
+          <span className="text-xs font-bold text-foreground">{opInfo.name}</span>
+        </div>
+      ) : null}
+
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/80 px-3.5 py-2.5">
+        <span className="font-mono text-base font-extrabold tracking-wider text-foreground sm:text-xl">
           {phone}
         </span>
         <CopyButton text={phone} />
       </div>
+
       <p className="whitespace-pre-line text-xs leading-5 text-muted-foreground">
         {instruction?.trim() || DEFAULT_DEPOSIT_INSTRUCTION}
       </p>

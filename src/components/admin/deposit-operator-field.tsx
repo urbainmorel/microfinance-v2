@@ -21,8 +21,8 @@ export function DepositOperatorField({ value, onChange }: DepositOperatorFieldPr
             Opérateur Mobile Money (Logo du numéro de transfert)
           </span>
           <p className="mt-1 text-xs text-muted-foreground">
-            Activez le logo officiel correspondant à votre numéro de dépôt. Il s&apos;affichera
-            directement aux clients sur les formulaires de dépôt.
+            Activez le logo officiel correspondant à votre numéro de dépôt. Il s&apos;affichera au
+            format carré 1:1 au-dessus du numéro pour les clients.
           </p>
         </div>
 
@@ -31,15 +31,17 @@ export function DepositOperatorField({ value, onChange }: DepositOperatorFieldPr
             type="button"
             onClick={() => onChange("")}
             className={cn(
-              "flex flex-col items-center justify-center gap-1.5 rounded-xl border p-3 text-xs font-semibold transition-all",
+              "flex flex-col items-center justify-center gap-2 rounded-xl border p-3 text-xs font-semibold transition-all",
               !current
-                ? "shadow-xs border-accent bg-accent/15 text-accent"
+                ? "shadow-xs border-accent bg-accent/15 text-accent ring-1 ring-accent"
                 : "border-border/70 bg-background/60 text-muted-foreground hover:border-border hover:bg-muted/40",
             )}
             aria-pressed={!current}
           >
-            <span className="text-sm font-bold">Aucun</span>
-            <span className="text-[10px] text-muted-foreground">Texte seul</span>
+            <div className="flex size-11 items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/40 text-xs font-bold text-muted-foreground">
+              —
+            </div>
+            <span className="text-xs font-bold">Aucun</span>
           </button>
 
           {MOBILE_OPERATORS.map((op) => {
@@ -57,7 +59,9 @@ export function DepositOperatorField({ value, onChange }: DepositOperatorFieldPr
                 )}
                 aria-pressed={isSelected}
               >
-                <OperatorLogo operator={op.id} className="h-6 w-auto" />
+                <div className="shadow-xs size-11 overflow-hidden rounded-xl border border-border/50">
+                  <OperatorLogo operator={op.id} size={48} className="size-full object-cover" />
+                </div>
                 <span
                   className={cn(
                     "text-xs font-bold",
