@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Lock, ShieldCheck } from "lucide-react";
+import { ArrowRight, Lock } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -13,11 +13,7 @@ function GuaranteeBadges() {
     <div className="flex flex-wrap items-center gap-2">
       <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-900 dark:border-amber-500/25 dark:bg-amber-500/20 dark:text-amber-300">
         <Lock className="size-3 shrink-0" aria-hidden />
-        Action requise · Retraits temporairement verrouillés
-      </span>
-      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-        <ShieldCheck className="size-3 shrink-0" aria-hidden />
-        100% remboursable à l’échéance
+        Action requise
       </span>
     </div>
   );
