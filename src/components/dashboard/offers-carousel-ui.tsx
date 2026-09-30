@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, BadgeCheck, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Lock, Pause, Play } from "lucide-react";
 import Link from "next/link";
-import { useRef, type MouseEvent } from "react";
+import { useCallback, useRef, type MouseEvent } from "react";
 
 import { FinancingOfferMetrics } from "@/components/dashboard/financing-offer-metrics";
+import { useCarouselAutoPlay } from "@/components/dashboard/use-carousel-auto-play";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cleanProductDescription } from "@/lib/loans/format";
 import { cn } from "@/lib/utils";
@@ -119,10 +120,14 @@ function FinancingOffer({
 function CarouselHeader({
   activeIndex,
   count,
+  isAutoPlaying,
+  onTogglePlay,
   goTo,
 }: {
   activeIndex: number;
   count: number;
+  isAutoPlaying: boolean;
+  onTogglePlay: () => void;
   goTo: (index: number) => void;
 }) {
   return (
@@ -135,6 +140,27 @@ function CarouselHeader({
       </h2>
       {count > 1 ? (
         <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={(event) => {
+              event.stopPropagation();
+              onTogglePlay();
+            }}
+            aria-label={
+              isAutoPlaying ? "Mettre en pause le défilement" : "Activer le défilement automatique"
+            }
+            title={
+              isAutoPlaying ? "Mettre en pause le défilement" : "Activer le défilement automatique"
+            }
+          >
+            {isAutoPlaying ? (
+              <Pause className="size-4" aria-hidden />
+            ) : (
+              <Play className="size-4" aria-hidden />
+            )}
+          </Button>
           <Button
             type="button"
             variant="outline"
@@ -204,17 +230,40 @@ export function OffersCarouselUi({
   const viewportRef = useRef<HTMLDivElement>(null);
   const count = products.length;
 
-  function goTo(index: number) {
-    const viewport = viewportRef.current;
-    if (!viewport || !count) return;
-    const nextIndex = (index + count) % count;
-    viewport.scrollTo({ left: nextIndex * viewport.clientWidth, behavior: "smooth" });
-    onActiveIndexChange(nextIndex);
-  }
+  const goTo = useCallback(
+    (index: number) => {
+      const viewport = viewportRef.current;
+      if (!viewport || !count) return;
+      const nextIndex = (index + count) % count;
+      viewport.scrollTo({ left: nextIndex * viewport.clientWidth, behavior: "smooth" });
+      onActiveIndexChange(nextIndex);
+    },
+    [count, onActiveIndexChange],
+  );
+
+  const { isAutoPlaying, handleMouseEnter, handleMouseLeave, handleClick, togglePlay } =
+    useCarouselAutoPlay({
+      count,
+      intervalMs: 4000,
+      onNext: () => goTo(activeIndex + 1),
+    });
 
   return (
-    <section id="financing-offers" className="scroll-mt-6" aria-labelledby="financing-offers-title">
-      <CarouselHeader activeIndex={activeIndex} count={count} goTo={goTo} />
+    <section
+      id="financing-offers"
+      className="scroll-mt-6"
+      aria-labelledby="financing-offers-title"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+    >
+      <CarouselHeader
+        activeIndex={activeIndex}
+        count={count}
+        isAutoPlaying={isAutoPlaying}
+        onTogglePlay={togglePlay}
+        goTo={goTo}
+      />
 
       <div
         ref={viewportRef}
