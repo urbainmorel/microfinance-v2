@@ -4,30 +4,17 @@ import { ArrowRight, Menu, ShieldCheck, User, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { BrandSymbol } from "@/components/brand/brand-symbol";
-import { PlatformName } from "@/components/brand/platform-name";
+import { BrandLogoFull } from "@/components/brand/brand-symbol";
 
 function BrandLogo({ onSelect }: { onSelect: () => void }) {
   return (
-    <Link href="/" className="group flex items-center gap-2.5" onClick={onSelect}>
-      <span className="flex size-9 items-center justify-center rounded-xl border border-border/80 bg-white p-1 shadow-sm transition-transform duration-200 group-hover:scale-105 sm:size-10 sm:p-1.5">
-        <BrandSymbol size={28} priority className="size-full" />
-      </span>
-      <div className="flex flex-col">
-        <div className="flex items-center gap-2">
-          <PlatformName
-            fallback="Azari Microfinance"
-            className="font-display text-base font-bold tracking-tight text-foreground sm:text-lg"
-          />
-          <span className="hidden items-center gap-1.5 rounded-full border border-accent/20 bg-finance-soft px-2.5 py-0.5 text-[11px] font-semibold text-accent md:inline-flex">
-            <ShieldCheck className="size-3.5" />
-            Agréée UMOA
-          </span>
-        </div>
-        <span className="hidden text-[11px] font-medium tracking-wide text-muted-foreground sm:block">
-          Solutions de crédit responsables
-        </span>
-      </div>
+    <Link
+      href="/"
+      className="group flex items-center transition-transform duration-200 hover:opacity-95"
+      onClick={onSelect}
+      aria-label="Accueil Azari Microfinance"
+    >
+      <BrandLogoFull priority className="h-[30px] w-auto object-contain sm:h-[36px] md:h-[40px]" />
     </Link>
   );
 }

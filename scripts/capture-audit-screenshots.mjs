@@ -34,6 +34,17 @@ async function run() {
   await snap(desktopPage, "desktop-full-new.png", { fullPage: true });
   console.log("Desktop new screenshots captured!");
 
+  // 1.5 Tablet 768px
+  const tabletContext = await browser.newContext({
+    viewport: { width: 768, height: 1024 },
+    deviceScaleFactor: 2,
+  });
+  const tabletPage = await tabletContext.newPage();
+  await tabletPage.goto("http://localhost:3001", { waitUntil: "networkidle" });
+  await tabletPage.waitForTimeout(1000);
+  await snap(tabletPage, "tablet-hero-new.png");
+  console.log("Tablet screenshot captured!");
+
   // 2. Mobile 390px
   const mobileContext = await browser.newContext({
     viewport: { width: 390, height: 844 },

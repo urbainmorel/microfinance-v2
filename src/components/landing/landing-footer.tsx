@@ -1,7 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
-import { BrandSymbol } from "@/components/brand/brand-symbol";
+import { BrandLogoFull } from "@/components/brand/brand-symbol";
 import { PlatformName } from "@/components/brand/platform-name";
 
 function FooterLinks() {
@@ -67,14 +67,8 @@ function FooterLinks() {
 function FooterBrand() {
   return (
     <div className="lg:col-span-2">
-      <Link href="/" className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-xl border border-border/80 bg-white p-1.5 shadow-sm">
-          <BrandSymbol size={28} className="size-full" />
-        </span>
-        <PlatformName
-          fallback="Azari Microfinance"
-          className="font-display text-xl font-bold tracking-tight text-foreground"
-        />
+      <Link href="/" className="inline-flex items-center" aria-label="Accueil Azari Microfinance">
+        <BrandLogoFull className="h-10 w-auto object-contain" />
       </Link>
       <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
         Institution de microfinance régie par la réglementation UMOA. Nous proposons des solutions
