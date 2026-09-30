@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, BadgeCheck, Lock, Pause, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Lock } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useRef, type MouseEvent } from "react";
 
@@ -120,14 +120,10 @@ function FinancingOffer({
 function CarouselHeader({
   activeIndex,
   count,
-  isAutoPlaying,
-  onTogglePlay,
   goTo,
 }: {
   activeIndex: number;
   count: number;
-  isAutoPlaying: boolean;
-  onTogglePlay: () => void;
   goTo: (index: number) => void;
 }) {
   return (
@@ -140,27 +136,6 @@ function CarouselHeader({
       </h2>
       {count > 1 ? (
         <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={(event) => {
-              event.stopPropagation();
-              onTogglePlay();
-            }}
-            aria-label={
-              isAutoPlaying ? "Mettre en pause le défilement" : "Activer le défilement automatique"
-            }
-            title={
-              isAutoPlaying ? "Mettre en pause le défilement" : "Activer le défilement automatique"
-            }
-          >
-            {isAutoPlaying ? (
-              <Pause className="size-4" aria-hidden />
-            ) : (
-              <Play className="size-4" aria-hidden />
-            )}
-          </Button>
           <Button
             type="button"
             variant="outline"
@@ -241,12 +216,11 @@ export function OffersCarouselUi({
     [count, onActiveIndexChange],
   );
 
-  const { isAutoPlaying, handleMouseEnter, handleMouseLeave, handleClick, togglePlay } =
-    useCarouselAutoPlay({
-      count,
-      intervalMs: 4000,
-      onNext: () => goTo(activeIndex + 1),
-    });
+  const { handleMouseEnter, handleMouseLeave, handleClick } = useCarouselAutoPlay({
+    count,
+    intervalMs: 4000,
+    onNext: () => goTo(activeIndex + 1),
+  });
 
   return (
     <section
@@ -257,13 +231,7 @@ export function OffersCarouselUi({
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
-      <CarouselHeader
-        activeIndex={activeIndex}
-        count={count}
-        isAutoPlaying={isAutoPlaying}
-        onTogglePlay={togglePlay}
-        goTo={goTo}
-      />
+      <CarouselHeader activeIndex={activeIndex} count={count} goTo={goTo} />
 
       <div
         ref={viewportRef}

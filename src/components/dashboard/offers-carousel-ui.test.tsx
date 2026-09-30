@@ -60,8 +60,8 @@ describe("OffersCarouselUi & Infinite Auto-Play", () => {
     expect(html).toContain("Prêt Essentiel");
     expect(html).toContain("Prêt Croissance");
     expect(html).toContain("Demander ce prêt");
-    // Controls
-    expect(html).toContain("Mettre en pause le défilement");
+    // Controls (clean previous & next arrows, no bulky pause button)
+    expect(html).not.toContain("Mettre en pause le défilement");
     expect(html).toContain("Offre précédente");
     expect(html).toContain("Offre suivante");
     // Indicators
