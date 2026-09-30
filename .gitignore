@@ -17,6 +17,7 @@
 /test-results/
 /.playwright-cli/
 /graphify-out/
+/audit-screenshots/
 
 # next.js
 /.next/
