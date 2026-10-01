@@ -1,13 +1,15 @@
-import { ArrowRight, Award, Banknote, CheckCircle, ShieldCheck, Smartphone } from "lucide-react";
+import { ArrowRight, Award, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+import { CirclesThreeIcon, DevicesIcon, FolderLockIcon } from "@/components/icons/phosphor-icons";
 
 function FeatureCardsGrid() {
   return (
     <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       <div className="group rounded-3xl border border-border bg-card p-8 shadow-sm transition hover:border-accent/40 hover:shadow-card">
         <div className="flex size-12 items-center justify-center rounded-2xl bg-accent/10 text-accent transition group-hover:scale-110">
-          <Banknote className="size-6" />
+          <CirclesThreeIcon className="size-6" />
         </div>
         <h3 className="mt-5 font-display text-xl font-bold text-foreground">
           Dépôt de garantie protégé
@@ -20,7 +22,7 @@ function FeatureCardsGrid() {
 
       <div className="group rounded-3xl border border-border bg-card p-8 shadow-sm transition hover:border-accent/40 hover:shadow-card">
         <div className="flex size-12 items-center justify-center rounded-2xl bg-accent/10 text-accent transition group-hover:scale-110">
-          <ShieldCheck className="size-6" />
+          <FolderLockIcon className="size-6" />
         </div>
         <h3 className="mt-5 font-display text-xl font-bold text-foreground">
           Sécurité bancaire & Code PIN
@@ -33,7 +35,7 @@ function FeatureCardsGrid() {
 
       <div className="group rounded-3xl border border-border bg-card p-8 shadow-sm transition hover:border-accent/40 hover:shadow-card">
         <div className="flex size-12 items-center justify-center rounded-2xl bg-accent/10 text-accent transition group-hover:scale-110">
-          <Smartphone className="size-6" />
+          <DevicesIcon className="size-6" />
         </div>
         <h3 className="mt-5 font-display text-xl font-bold text-foreground">
           Gestion 100% en ligne
@@ -54,10 +56,10 @@ function ExpansionVisual() {
         <div className="relative aspect-[4/3] w-full">
           <Image
             src="/images/landing/business-growth.webp"
-            alt="Chef d’entreprise dans son atelier moderne en pleine expansion"
+            alt="Aviculteur et éleveur moderne dans son exploitation avicole en pleine expansion avec Azari Microfinance"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            loading="eager"
+            loading="lazy"
             decoding="async"
             className="object-cover object-center"
           />

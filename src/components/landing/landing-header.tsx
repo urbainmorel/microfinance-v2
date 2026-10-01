@@ -24,25 +24,22 @@ function DesktopNav() {
     <nav className="hidden items-center gap-7 lg:flex">
       <a
         href="#produits"
-        className="text-sm font-semibold text-muted-foreground transition hover:text-accent"
+        className="text-sm font-semibold text-white/75 transition hover:text-white"
       >
         Nos Prêts
       </a>
       <a
         href="#avantages"
-        className="text-sm font-semibold text-muted-foreground transition hover:text-accent"
+        className="text-sm font-semibold text-white/75 transition hover:text-white"
       >
         Avantages
       </a>
-      <a
-        href="#avis"
-        className="text-sm font-semibold text-muted-foreground transition hover:text-accent"
-      >
+      <a href="#avis" className="text-sm font-semibold text-white/75 transition hover:text-white">
         Témoignages
       </a>
       <Link
         href="/contact"
-        className="text-sm font-semibold text-muted-foreground transition hover:text-accent"
+        className="text-sm font-semibold text-white/75 transition hover:text-white"
       >
         Contact
       </Link>
@@ -62,13 +59,13 @@ function HeaderActions({
       <div className="hidden items-center gap-2.5 sm:flex">
         <Link
           href="/auth/login"
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground shadow-sm transition hover:border-foreground/20 hover:bg-muted/60 active:bg-muted"
+          className="inline-flex h-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition hover:border-white/35 hover:bg-white/15 active:bg-white/20"
         >
           Espace client
         </Link>
         <Link
           href="/auth/register"
-          className="px-4.5 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-accent-foreground shadow-md shadow-accent/25 transition hover:bg-finance-deep active:translate-y-px"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white shadow-md shadow-black/25 transition hover:bg-sky-500 active:translate-y-px sm:px-6"
         >
           <span>Créer un compte</span>
           <ArrowRight className="size-4" />
@@ -78,17 +75,17 @@ function HeaderActions({
       <div className="flex items-center gap-1.5 sm:hidden">
         <Link
           href="/auth/login"
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs font-semibold text-foreground active:bg-muted"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 text-xs font-semibold text-white active:bg-white/20"
           aria-label="Connexion espace client"
         >
-          <User className="size-3.5 text-accent" />
+          <User className="size-3.5 text-sky-300" />
           <span>Connexion</span>
         </Link>
 
         <button
           type="button"
           onClick={onToggleMobileMenu}
-          className="flex size-9 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-sm focus:outline-none active:bg-muted"
+          className="flex size-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white shadow-sm focus:outline-none active:bg-white/20"
           aria-label={
             mobileMenuOpen ? "Fermer le menu de navigation" : "Ouvrir le menu de navigation"
           }
@@ -103,53 +100,53 @@ function HeaderActions({
 
 function MobileMenuDrawer({ onClose }: { onClose: () => void }) {
   return (
-    <div className="border-t border-border bg-card px-4 py-5 shadow-2xl duration-200 animate-in fade-in slide-in-from-top-1 sm:hidden">
+    <div className="border-t border-white/10 bg-finance-ink px-4 py-5 shadow-2xl duration-200 animate-in fade-in slide-in-from-top-1 sm:hidden">
       <nav className="flex flex-col space-y-1 font-display">
         <a
           href="#produits"
           onClick={onClose}
-          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground hover:bg-muted"
+          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-white hover:bg-white/10"
         >
           <span>Nos Prêts</span>
-          <ArrowRight className="size-4 text-muted-foreground" />
+          <ArrowRight className="size-4 text-white/50" />
         </a>
         <a
           href="#avantages"
           onClick={onClose}
-          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground hover:bg-muted"
+          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-white hover:bg-white/10"
         >
           <span>Avantages & Garanties</span>
-          <ArrowRight className="size-4 text-muted-foreground" />
+          <ArrowRight className="size-4 text-white/50" />
         </a>
         <a
           href="#avis"
           onClick={onClose}
-          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground hover:bg-muted"
+          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-white hover:bg-white/10"
         >
           <span>Témoignages Clients</span>
-          <ArrowRight className="size-4 text-muted-foreground" />
+          <ArrowRight className="size-4 text-white/50" />
         </a>
         <Link
           href="/contact"
           onClick={onClose}
-          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground hover:bg-muted"
+          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-white hover:bg-white/10"
         >
           <span>Contact & Support</span>
-          <ArrowRight className="size-4 text-muted-foreground" />
+          <ArrowRight className="size-4 text-white/50" />
         </Link>
       </nav>
 
-      <div className="mt-4 border-t border-border/80 pt-4">
+      <div className="mt-4 border-t border-white/10 pt-4">
         <Link
           href="/auth/register"
           onClick={onClose}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent font-display text-sm font-bold text-accent-foreground shadow-md shadow-accent/25 transition active:scale-[0.98]"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent font-display text-sm font-bold text-white shadow-md shadow-black/25 transition active:scale-[0.98]"
         >
           <span>Faire une demande de prêt</span>
           <ArrowRight className="size-4" />
         </Link>
 
-        <div className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-accent">
+        <div className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-sky-300">
           <ShieldCheck className="size-4" />
           <span>Établissement agréé zone UMOA</span>
         </div>
@@ -162,7 +159,7 @@ export function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-card/95 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-finance-ink/95 shadow-md backdrop-blur-md">
       <div className="container mx-auto flex h-14 items-center justify-between px-4 sm:h-16 sm:px-6 lg:h-20 lg:px-8">
         <BrandLogo onSelect={() => setMobileMenuOpen(false)} />
         <DesktopNav />

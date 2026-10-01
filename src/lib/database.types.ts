@@ -673,9 +673,114 @@ export type Database = {
           },
         ]
       >;
+      chatbot_settings: Table<{
+        id: boolean;
+        bot_name: string;
+        bot_avatar_url: string | null;
+        primary_color: string;
+        model_name: string;
+        welcome_message: string;
+        offline_message: string;
+        suggested_questions: Json;
+        ai_tone: string;
+        financial_disclaimer: string;
+        is_agent_online: boolean;
+        business_hours_start: string;
+        business_hours_end: string;
+        business_days: number[];
+        updated_at: string;
+      }>;
+      knowledge_items: Table<{
+        id: string;
+        title: string;
+        category: string;
+        content: string;
+        embedding: string | null;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+      }>;
+      support_conversations: Table<{
+        id: string;
+        user_id: string | null;
+        session_id: string;
+        status: string;
+        assigned_agent_id: string | null;
+        last_message_at: string;
+        created_at: string;
+      }>;
+      support_messages: Table<{
+        id: string;
+        conversation_id: string;
+        sender_type: string;
+        sender_name: string | null;
+        content: string;
+        metadata: Json | null;
+        created_at: string;
+      }>;
+      support_tickets: Table<{
+        id: string;
+        conversation_id: string | null;
+        client_name: string;
+        client_phone: string;
+        client_email: string | null;
+        loan_amount_requested: number | null;
+        loan_purpose: string | null;
+        conversation_summary: string;
+        status: string;
+        handled_by: string | null;
+        created_at: string;
+        updated_at: string;
+      }>;
     };
     Views: { [_ in never]: never };
     Functions: {
+      match_knowledge_items: {
+        Args: {
+          query_embedding: string;
+          match_threshold?: number;
+          match_count?: number;
+        };
+        Returns: {
+          id: string;
+          title: string;
+          category: string;
+          content: string;
+          similarity: number;
+        }[];
+      };
+      update_chatbot_settings: {
+        Args: {
+          p_values: Json;
+        };
+        Returns: undefined;
+      };
+      create_support_ticket_atomic: {
+        Args: {
+          p_conversation_id: string | null;
+          p_client_name: string;
+          p_client_phone: string;
+          p_client_email?: string | null;
+          p_loan_amount?: number | null;
+          p_loan_purpose?: string | null;
+          p_summary?: string | null;
+        };
+        Returns: string;
+      };
+      post_support_message_and_transition: {
+        Args: {
+          p_conversation_id: string;
+          p_sender_type: string;
+          p_sender_name: string;
+          p_content: string;
+          p_target_status?: string | null;
+        };
+        Returns: Json;
+      };
+      purge_expired_support_data: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
       auto_process_kyc: {
         Args: {
           p_client_id: string;

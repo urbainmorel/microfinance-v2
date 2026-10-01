@@ -1,5 +1,6 @@
 import { DM_Sans, Manrope } from "next/font/google";
 
+import { ChatbotWidget } from "@/components/chatbot/chatbot-widget-client";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 
 import { Providers } from "./providers";
@@ -44,6 +45,7 @@ export const viewport: Viewport = {
   themeColor: "#F8FAFC",
   width: "device-width",
   initialScale: 1,
+  interactiveWidget: "resizes-content",
 };
 
 const purgeNetlifyHudScript = `(function(){
@@ -66,7 +68,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${dmSans.variable} ${manrope.variable}`}>
       <body className="min-h-dvh">
         <script dangerouslySetInnerHTML={{ __html: purgeNetlifyHudScript }} />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ChatbotWidget />
+        </Providers>
         <ServiceWorkerRegistration />
       </body>
     </html>

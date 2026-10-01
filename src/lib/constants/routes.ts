@@ -15,5 +15,6 @@ export const ROUTES = {
   },
   ADMIN: {
     HOME: "/admin",
+    SUPPORT: "/admin/support",
   },
 } as const;

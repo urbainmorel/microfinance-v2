@@ -69,7 +69,7 @@ function HeroVisual() {
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl">
             <Image
               src="/images/landing/hero-entrepreneur.webp"
-              alt="Entrepreneure souriante gérant son financement dans sa boutique"
+              alt="Entrepreneure agroalimentaire souriante développant son unité artisanale de jus de fruits frais avec Azari Microfinance"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
               priority

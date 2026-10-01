@@ -1,5 +1,3 @@
-import { CheckCircle2, Star } from "lucide-react";
-
 interface Testimonial {
   name: string;
   role: string;
@@ -45,24 +43,49 @@ const testimonials: Testimonial[] = [
 
 function TestimonialsStats() {
   return (
-    <div className="mt-12 grid grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm sm:grid-cols-4 sm:p-8">
-      <div className="text-center">
-        <p className="font-display text-3xl font-extrabold text-foreground sm:text-4xl">98%</p>
-        <p className="mt-1 text-xs font-medium text-muted-foreground">Clients satisfaits</p>
-      </div>
-      <div className="text-center">
-        <p className="font-display text-3xl font-extrabold text-accent sm:text-4xl">24h - 48h</p>
-        <p className="mt-1 text-xs font-medium text-muted-foreground">Délai moyen de réponse</p>
-      </div>
-      <div className="text-center">
-        <p className="font-display text-3xl font-extrabold text-foreground sm:text-4xl">
-          5% à 8,5%
+    <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-x-8 gap-y-8 sm:gap-x-10 lg:grid-cols-4">
+      <div className="flex flex-col items-start border-l border-border/80 pl-5 sm:pl-7">
+        <div className="inline-flex items-center justify-center rounded-2xl border border-border/60 bg-card/90 px-4 py-2.5 shadow-sm backdrop-blur-sm sm:px-5 sm:py-3">
+          <p className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            98<span className="font-extrabold text-accent">%</span>
+          </p>
+        </div>
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">
+          Clients satisfaits
         </p>
-        <p className="mt-1 text-xs font-medium text-muted-foreground">Taux annuels fixes</p>
       </div>
-      <div className="text-center">
-        <p className="font-display text-3xl font-extrabold text-accent sm:text-4xl">100%</p>
-        <p className="mt-1 text-xs font-medium text-muted-foreground">Restitution garantie</p>
+
+      <div className="flex flex-col items-start border-l border-border/80 pl-5 sm:pl-7">
+        <div className="inline-flex items-center justify-center rounded-2xl border border-border/60 bg-card/90 px-4 py-2.5 shadow-sm backdrop-blur-sm sm:px-5 sm:py-3">
+          <p className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            24-48<span className="font-extrabold text-accent">h</span>
+          </p>
+        </div>
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">
+          Délai moyen de réponse
+        </p>
+      </div>
+
+      <div className="flex flex-col items-start border-l border-border/80 pl-5 sm:pl-7">
+        <div className="inline-flex items-center justify-center rounded-2xl border border-border/60 bg-card/90 px-4 py-2.5 shadow-sm backdrop-blur-sm sm:px-5 sm:py-3">
+          <p className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            5% <span className="font-extrabold text-accent">-</span> 8,5%
+          </p>
+        </div>
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">
+          Taux annuels fixes
+        </p>
+      </div>
+
+      <div className="flex flex-col items-start border-l border-border/80 pl-5 sm:pl-7">
+        <div className="inline-flex items-center justify-center rounded-2xl border border-border/60 bg-card/90 px-4 py-2.5 shadow-sm backdrop-blur-sm sm:px-5 sm:py-3">
+          <p className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            100<span className="font-extrabold text-accent">%</span>
+          </p>
+        </div>
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">
+          Restitution garantie
+        </p>
       </div>
     </div>
   );
@@ -70,39 +93,20 @@ function TestimonialsStats() {
 
 function TestimonialItem({ item }: { item: Testimonial }) {
   return (
-    <div className="flex min-w-[280px] flex-1 snap-center flex-col justify-between rounded-3xl border border-border bg-card p-7 shadow-card transition duration-200 hover:border-accent/40 hover:shadow-lift sm:min-w-0">
-      <div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-amber-500">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="size-4 fill-amber-500 text-amber-500" />
-            ))}
-          </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-finance-soft px-2.5 py-0.5 text-[11px] font-semibold text-accent">
-            <CheckCircle2 className="size-3" /> Vérifié
-          </span>
-        </div>
-        <p className="mt-4 text-sm italic leading-relaxed text-muted-foreground">
-          « {item.content} »
-        </p>
-      </div>
+    <div className="relative flex min-w-[280px] flex-1 snap-center flex-col justify-between rounded-[32px] border border-border/75 bg-card/90 p-8 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-card sm:min-w-0 sm:p-10">
+      <blockquote className="font-display text-[17px] font-normal leading-relaxed text-foreground sm:text-[18px]">
+        “{item.content}”
+      </blockquote>
 
-      <div className="mt-6 border-t border-border/70 pt-5">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-full bg-accent/15 font-display text-sm font-bold text-accent">
-            {item.initials}
-          </div>
-          <div>
-            <h4 className="font-display text-sm font-bold text-foreground">{item.name}</h4>
-            <p className="text-xs text-muted-foreground">
-              {item.role} • {item.city}
-            </p>
-          </div>
+      <div className="mt-8 flex items-center gap-3.5 sm:mt-10">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-full border border-border/70 bg-white font-display text-xs font-bold uppercase tracking-wider text-foreground shadow-sm">
+          {item.initials}
         </div>
-
-        <div className="mt-3 flex items-center justify-between rounded-xl bg-muted/50 px-3 py-1.5 text-xs">
-          <span className="font-semibold text-accent">{item.product}</span>
-          <span className="font-bold text-foreground">{item.amount}</span>
+        <div className="min-w-0">
+          <h4 className="truncate font-display text-base font-bold text-foreground">{item.name}</h4>
+          <p className="truncate text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {item.role} — {item.city.split(",")[0]}
+          </p>
         </div>
       </div>
     </div>
@@ -111,8 +115,17 @@ function TestimonialItem({ item }: { item: Testimonial }) {
 
 export function LandingTestimonials() {
   return (
-    <section id="avis" className="border-t border-border/70 bg-muted/30 py-16 sm:py-20 lg:py-28">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="avis"
+      className="relative overflow-hidden border-t border-border/70 bg-muted/30 py-16 sm:py-20 lg:py-28"
+    >
+      {/* Halo d'ambiance subtil */}
+      <div
+        className="pointer-events-none absolute -top-40 left-1/2 -z-0 size-[600px] -translate-x-1/2 rounded-full bg-accent/5 blur-3xl"
+        aria-hidden="true"
+      />
+
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <div className="inline-flex items-center rounded-full bg-finance-soft px-3 py-1 text-xs font-bold text-accent">
             <span>Retours d’expérience</span>

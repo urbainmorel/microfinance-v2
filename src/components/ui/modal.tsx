@@ -9,8 +9,10 @@ import { cn } from "@/lib/utils";
 import type { ReactNode, RefObject } from "react";
 
 type ModalProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
   title: string;
   description?: string;
   children: ReactNode;
@@ -127,7 +129,17 @@ function ModalHeader({
   );
 }
 
-export function Modal({ open, onOpenChange, title, description, children, className }: ModalProps) {
+export function Modal({
+  open,
+  isOpen,
+  onOpenChange,
+  onClose,
+  title,
+  description,
+  children,
+  className,
+}: ModalProps) {
+  const isActualOpen = open ?? isOpen ?? false;
   const isClient = useSyncExternalStore(
     subscribeToClient,
     () => true,
@@ -137,11 +149,17 @@ export function Modal({ open, onOpenChange, title, description, children, classN
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  useModalInteractions(open, onOpenChange, panelRef, closeButtonRef);
 
-  if (!isClient || !open) return null;
+  const handleOpenChange = (nextOpen: boolean) => {
+    onOpenChange?.(nextOpen);
+    if (!nextOpen) onClose?.();
+  };
+
+  useModalInteractions(isActualOpen, handleOpenChange, panelRef, closeButtonRef);
+
+  if (!isClient || !isActualOpen) return null;
   const close = () => {
-    if (!panelRef.current?.querySelector('[aria-busy="true"]')) onOpenChange(false);
+    if (!panelRef.current?.querySelector('[aria-busy="true"]')) handleOpenChange(false);
   };
 
   return createPortal(
