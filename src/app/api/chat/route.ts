@@ -18,6 +18,7 @@ import {
   type ClientContext,
 } from "@/lib/chatbot/rag-service";
 import { checkRateLimit, getClientIp } from "@/lib/chatbot/rate-limiter";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import type { ChatbotSettings } from "@/lib/chatbot/types";
@@ -84,7 +85,11 @@ async function generateAiAnswer(params: {
   clientContext?: ClientContext;
 }) {
   const { supabase, convId, cleanMessage, settings, clientContext } = params;
-  const matchedDocs = await retrieveRelevantKnowledge(supabase, cleanMessage);
+  const adminClient = createSupabaseAdminClient();
+  const matchedDocs = await retrieveRelevantKnowledge(adminClient, cleanMessage);
+  console.warn(
+    `[Chat API] Requête: "${cleanMessage.slice(0, 60)}" | Docs RAG trouvés: ${matchedDocs.length}`,
+  );
   const history = await getRecentHistory(supabase, convId);
   const systemPrompt = buildSystemPrompt({ settings, matchedItems: matchedDocs, clientContext });
   const aiResult = await executeChatCompletion({
@@ -144,8 +149,38 @@ function isLiveChatStatus(status: string): boolean {
   return status === "waiting_agent" || status === "agent_active";
 }
 
-function formatErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
+function formatDetailedError(err: unknown): string {
+  if (err instanceof Error) {
+    const cause = err.cause ? `\nCause: ${JSON.stringify(err.cause)}` : "";
+    return `${err.name}: ${err.message}${cause}${err.stack ? `\nStack trace: ${err.stack}` : ""}`;
+  }
+  if (typeof err === "object" && err !== null) {
+    try {
+      return JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
+    } catch {
+      return String(err);
+    }
+  }
+  return String(err);
+}
+
+async function resolveAuthAndClientContext(supabase: SupabaseClientInstance) {
+  const authResult = await supabase.auth.getUser();
+  const userId = authResult.data?.user?.id;
+  if (!userId) {
+    return { userId: undefined, clientContext: undefined, clientName: "Visiteur" };
+  }
+
+  const clientContext = await resolveClientContext(supabase, userId);
+  const realClientName = clientContext
+    ? [clientContext.firstname, clientContext.lastname].filter(Boolean).join(" ").trim()
+    : "";
+
+  return {
+    userId,
+    clientContext,
+    clientName: realClientName || "Client",
+  };
 }
 
 export async function POST(req: Request) {
@@ -164,9 +199,7 @@ export async function POST(req: Request) {
     const supabase = await createSupabaseServerClient();
     const cleanMessage = sanitizeUserInput(parsed.rawMessage);
     const settings = await fetchChatbotSettings(supabase);
-    const authResult = await supabase.auth.getUser();
-    const userId = authResult.data.user?.id;
-    const clientContext = await resolveClientContext(supabase, userId);
+    const { userId, clientContext, clientName } = await resolveAuthAndClientContext(supabase);
 
     const { convId, status } = await verifyOrInitConversation({
       supabase,
@@ -174,7 +207,7 @@ export async function POST(req: Request) {
       sessionId: parsed.sessionId,
       userId,
       cleanMessage,
-      clientName: clientContext?.firstname || undefined,
+      clientName,
     });
 
     if (parsed.forceEscalate) return handleForcedEscalation(supabase, convId, settings);
@@ -190,7 +223,7 @@ export async function POST(req: Request) {
 
     return await generateAiAnswer({ supabase, convId, cleanMessage, settings, clientContext });
   } catch (err: unknown) {
-    console.error("Erreur API chat:", formatErrorMessage(err));
+    console.error("[Chat API Error]", formatDetailedError(err));
     return NextResponse.json(
       { error: "Une erreur est survenue lors de la communication." },
       { status: 500 },

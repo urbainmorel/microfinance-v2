@@ -66,7 +66,12 @@ export function useChatActions(props: ChatActionProps) {
       if (!sessionId || !text.trim()) return;
       setMessages((p) => [
         ...p,
-        { id: `u_${Date.now()}`, senderType: "user", senderName: clientName, content: text },
+        {
+          id: `u_${Date.now()}`,
+          senderType: "user",
+          senderName: clientName || "Visiteur",
+          content: text,
+        },
       ]);
       setIsThinking(true);
       try {

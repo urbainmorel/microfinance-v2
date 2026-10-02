@@ -1,7 +1,6 @@
 import { createEmbedding } from "./openrouter";
 
 import type { AiTone, ChatbotSettings, KnowledgeItem } from "./types";
-import type { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
  * Masque ou tronque les données personnelles identifiables (PII) sensibles
@@ -45,6 +44,7 @@ export function sanitizeUserInput(input: string): string {
 
 export interface ClientContext {
   firstname?: string | null;
+  lastname?: string | null;
   kycStatus?: string | null;
   hasActiveLoan?: boolean;
 }
@@ -71,17 +71,26 @@ export function buildSystemPrompt(params: {
   };
 
   let clientContextSection = "";
-  if (clientContext?.firstname) {
-    const cleanFirstname = maskSensitivePII(
-      clientContext.firstname.replace(/[<>]/g, "").trim().slice(0, 50),
-    );
+  const rawRealName = clientContext
+    ? [clientContext.firstname, clientContext.lastname].filter(Boolean).join(" ").trim()
+    : "";
+
+  if (clientContext && rawRealName) {
+    const realName = maskSensitivePII(rawRealName.replace(/[<>]/g, "").trim().slice(0, 100));
     clientContextSection = `
 <client_connecte>
-- Prénom : ${cleanFirstname}
+- Nom du client : ${realName}
 - Statut KYC : ${clientContext.kycStatus || "Non vérifié"}
 - Emprunt en cours : ${clientContext.hasActiveLoan ? "Oui" : "Non"}
-(Tu peux t'adresser poliment au client en utilisant son prénom sans lui redemander son identité).
+Tu t'adresses au client connecté sous son nom réel exact : "${realName}". Utilise uniquement et exactement ce nom réel pour t'adresser à lui.
 </client_connecte>
+`;
+  } else {
+    clientContextSection = `
+<visiteur_non_connecte>
+L'utilisateur actuel est un visiteur anonyme NON CONNECTÉ. Tu ne connais PAS son nom.
+RÈGLE STRICTE : Ne lui donne AUCUN nom, ne l'appelle JAMAIS par un prénom ou nom d'une autre personne (ne dis jamais 'SESSINOU', 'URBAIN', 'MOREL', etc.). Adresse-toi à lui poliment et sobrement en disant 'Bonjour ! Comment puis-je vous renseigner sur nos offres ?' ou similaire.
+</visiteur_non_connecte>
 `;
   }
 
@@ -120,30 +129,69 @@ ${knowledgeSection}
 Réponds en français clair, bien structuré (avec des puces si des listes de critères ou pièces sont énoncées).`;
 }
 
+const FRENCH_STOP_WORDS = new Set(
+  `alors apres après assez aussi autre aux avant avec avoir bon bonjour bonsoir cela ces cette ceux
+   chaque chez combien comme comment dans demande des donc dont elle elles encore entre est etre
+   être fait faire haut ici ils jamais juste leur leurs les mais meme même merci mes mode moins mon
+   mot notre nous par parce pas peut peuvent plus pour pourquoi quand que quel quelle quelles quels
+   qui quoi sans savoir sera seront ses seulement si sien sitot sitôt soit son sont sous sur tel
+   telle tels telles tes tous tout toute toutes tres très trop une unes uns vers voici voila voilà
+   vont votre vos vous vraiment`
+    .split(/\s+/)
+    .map((w) => w.trim())
+    .filter(Boolean),
+);
+
+export function extractSearchKeywords(text: string): string[] {
+  const words = text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .split(/\s+/)
+    .map((w) => w.trim())
+    .filter((w) => w.length >= 3 && !FRENCH_STOP_WORDS.has(w));
+
+  if (words.length === 0) {
+    return text
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, " ")
+      .split(/\s+/)
+      .map((w) => w.trim())
+      .filter((w) => w.length >= 3)
+      .slice(0, 5);
+  }
+
+  return Array.from(new Set(words)).slice(0, 5);
+}
+
 /**
- * Recherche vectorielle RAG dans Supabase.
+ * Recherche de secours par mots-clés sur la table knowledge_items
+ * si la recherche vectorielle n'a renvoyé aucun résultat ou en cas d'erreur RPC.
  */
-export async function retrieveRelevantKnowledge(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  question: string,
-  threshold = 0.55,
-  limit = 4,
+async function fallbackKeywordSearch(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  clean: string,
+  limit: number,
 ): Promise<KnowledgeItem[]> {
-  const clean = question.trim();
-  if (!clean) return [];
+  if (typeof supabase?.from !== "function") return [];
+
+  const keywords = extractSearchKeywords(clean);
+  if (keywords.length === 0) return [];
 
   try {
-    const questionEmbedding = await createEmbedding(clean);
-    if (!questionEmbedding.length) return [];
+    const orConditions = keywords
+      .flatMap((kw) => [`title.ilike.%${kw}%`, `content.ilike.%${kw}%`])
+      .join(",");
 
-    const { data, error } = await supabase.rpc("match_knowledge_items", {
-      query_embedding: questionEmbedding as unknown as string,
-      match_threshold: threshold,
-      match_count: limit,
-    });
+    const { data, error } = await supabase
+      .from("knowledge_items")
+      .select("id, title, category, content, is_active")
+      .eq("is_active", true)
+      .or(orConditions)
+      .limit(limit);
 
     if (error) {
-      console.warn("Erreur RPC match_knowledge_items:", error.message);
+      console.warn("Erreur recherche par mots-clés knowledge_items:", error.message);
       return [];
     }
 
@@ -154,12 +202,62 @@ export async function retrieveRelevantKnowledge(
       title: String(row.title || ""),
       category: String(row.category || "Général"),
       content: String(row.content || ""),
-      isActive: true,
+      isActive: Boolean(row.is_active ?? true),
       createdAt: "",
       updatedAt: "",
     }));
   } catch (err) {
-    console.warn("Échec de la recherche vectorielle RAG:", err);
+    console.warn("Échec de la recherche de secours par mots-clés:", err);
     return [];
   }
+}
+
+/**
+ * Recherche vectorielle RAG avec fallback résilient par mots-clés dans Supabase.
+ */
+export async function retrieveRelevantKnowledge(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- accepts both server and admin clients
+  supabase: any,
+  question: string,
+  threshold = 0.4,
+  limit = 4,
+): Promise<KnowledgeItem[]> {
+  const clean = question.trim();
+  if (!clean) return [];
+
+  let vectorResults: KnowledgeItem[] = [];
+
+  try {
+    const questionEmbedding = await createEmbedding(clean);
+    if (questionEmbedding.length && typeof supabase?.rpc === "function") {
+      const { data, error } = await supabase.rpc("match_knowledge_items", {
+        query_embedding: questionEmbedding as unknown as string,
+        match_threshold: threshold,
+        match_count: limit,
+      });
+
+      if (error) {
+        console.warn("Erreur RPC match_knowledge_items:", error.message);
+      } else if (Array.isArray(data) && data.length > 0) {
+        vectorResults = data.map((row: Record<string, unknown>) => ({
+          id: String(row.id),
+          title: String(row.title || ""),
+          category: String(row.category || "Général"),
+          content: String(row.content || ""),
+          isActive: true,
+          createdAt: "",
+          updatedAt: "",
+        }));
+      }
+    }
+  } catch (err) {
+    console.warn("Échec de la recherche vectorielle RAG:", err);
+  }
+
+  if (vectorResults.length > 0) {
+    return vectorResults;
+  }
+
+  // Recherche résiliente par mots-clés si la recherche vectorielle renvoie 0 document
+  return await fallbackKeywordSearch(supabase, clean, limit);
 }

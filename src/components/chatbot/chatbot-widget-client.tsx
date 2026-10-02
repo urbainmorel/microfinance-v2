@@ -1,16 +1,20 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState, type ComponentType } from "react";
 
 /**
  * Client-only lazy loader for ChatbotWidget.
- * Avoids any SSR hydration mismatches and completely bypasses next/dynamic `{ ssr: false }`
- * Turbopack constraints in Next.js 16 App Router.
+ * Hidden on /admin and /auth routes — visible on public pages and /client routes.
  */
 export function ChatbotWidget() {
+  const pathname = usePathname();
   const [Widget, setWidget] = useState<ComponentType | null>(null);
 
+  const hidden = !pathname || pathname.startsWith("/admin") || pathname.startsWith("/auth");
+
   useEffect(() => {
+    if (hidden) return;
     let mounted = true;
     import("./chatbot-widget")
       .then((mod) => {
@@ -25,9 +29,9 @@ export function ChatbotWidget() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [hidden]);
 
-  if (!Widget) {
+  if (hidden || !Widget) {
     return null;
   }
 

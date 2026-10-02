@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { evaluateHandOffRouting } from "@/lib/chatbot/hand-off-service";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 import type { ChatCompletionResult } from "@/lib/chatbot/openrouter";
 import type { ClientContext } from "@/lib/chatbot/rag-service";
@@ -8,6 +9,14 @@ import type { ChatbotSettings, ChatMessage } from "@/lib/chatbot/types";
 import type { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type SupabaseClientInstance = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+
+function getAdminOrFallback(fallback: SupabaseClientInstance) {
+  try {
+    return createSupabaseAdminClient();
+  } catch {
+    return fallback;
+  }
+}
 
 const DEFAULT_SETTINGS = {
   id: true,
@@ -64,14 +73,38 @@ export async function resolveClientContext(
   userId?: string,
 ): Promise<ClientContext | undefined> {
   if (!userId) return undefined;
-  const { data: profile } = await supabase
+  const db = getAdminOrFallback(supabase);
+  const { data: profile } = await db
     .from("profiles")
-    .select("firstname, kyc_status")
+    .select("firstname, lastname, kyc_status")
     .eq("id", userId)
     .single();
 
   if (!profile) return undefined;
-  return { firstname: profile.firstname, kycStatus: profile.kyc_status };
+  return {
+    firstname: profile.firstname,
+    lastname: profile.lastname,
+    kycStatus: profile.kyc_status,
+  };
+}
+
+async function findExistingConversation(
+  db: SupabaseClientInstance,
+  convId: string,
+  userId?: string,
+  sessionId?: string,
+): Promise<{ id: string; status: string } | null> {
+  const { data: existing } = await db
+    .from("support_conversations")
+    .select("id, user_id, session_id, status")
+    .eq("id", convId)
+    .single();
+
+  if (!existing) return null;
+  const isOwner = userId ? existing.user_id === userId : existing.session_id === sessionId;
+  if (!isOwner) return null;
+
+  return { id: existing.id, status: existing.status };
 }
 
 export async function verifyOrInitConversation(params: {
@@ -82,28 +115,23 @@ export async function verifyOrInitConversation(params: {
   cleanMessage: string;
   clientName?: string;
 }): Promise<{ convId: string; status: string }> {
-  const { supabase, sessionId, userId, cleanMessage, clientName = "Visiteur" } = params;
+  const { supabase, sessionId, userId, cleanMessage, clientName } = params;
+  const db = getAdminOrFallback(supabase);
+  const effectiveClientName = userId ? clientName?.trim() || "Client" : "Visiteur";
   let convId = params.conversationId;
   let currentStatus = "bot";
 
   if (convId) {
-    const { data: existing } = await supabase
-      .from("support_conversations")
-      .select("id, user_id, session_id, status")
-      .eq("id", convId)
-      .single();
-
+    const existing = await findExistingConversation(db, convId, userId, sessionId);
     if (existing) {
-      const isOwner = userId ? existing.user_id === userId : existing.session_id === sessionId;
-      if (isOwner) currentStatus = existing.status;
-      else convId = null;
+      currentStatus = existing.status;
     } else {
       convId = null;
     }
   }
 
   if (!convId) {
-    const { data: created, error } = await supabase
+    const { data: created, error } = await db
       .from("support_conversations")
       .insert({ user_id: userId || null, session_id: sessionId, status: "bot" })
       .select("id, status")
@@ -114,13 +142,13 @@ export async function verifyOrInitConversation(params: {
   }
 
   if (cleanMessage) {
-    await supabase.from("support_messages").insert({
+    await db.from("support_messages").insert({
       conversation_id: convId,
       sender_type: "user",
-      sender_name: clientName,
+      sender_name: effectiveClientName,
       content: cleanMessage,
     });
-    await supabase
+    await db
       .from("support_conversations")
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", convId);
@@ -134,14 +162,15 @@ export async function handleForcedEscalation(
   convId: string,
   settings: ChatbotSettings,
 ) {
+  const db = getAdminOrFallback(supabase);
   const routing = evaluateHandOffRouting(settings);
   if (routing.mode === "live_chat") {
-    await supabase
+    await db
       .from("support_conversations")
       .update({ status: "waiting_agent", last_message_at: new Date().toISOString() })
       .eq("id", convId);
 
-    await supabase.from("support_messages").insert({
+    await db.from("support_messages").insert({
       conversation_id: convId,
       sender_type: "system",
       content: routing.message,
@@ -169,17 +198,18 @@ export async function handleAiEscalation(
   aiResult: ChatCompletionResult,
   settings: ChatbotSettings,
 ) {
+  const db = getAdminOrFallback(supabase);
   const routing = evaluateHandOffRouting(settings);
   const responseText = aiResult.content
     ? `${aiResult.content}\n\n${routing.message}`
     : routing.message;
 
   if (routing.mode === "live_chat") {
-    await supabase
+    await db
       .from("support_conversations")
       .update({ status: "waiting_agent", last_message_at: new Date().toISOString() })
       .eq("id", convId);
-    await supabase
+    await db
       .from("support_messages")
       .insert({ conversation_id: convId, sender_type: "bot", content: responseText });
     return NextResponse.json({
@@ -190,7 +220,7 @@ export async function handleAiEscalation(
     });
   }
 
-  await supabase
+  await db
     .from("support_messages")
     .insert({ conversation_id: convId, sender_type: "bot", content: responseText });
   return NextResponse.json({
@@ -205,7 +235,8 @@ export async function getRecentHistory(
   supabase: SupabaseClientInstance,
   convId: string,
 ): Promise<ChatMessage[]> {
-  const { data: msgRows } = await supabase
+  const db = getAdminOrFallback(supabase);
+  const { data: msgRows } = await db
     .from("support_messages")
     .select("sender_type, content")
     .eq("conversation_id", convId)

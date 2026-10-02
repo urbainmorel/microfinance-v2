@@ -100,9 +100,9 @@ export function useChatbotController() {
     }
   }, []);
 
-  const { data: user } = useSessionUser();
+  const { data: user, isLoading: isLoadingUser } = useSessionUser();
   const { data: profile } = useProfile();
-  const defaultClientName = profile?.firstname || user?.email || "";
+  const defaultClientName = !isLoadingUser && user ? profile?.firstname || user.email || "" : "";
   const { data: settings } = useChatPublicSettings();
 
   const isLiveChat =

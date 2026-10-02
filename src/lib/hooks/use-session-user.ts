@@ -9,7 +9,7 @@ export function useSessionUser() {
   const supabase = useSupabase();
   return useQuery({
     queryKey: ["auth-user"],
-    staleTime: Infinity,
+    staleTime: 300_000,
     queryFn: async () => {
       const {
         data: { user },
