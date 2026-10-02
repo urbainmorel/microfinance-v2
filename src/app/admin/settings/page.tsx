@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { HardDrive } from "lucide-react";
+import Link from "next/link";
 
 import {
   AdminError,
@@ -27,6 +29,15 @@ export default function AdminSettingsPage() {
         eyebrow="Configuration"
         title="Paramètres généraux"
         description="Définissez les plages opérationnelles, frais fixes et durées de conservation."
+        action={
+          <Link
+            href="/admin/storage"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-foreground shadow-sm transition-colors hover:bg-muted"
+          >
+            <HardDrive className="size-4 text-primary" />
+            Gérer le stockage (1 Go)
+          </Link>
+        }
       />
       {query.isPending ? <AdminLoading /> : null}
       {query.isError ? <AdminError message={query.error.message} /> : null}
