@@ -10,6 +10,7 @@ import {
   AdminPageHeader,
   MutationFeedback,
 } from "@/components/admin/admin-page";
+import { AppResetDangerZone } from "@/components/admin/app-reset-danger-zone";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { getAppSettings, saveAppSettings } from "@/lib/admin/api-settings";
 import { useAdminMutation } from "@/lib/admin/hooks";
@@ -42,11 +43,14 @@ export default function AdminSettingsPage() {
       {query.isPending ? <AdminLoading /> : null}
       {query.isError ? <AdminError message={query.error.message} /> : null}
       {query.data ? (
-        <SettingsForm
-          initial={query.data}
-          busy={mutation.isPending}
-          onSave={(value) => mutation.mutate(value)}
-        />
+        <>
+          <SettingsForm
+            initial={query.data}
+            busy={mutation.isPending}
+            onSave={(value) => mutation.mutate(value)}
+          />
+          <AppResetDangerZone currentBrand={query.data.platformName} />
+        </>
       ) : null}
       <MutationFeedback error={mutation.error} success={mutation.isSuccess} />
     </>
