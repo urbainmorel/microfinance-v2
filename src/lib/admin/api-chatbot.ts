@@ -38,6 +38,9 @@ function parseSettings(row: Record<string, unknown>): ChatbotSettings {
       ? (row.suggested_questions as string[])
       : defaultQuestions,
     aiTone: (row.ai_tone as ChatbotSettings["aiTone"]) || "institutional",
+    responseLength: (row.response_length as ChatbotSettings["responseLength"]) || "balanced",
+    customInstructions:
+      typeof row.custom_instructions === "string" ? row.custom_instructions : null,
     financialDisclaimer: strVal(
       row.financial_disclaimer,
       "Les simulations et explications fournies par l'assistant sont informatives et ne constituent pas une offre contractuelle de prêt.",

@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 
+import { BehaviorCard } from "./chatbot-behavior-card";
 import {
   AvailabilityCard,
   BrandingCard,
@@ -32,6 +33,9 @@ export function ChatbotSettingsForm({ initial, busy, onSave }: ChatbotSettingsFo
     }
   };
 
+  const update = <K extends keyof ChatbotSettings>(key: K, val: ChatbotSettings[K]) =>
+    setValue((prev) => ({ ...prev, [key]: val }));
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const parsedQuestions = questionsText
@@ -50,7 +54,7 @@ export function ChatbotSettingsForm({ initial, busy, onSave }: ChatbotSettingsFo
     <form onSubmit={handleSubmit} className="space-y-6">
       <AvailabilityCard
         isOnline={value.isAgentOnline}
-        onChange={(isAgentOnline) => setValue((prev) => ({ ...prev, isAgentOnline }))}
+        onChange={(val) => update("isAgentOnline", val)}
       />
       <ModelCard
         modelName={value.modelName}
@@ -58,33 +62,35 @@ export function ChatbotSettingsForm({ initial, busy, onSave }: ChatbotSettingsFo
         customModel={customModel}
         onModelChange={handleModelChange}
         onCustomModelChange={setCustomModel}
-        onToneChange={(aiTone) => setValue((prev) => ({ ...prev, aiTone }))}
+        onToneChange={(tone) => update("aiTone", tone)}
+      />
+      <BehaviorCard
+        responseLength={value.responseLength}
+        customInstructions={value.customInstructions || ""}
+        onResponseLengthChange={(len) => update("responseLength", len)}
+        onCustomInstructionsChange={(inst) => update("customInstructions", inst)}
       />
       <BrandingCard
         botName={value.botName}
         primaryColor={value.primaryColor}
-        onBotNameChange={(botName) => setValue((prev) => ({ ...prev, botName }))}
-        onPrimaryColorChange={(primaryColor) => setValue((prev) => ({ ...prev, primaryColor }))}
+        onBotNameChange={(name) => update("botName", name)}
+        onPrimaryColorChange={(col) => update("primaryColor", col)}
       />
       <MessagesCard
         welcomeMessage={value.welcomeMessage}
         offlineMessage={value.offlineMessage}
         questionsText={questionsText}
         financialDisclaimer={value.financialDisclaimer}
-        onWelcomeChange={(welcomeMessage) => setValue((prev) => ({ ...prev, welcomeMessage }))}
-        onOfflineChange={(offlineMessage) => setValue((prev) => ({ ...prev, offlineMessage }))}
+        onWelcomeChange={(wm) => update("welcomeMessage", wm)}
+        onOfflineChange={(om) => update("offlineMessage", om)}
         onQuestionsChange={setQuestionsText}
-        onDisclaimerChange={(financialDisclaimer) =>
-          setValue((prev) => ({ ...prev, financialDisclaimer }))
-        }
+        onDisclaimerChange={(fd) => update("financialDisclaimer", fd)}
       />
       <HoursCard
         start={value.businessHoursStart}
         end={value.businessHoursEnd}
-        onStartChange={(businessHoursStart) =>
-          setValue((prev) => ({ ...prev, businessHoursStart }))
-        }
-        onEndChange={(businessHoursEnd) => setValue((prev) => ({ ...prev, businessHoursEnd }))}
+        onStartChange={(st) => update("businessHoursStart", st)}
+        onEndChange={(nd) => update("businessHoursEnd", nd)}
       />
 
       <div className="flex justify-end pt-2">

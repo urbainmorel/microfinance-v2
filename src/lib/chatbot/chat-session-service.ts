@@ -28,6 +28,8 @@ const DEFAULT_SETTINGS = {
   offlineMessage: "Conseillers indisponibles.",
   suggestedQuestions: [] as string[],
   aiTone: "institutional" as const,
+  responseLength: "balanced" as const,
+  customInstructions: null as string | null,
   financialDisclaimer: "",
   isAgentOnline: false,
   businessHoursStart: "08:00:00",
@@ -59,6 +61,8 @@ export async function fetchChatbotSettings(
       ? (row.suggested_questions as string[])
       : [],
     aiTone: row.ai_tone as ChatbotSettings["aiTone"],
+    responseLength: (row.response_length as ChatbotSettings["responseLength"]) || "balanced",
+    customInstructions: (row.custom_instructions as string) || null,
     financialDisclaimer: row.financial_disclaimer,
     isAgentOnline: row.is_agent_online,
     businessHoursStart: row.business_hours_start,

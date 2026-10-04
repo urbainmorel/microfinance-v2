@@ -127,8 +127,9 @@ async function requestOpenRouter(params: {
   messages: ChatMessage[];
   model: string;
   temperature: number;
+  maxTokens?: number;
 }): Promise<Record<string, unknown>> {
-  const { messages, model, temperature } = params;
+  const { messages, model, temperature, maxTokens = 600 } = params;
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -137,7 +138,7 @@ async function requestOpenRouter(params: {
     body: JSON.stringify({
       model,
       temperature,
-      max_tokens: 800,
+      max_tokens: maxTokens,
       messages,
       tools: [ESCALATE_TOOL],
       tool_choice: "auto",
@@ -159,16 +160,23 @@ export async function executeChatCompletion(params: {
   messages: ChatMessage[];
   model: string;
   temperature?: number;
+  maxTokens?: number;
   fallbackModel?: string;
 }): Promise<ChatCompletionResult> {
-  const { messages, model, temperature = 0.3, fallbackModel = DEFAULT_FALLBACK_MODEL } = params;
+  const {
+    messages,
+    model,
+    temperature = 0.3,
+    maxTokens = 600,
+    fallbackModel = DEFAULT_FALLBACK_MODEL,
+  } = params;
 
   let data: Record<string, unknown>;
   try {
-    data = await requestOpenRouter({ messages, model, temperature });
+    data = await requestOpenRouter({ messages, model, temperature, maxTokens });
   } catch (primaryErr) {
     console.warn(`Modèle principal ${model} en échec, bascule sur ${fallbackModel}:`, primaryErr);
-    data = await requestOpenRouter({ messages, model: fallbackModel, temperature });
+    data = await requestOpenRouter({ messages, model: fallbackModel, temperature, maxTokens });
   }
 
   const choices = data.choices as Array<{ message?: Record<string, unknown> }> | undefined;

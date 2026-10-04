@@ -233,7 +233,7 @@ export function MessagesCard({
         </div>
         <div>
           <label className="mb-1 block text-xs font-semibold text-foreground">
-            Message d’absence / hors horaires (Proposition de rappel)
+            Message d’absence / hors horaires
           </label>
           <textarea
             rows={2}
@@ -245,7 +245,7 @@ export function MessagesCard({
         </div>
         <div>
           <label className="mb-1 block text-xs font-semibold text-foreground">
-            Questions suggérées (1 question par ligne)
+            Questions suggérées (1 par ligne)
           </label>
           <textarea
             rows={3}
@@ -257,7 +257,7 @@ export function MessagesCard({
         </div>
         <div>
           <label className="mb-1 block text-xs font-semibold text-foreground">
-            Avertissement financier légal (Disclaimer)
+            Avertissement financier légal
           </label>
           <input
             type="text"

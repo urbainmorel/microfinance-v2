@@ -23,6 +23,8 @@ const mockSettings: ChatbotSettings = {
   businessHoursStart: "08:30:00",
   businessHoursEnd: "17:30:00",
   businessDays: [1, 2, 3, 4, 5], // Lundi au Vendredi
+  responseLength: "balanced",
+  customInstructions: null,
   updatedAt: new Date().toISOString(),
 };
 

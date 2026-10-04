@@ -683,6 +683,8 @@ export type Database = {
         offline_message: string;
         suggested_questions: Json;
         ai_tone: string;
+        response_length: string;
+        custom_instructions: string | null;
         financial_disclaimer: string;
         is_agent_online: boolean;
         business_hours_start: string;

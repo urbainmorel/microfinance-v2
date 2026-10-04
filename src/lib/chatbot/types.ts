@@ -1,5 +1,7 @@
 export type AiTone = "institutional" | "warm" | "strict";
 
+export type ResponseLength = "concise" | "balanced" | "detailed";
+
 export type SupportSenderType = "user" | "bot" | "agent" | "system";
 
 export type ConversationStatus =
@@ -17,6 +19,8 @@ export interface ChatbotSettings {
   offlineMessage: string;
   suggestedQuestions: string[];
   aiTone: AiTone;
+  responseLength: ResponseLength;
+  customInstructions: string | null;
   financialDisclaimer: string;
   isAgentOnline: boolean;
   businessHoursStart: string; // HH:MM:SS

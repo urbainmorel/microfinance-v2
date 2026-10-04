@@ -13,6 +13,7 @@ import { verifySameOrigin } from "@/lib/chatbot/csrf";
 import { executeChatCompletion } from "@/lib/chatbot/openrouter";
 import {
   buildSystemPrompt,
+  RESPONSE_LENGTH_CONFIG,
   retrieveRelevantKnowledge,
   sanitizeUserInput,
   type ClientContext,
@@ -92,9 +93,13 @@ async function generateAiAnswer(params: {
   );
   const history = await getRecentHistory(supabase, convId);
   const systemPrompt = buildSystemPrompt({ settings, matchedItems: matchedDocs, clientContext });
+  const maxTokens =
+    RESPONSE_LENGTH_CONFIG[settings.responseLength]?.tokens ||
+    RESPONSE_LENGTH_CONFIG.balanced.tokens;
   const aiResult = await executeChatCompletion({
     messages: [{ role: "system", content: systemPrompt }, ...history],
     model: settings.modelName,
+    maxTokens,
   });
 
   if (aiResult.toolCall?.name === "escalate_to_human") {

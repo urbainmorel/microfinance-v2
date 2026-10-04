@@ -25,6 +25,8 @@ const mockSettings: ChatbotSettings = {
   businessHoursStart: "08:00:00",
   businessHoursEnd: "17:30:00",
   businessDays: [1, 2, 3, 4, 5],
+  responseLength: "balanced",
+  customInstructions: null,
   updatedAt: new Date().toISOString(),
 };
 
@@ -81,7 +83,7 @@ describe("sanitizeUserInput", () => {
   });
 });
 
-describe("buildSystemPrompt", () => {
+describe("buildSystemPrompt - Base & Sécurité", () => {
   it("génère un prompt complet avec fiches de connaissances et règles de sécurité pour un visiteur anonyme", () => {
     const matchedItems: KnowledgeItem[] = [
       {
@@ -153,6 +155,32 @@ describe("buildSystemPrompt", () => {
       "Tu t'adresses au client connecté sous son nom réel exact : \"Awa Koffi\". Utilise uniquement et exactement ce nom réel pour t'adresser à lui.",
     );
     expect(prompt).not.toContain("<visiteur_non_connecte>");
+  });
+});
+
+describe("buildSystemPrompt - Longueur & Consignes", () => {
+  it("applique les consignes de longueur concise quand demandée", () => {
+    const prompt = buildSystemPrompt({
+      settings: { ...mockSettings, responseLength: "concise" },
+      matchedItems: [],
+    });
+    expect(prompt).toContain(
+      "LONGUEUR DE RÉPONSE : Concis (1 à 2 courts paragraphes max, direct sur mobile).",
+    );
+  });
+
+  it("injecte les consignes spécifiques de l'établissement et masque les PII", () => {
+    const prompt = buildSystemPrompt({
+      settings: {
+        ...mockSettings,
+        customInstructions: "Priorité aux micro-crédits agricoles. Contact: 4532-1234-5678-9012",
+      },
+      matchedItems: [],
+    });
+    expect(prompt).toContain("CONSIGNES SPÉCIFIQUES DE L'ÉTABLISSEMENT");
+    expect(prompt).toContain("Priorité aux micro-crédits agricoles");
+    expect(prompt).toContain("[CARTE_BANCAIRE_...9012]");
+    expect(prompt).not.toContain("4532-1234-5678-9012");
   });
 });
 
