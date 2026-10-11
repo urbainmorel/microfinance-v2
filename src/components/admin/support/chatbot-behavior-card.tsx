@@ -102,27 +102,27 @@ export function BehaviorCard({
         <div>
           <div className="mb-1 flex items-center justify-between">
             <label className="text-xs font-semibold text-foreground">
-              Instructions ou consignes spécifiques (Optionnel)
+              Consignes spécifiques sur la manière de répondre (Prompt Système)
             </label>
             <span
               className={`text-[11px] ${
-                lengthChars >= 480 ? "font-bold text-amber-600" : "text-muted-foreground"
+                lengthChars >= 1900 ? "font-bold text-amber-600" : "text-muted-foreground"
               }`}
             >
-              {lengthChars} / 500 caractères
+              {lengthChars} / 2000 caractères
             </span>
           </div>
           <textarea
-            rows={3}
-            maxLength={500}
+            rows={4}
+            maxLength={2000}
             value={customInstructions}
             onChange={(e) => onCustomInstructionsChange(e.target.value)}
-            placeholder="Ex. : Toujours rappeler que le taux d'intérêt agricole est de 3,5% par trimestre avec 2 mois de différé."
+            placeholder="Ex. : Toujours accueillir avec courtoisie. Orienter en priorité vers le Microcrédit Express ou le Prêt TPE/PME d'Azari. Préciser que le dépôt de garantie de 10% est restitué à 100% à terme."
             className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           />
           <p className="mt-1 text-[11px] text-muted-foreground">
-            Ces consignes sont intégrées directement au prompt système sans altérer les règles de
-            sécurité et de conformité bancaire.
+            Ces consignes sont intégrées directement au prompt système pour piloter le comportement,
+            le ton et les priorités de réponse de l’assistant IA d’Azari.
           </p>
         </div>
       </div>

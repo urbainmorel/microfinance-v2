@@ -177,7 +177,7 @@ describe("buildSystemPrompt - Longueur & Consignes", () => {
       },
       matchedItems: [],
     });
-    expect(prompt).toContain("CONSIGNES SPÉCIFIQUES DE L'ÉTABLISSEMENT");
+    expect(prompt).toContain("CONSIGNES SPÉCIFIQUES SUR LA MANIÈRE DE RÉPONDRE");
     expect(prompt).toContain("Priorité aux micro-crédits agricoles");
     expect(prompt).toContain("[CARTE_BANCAIRE_...9012]");
     expect(prompt).not.toContain("4532-1234-5678-9012");
@@ -227,7 +227,7 @@ describe("retrieveRelevantKnowledge - recherche vectorielle", () => {
     vi.restoreAllMocks();
   });
 
-  it("retourne les documents issus de la recherche vectorielle avec un seuil par défaut à 0.40", async () => {
+  it("retourne les documents issus de la recherche vectorielle avec un seuil par défaut à 0.30", async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: [{ embedding: [0.1, 0.2, 0.3] }] }),
@@ -253,7 +253,7 @@ describe("retrieveRelevantKnowledge - recherche vectorielle", () => {
 
     expect(mockRpc).toHaveBeenCalledWith("match_knowledge_items", {
       query_embedding: [0.1, 0.2, 0.3] as unknown as string,
-      match_threshold: 0.4,
+      match_threshold: 0.3,
       match_count: 4,
     });
     expect(item?.id).toBe("vec-1");
