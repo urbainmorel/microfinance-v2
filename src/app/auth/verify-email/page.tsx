@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
-import { resolvePostAuthPath } from "@/lib/auth-flow";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function VerifyEmailPage() {
@@ -24,7 +23,7 @@ export default function VerifyEmailPage() {
       } = await supabase.auth.getUser();
       if (active && user?.email_confirmed_at) {
         window.sessionStorage.removeItem("pending-verification-email");
-        router.replace(await resolvePostAuthPath(supabase));
+        router.replace("/auth/login?verified=true");
         router.refresh();
       }
     }
@@ -60,8 +59,8 @@ export default function VerifyEmailPage() {
     <AuthCard title="Vérifiez votre email" subtitle="Un lien de vérification vous a été envoyé.">
       <div className="flex flex-col items-center gap-4 text-center">
         <p className="text-sm text-muted-foreground">
-          Cliquez sur le lien reçu pour activer votre compte. Vous reprendrez automatiquement la
-          création de votre espace sécurisé.
+          Cliquez sur le lien reçu pour activer votre compte. Vous serez ensuite redirigé vers la
+          page de connexion pour accéder à votre espace sécurisé.
         </p>
         {status === "sent" ? (
           <p className="text-sm font-medium text-accent">Email de vérification renvoyé.</p>

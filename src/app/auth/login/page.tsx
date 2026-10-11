@@ -3,13 +3,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useForm, type FieldErrors, type UseFormRegister } from "react-hook-form";
 
 import { AuthCard } from "@/components/auth/auth-card";
 import { FormError } from "@/components/auth/form-error";
+import { FormSuccess } from "@/components/auth/form-success";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
+import { Skeleton } from "@/components/ui/skeleton";
 import { isAccountInactive } from "@/lib/access-control";
 import { resolvePostAuthPath } from "@/lib/auth-flow";
 import { loginSchema, type LoginInput } from "@/lib/schemas/auth";
@@ -39,78 +42,162 @@ function CreateAccountPrompt() {
   );
 }
 
-export default function LoginPage() {
-  const [serverError, setServerError] = useState<string | null>(null);
+function sanitizeEmailParam(param: string | null): string | null {
+  if (!param) return null;
+  const trimmed = param.trim();
+  if (trimmed.length > 254 || !trimmed.includes("@")) return null;
+  return trimmed;
+}
+
+function resolveUrlStatus(searchParams: ReturnType<typeof useSearchParams>): {
+  successMessage: string | null;
+  errorMessage: string | null;
+} {
+  const isVerified =
+    searchParams.get("verified") === "true" || searchParams.get("reason") === "verified";
+  const reason = searchParams.get("reason");
+  const error = searchParams.get("error");
+
+  let errorMessage: string | null = null;
+  if (
+    error === "verification_failed" ||
+    reason === "verification_failed" ||
+    reason === "verification"
+  ) {
+    errorMessage =
+      "Ce lien de confirmation est invalide ou a expiré. Si votre compte est déjà activé, vous pouvez vous connecter ci-dessous.";
+  } else if (reason === "disabled") {
+    errorMessage = "Ce compte est désactivé. Contactez le chef d’agence.";
+  } else if (reason === "session") {
+    errorMessage = "Votre session a expiré. Veuillez vous reconnecter.";
+  }
+
+  return {
+    successMessage: isVerified ? "Email vérifié ! Connectez-vous pour continuer." : null,
+    errorMessage,
+  };
+}
+
+function LoginFormInputs({
+  register,
+  errors,
+  isSubmitting,
+}: {
+  register: UseFormRegister<LoginInput>;
+  errors: FieldErrors<LoginInput>;
+  isSubmitting: boolean;
+}) {
+  return (
+    <>
+      <FormField
+        id="email"
+        label="Adresse email"
+        type="email"
+        autoComplete="email"
+        placeholder="vous@exemple.com"
+        {...register("email")}
+        error={errors.email?.message}
+      />
+      <FormField
+        id="password"
+        label="Mot de passe"
+        type="password"
+        autoComplete="current-password"
+        placeholder="••••••••"
+        {...register("password")}
+        error={errors.password?.message}
+      />
+      <div className="-mt-1 flex justify-end">
+        <Link
+          href="/auth/forgot-password"
+          className="text-xs font-semibold text-accent transition-colors hover:text-accent-deep hover:underline"
+        >
+          Mot de passe oublié ?
+        </Link>
+      </div>
+      <Button type="submit" className="mt-2 w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Connexion…" : "Se connecter"}
+      </Button>
+    </>
+  );
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+
+  const emailParam = sanitizeEmailParam(searchParams.get("email"));
+  const urlStatus = useMemo(() => resolveUrlStatus(searchParams), [searchParams]);
+
+  const serverError = submissionError ?? urlStatus.errorMessage;
+  const successMessage = submissionError ? null : urlStatus.successMessage;
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: emailParam ?? "", password: "" },
+  });
+
+  useEffect(() => {
+    if (!emailParam && typeof window !== "undefined") {
+      const stored = window.sessionStorage.getItem("pending-verification-email");
+      if (stored) setValue("email", stored, { shouldValidate: false });
+    }
+  }, [emailParam, setValue]);
 
   async function onSubmit(values: LoginInput) {
     try {
-      setServerError(null);
+      setSubmissionError(null);
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      });
-      if (error) {
-        setServerError("Email ou mot de passe incorrect.");
-        return;
-      }
+      const { error } = await supabase.auth.signInWithPassword(values);
+      if (error) return setSubmissionError("Email ou mot de passe incorrect.");
+
       const { data: claimsData } = await supabase.auth.getClaims();
       if (isAccountInactive(claimsData?.claims?.app_metadata)) {
         await supabase.auth.signOut();
-        setServerError("Ce compte est désactivé. Contactez le chef d’agence.");
-        return;
+        return setSubmissionError("Ce compte est désactivé. Contactez le chef d’agence.");
       }
-      const target = await resolvePostAuthPath(supabase);
-      window.location.assign(target);
-    } catch (err: unknown) {
-      console.error("Login submission error:", err);
-      setServerError(
-        "Connexion impossible pour le moment. Veuillez vérifier votre connexion réseau.",
-      );
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem("pending-verification-email");
+      }
+      window.location.assign(await resolvePostAuthPath(supabase));
+    } catch {
+      setSubmissionError("Connexion impossible pour le moment. Veuillez vérifier votre réseau.");
     }
   }
 
   return (
     <AuthCard title="Connexion" subtitle="Accédez à votre espace sécurisé.">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
+        <FormSuccess message={successMessage} />
         <FormError message={serverError} />
-        <FormField
-          id="email"
-          label="Adresse email"
-          type="email"
-          autoComplete="email"
-          placeholder="vous@exemple.com"
-          {...register("email")}
-          error={errors.email?.message}
-        />
-        <FormField
-          id="password"
-          label="Mot de passe"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          {...register("password")}
-          error={errors.password?.message}
-        />
-        <div className="-mt-1 flex justify-end">
-          <Link
-            href="/auth/forgot-password"
-            className="hover:text-accent-deep text-xs font-semibold text-accent transition-colors hover:underline"
-          >
-            Mot de passe oublié ?
-          </Link>
-        </div>
-        <Button type="submit" className="mt-2 w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Connexion…" : "Se connecter"}
-        </Button>
+        <LoginFormInputs register={register} errors={errors} isSubmitting={isSubmitting} />
       </form>
-
       <CreateAccountPrompt />
     </AuthCard>
+  );
+}
+
+function LoginFormFallback() {
+  return (
+    <AuthCard title="Connexion" subtitle="Accédez à votre espace sécurisé.">
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    </AuthCard>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFormFallback />}>
+      <LoginForm />
+    </Suspense>
   );
 }

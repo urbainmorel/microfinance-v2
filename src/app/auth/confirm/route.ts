@@ -7,11 +7,48 @@ import { getPublicEnv } from "@/lib/env";
 import type { Database, DatabaseClient } from "@/lib/database.types";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+
 interface VerifyParams {
   code: string | null;
   token_hash: string | null;
   token: string | null;
   type: EmailOtpType;
+}
+
+function sanitizeInternalRedirect(path: string | null): string | null {
+  if (!path) return null;
+  let decoded = path;
+  try {
+    decoded = decodeURIComponent(path);
+  } catch {
+    return null;
+  }
+  // Empêche les attaques Open Redirect (ex: //evil.com, https://evil.com, /\evil.com)
+  if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.includes("\\")) {
+    return null;
+  }
+  return path;
+}
+
+function applyNoStoreHeaders(response: NextResponse): void {
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+}
+
+function applyCookies(
+  response: NextResponse,
+  cookies: { name: string; value: string; options: CookieOptions }[],
+): void {
+  // Déduplication par nom pour ne conserver que l'état final (ex: suppression au lieu d'un jeton actif)
+  const cookieMap = new Map<string, { value: string; options: CookieOptions }>();
+  for (const cookie of cookies) {
+    cookieMap.set(cookie.name, { value: cookie.value, options: cookie.options });
+  }
+  cookieMap.forEach(({ value, options }, name) => {
+    response.cookies.set(name, value, options);
+  });
 }
 
 function renderHashFallbackHtml(): string {
@@ -50,11 +87,13 @@ function renderHashFallbackHtml(): string {
   <p style="font-size: 14px; opacity: 0.85;">Confirmation de votre compte en cours...</p>
   <script>
     (function() {
-      var hash = window.location.hash;
-      if (hash && (hash.indexOf('access_token') !== -1 || hash.indexOf('refresh_token') !== -1)) {
-        window.location.replace('/auth/set-pin' + hash);
+      var hash = window.location.hash || '';
+      if (hash.indexOf('error') !== -1) {
+        window.location.replace('/auth/login?error=verification_failed');
+      } else if (hash.indexOf('access_token') !== -1 || hash.indexOf('refresh_token') !== -1 || hash.indexOf('type=signup') !== -1) {
+        window.location.replace('/auth/login?verified=true');
       } else {
-        window.location.replace('/auth/login?reason=verification');
+        window.location.replace('/auth/login');
       }
     })();
   </script>
@@ -62,27 +101,31 @@ function renderHashFallbackHtml(): string {
 </html>`;
 }
 
-async function verifyAuthSession(supabase: DatabaseClient, params: VerifyParams): Promise<boolean> {
+async function verifyAuthSession(
+  supabase: DatabaseClient,
+  params: VerifyParams,
+): Promise<{ success: boolean; email?: string }> {
   const activeToken = params.token_hash ?? params.token;
   if (activeToken) {
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       token_hash: activeToken,
       type: params.type,
     });
-    return !error;
+    return { success: !error, email: data.user?.email ?? undefined };
   }
   if (params.code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(params.code);
-    return !error;
+    const { data, error } = await supabase.auth.exchangeCodeForSession(params.code);
+    return { success: !error, email: data.user?.email ?? undefined };
   }
-  return false;
+  return { success: false };
 }
 
 async function determineRedirectPath(
   supabase: DatabaseClient,
   next: string | null,
 ): Promise<string> {
-  if (next) return next;
+  const safeNext = sanitizeInternalRedirect(next);
+  if (safeNext) return safeNext;
   try {
     return await resolvePostAuthPath(supabase);
   } catch {
@@ -99,9 +142,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const next = searchParams.get("next");
 
   if (!code && !token_hash && !token) {
-    return new NextResponse(renderHashFallbackHtml(), {
+    const htmlResponse = new NextResponse(renderHashFallbackHtml(), {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });
+    applyNoStoreHeaders(htmlResponse);
+    return htmlResponse;
   }
 
   const cookiesToSet: { name: string; value: string; options: CookieOptions }[] = [];
@@ -122,17 +167,39 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     },
   ) as unknown as DatabaseClient;
 
-  const success = await verifyAuthSession(supabase, { code, token_hash, token, type });
+  const { success, email } = await verifyAuthSession(supabase, { code, token_hash, token, type });
   if (!success) {
-    return NextResponse.redirect(new URL("/auth/login?reason=verification", request.url));
+    const errorResponse = NextResponse.redirect(
+      new URL("/auth/login?error=verification_failed", request.url),
+    );
+    applyNoStoreHeaders(errorResponse);
+    return errorResponse;
   }
 
-  const targetPath = await determineRedirectPath(supabase, next);
-  const response = NextResponse.redirect(new URL(targetPath, request.url));
+  // Pour une réinitialisation de mot de passe ou un flux avec next explicite autre que l'inscription
+  if (type === "recovery" || (next && type !== "signup")) {
+    const targetPath = await determineRedirectPath(supabase, next);
+    const response = NextResponse.redirect(new URL(targetPath, request.url));
+    applyCookies(response, cookiesToSet);
+    applyNoStoreHeaders(response);
+    return response;
+  }
 
-  cookiesToSet.forEach(({ name, value, options }) => {
-    response.cookies.set(name, value, options);
-  });
+  // Fin d'inscription : déconnexion de la session pour inviter l'utilisateur à se connecter
+  try {
+    await supabase.auth.signOut();
+  } catch (err) {
+    console.warn("Erreur lors de la déconnexion post-vérification:", err);
+  }
+
+  const loginUrl = new URL("/auth/login?verified=true", request.url);
+  if (email) {
+    loginUrl.searchParams.set("email", email);
+  }
+
+  const response = NextResponse.redirect(loginUrl);
+  applyCookies(response, cookiesToSet);
+  applyNoStoreHeaders(response);
 
   return response;
 }
