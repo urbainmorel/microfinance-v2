@@ -5,7 +5,7 @@ export function LandingCta() {
   return (
     <section className="bg-background py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="to-accent-ink relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent via-finance-deep p-8 text-center text-accent-foreground shadow-2xl sm:p-14 lg:p-20">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent via-finance-deep to-accent-ink p-8 text-center text-accent-foreground shadow-2xl sm:p-14 lg:p-20">
           <div className="relative z-10 mx-auto max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1 text-xs font-semibold text-white">
               <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />

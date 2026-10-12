@@ -151,7 +151,7 @@ function SimulationHeader({
 
         {hasSavings ? (
           <div className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 sm:text-right">
-            <p className="text-accent-deep text-xs font-semibold">
+            <p className="text-xs font-semibold text-accent-deep">
               Épargne mensuelle obligatoire :
             </p>
             <p className="mt-1 font-display text-2xl font-bold tracking-tight text-accent">
