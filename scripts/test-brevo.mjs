@@ -94,11 +94,77 @@ async function sendTestEmail(targetEmail) {
     to: [{ email: targetEmail }],
     subject: "Test Brevo — Azari Microfinance",
     htmlContent: `
-      <div style="font-family: sans-serif; padding: 20px; color: #111;">
-        <h2 style="color: #0b4f3f;">Azari Microfinance — Test Brevo</h2>
-        <p>Ceci est un email de test confirmant que l'intégration Brevo fonctionne avec succès.</p>
-        <p>Horodatage : ${new Date().toISOString()}</p>
-      </div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Brevo — Azari Microfinance</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f8fafc;width:100%;">
+    <tr>
+      <td align="center" style="padding:24px 12px 40px 12px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;margin:0 auto;">
+          <tr>
+            <td style="height:4px;background-color:#077bad;border-radius:4px 4px 0 0;">&nbsp;</td>
+          </tr>
+          <tr>
+            <td style="padding:28px 24px 20px 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <img src="https://azari-microfinance.site/images/brand/azari-logo-full.png" width="148" height="42" alt="Azari Microfinance" style="display:block;width:148px;height:auto;border:0;" />
+                  </td>
+                  <td align="right">
+                    <span style="display:inline-block;padding:4px 10px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#475569;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:9999px;">Test d'intégration</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,0.04);">
+                <tr>
+                  <td style="padding:36px 32px 32px 32px;color:#334155;font-size:15px;line-height:1.6;">
+                    <div style="margin-bottom:24px;">
+                      <span style="display:inline-block;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;border-radius:9999px;background-color:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">Passerelle opérationnelle</span>
+                    </div>
+                    <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0f172a;line-height:1.3;">Validation de l'intégration Brevo</h1>
+                    <p style="margin:0 0 16px;color:#334155;">Cet email confirme avec succès le bon fonctionnement de la liaison entre l'infrastructure d'envoi transactionnel Brevo et la plateforme Azari Microfinance.</p>
+                    <div style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin-bottom:24px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:13px;">
+                        <tr>
+                          <td style="color:#64748b;padding-bottom:6px;">Statut SMTP :</td>
+                          <td style="color:#047857;font-weight:700;text-align:right;padding-bottom:6px;">Connecté & Validé</td>
+                        </tr>
+                        <tr>
+                          <td style="color:#64748b;">Horodatage :</td>
+                          <td style="color:#0f172a;font-family:monospace;text-align:right;">${new Date().toISOString()}</td>
+                        </tr>
+                      </table>
+                    </div>
+                    <div style="margin-top:32px;padding-top:20px;border-top:1px solid #f1f5f9;font-size:12px;color:#64748b;line-height:1.5;">
+                      <strong style="color:#475569;">Conseil sécurité :</strong> Azari Microfinance ne vous demandera jamais vos identifiants ou codes secrets par email.
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 16px 20px 16px;text-align:center;font-size:12px;line-height:1.6;color:#94a3b8;">
+              <p style="margin:0 0 4px 0;">Azari Microfinance &mdash; Système Financier Décentralisé régi par la réglementation UMOA.</p>
+              <p style="margin:0;font-size:11px;color:#cbd5e1;">&copy; 2026 Azari Microfinance. Tous droits réservés.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
     `,
   };
 

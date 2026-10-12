@@ -1,3 +1,5 @@
+import { wrapInEmailLayout } from "./email-layout";
+
 export type BrevoSender = {
   email: string;
   name?: string;
@@ -47,7 +49,7 @@ export async function sendBrevoEmail(params: SendBrevoEmailParams): Promise<{ me
     sender: params.sender || defaultSender,
     to: params.to,
     subject: params.subject,
-    htmlContent: params.htmlContent,
+    htmlContent: wrapInEmailLayout(params.htmlContent, { subject: params.subject }),
     textContent: params.textContent,
     tags: params.tags,
     headers: params.headers,

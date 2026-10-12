@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.112.3";
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { wrapInEmailLayout } from "../_shared/email-layout.ts";
 import { decryptRecoveryPayload } from "../_shared/recovery-crypto.ts";
 import { adminClient } from "../_shared/supabase.ts";
 
@@ -256,7 +257,12 @@ async function deliver(
     }
   }
   const subject = renderTemplate(template.subject, variables, payload, false);
-  const html = renderTemplate(template.body_html, variables, payload, true);
+  const rawHtml = renderTemplate(template.body_html, variables, payload, true);
+  const html = wrapInEmailLayout(rawHtml, {
+    subject,
+    language: row.language,
+    templateSlug: row.template_slug,
+  });
 
   if (provider.type === "brevo") {
     await deliverWithBrevo(

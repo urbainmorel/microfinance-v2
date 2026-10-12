@@ -230,16 +230,26 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# Modèles de courriels d'authentification personnalisés — design pro, sobre et raffiné
+[auth.email.template.confirmation]
+subject = "Confirmez votre compte — Azari Microfinance"
+content_path = "./templates/confirmation.html"
 
-# Uncomment to customize notification email template
-# [auth.email.notification.password_changed]
-# enabled = true
-# subject = "Your password has been changed"
-# content_path = "./templates/password_changed_notification.html"
+[auth.email.template.recovery]
+subject = "Réinitialisation de votre mot de passe — Azari Microfinance"
+content_path = "./templates/recovery.html"
+
+[auth.email.template.magic_link]
+subject = "Connexion instantanée — Azari Microfinance"
+content_path = "./templates/magic_link.html"
+
+[auth.email.template.email_change]
+subject = "Confirmation de changement d'email — Azari Microfinance"
+content_path = "./templates/email_change.html"
+
+[auth.email.template.invite]
+subject = "Invitation à rejoindre Azari Microfinance"
+content_path = "./templates/invite.html"
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
