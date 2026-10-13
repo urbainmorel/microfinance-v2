@@ -1,4 +1,4 @@
-import { Lock, ShieldCheck } from "lucide-react";
+import { Clock, Lock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
@@ -23,8 +23,12 @@ export function checkWithdrawalGuarantee(
   amount: number,
   withdrawable: number,
   remaining: number,
+  isVerificationPending?: boolean,
 ): string | null {
   if (hasPending) {
+    if (isVerificationPending) {
+      return "Le retrait est temporairement indisponible : votre dépôt de garantie est en cours de vérification par nos services.";
+    }
     return `Le retrait est impossible tant que votre dépôt de garantie de ${formatFcfa(remaining)} n’a pas été constitué.`;
   }
   if (withdrawable > 0 && amount > withdrawable) {
@@ -35,9 +39,42 @@ export function checkWithdrawalGuarantee(
 
 export function GuaranteeBlockedWithdrawalNotice({
   remainingGuarantee,
+  isVerificationPending,
 }: {
   remainingGuarantee: number;
+  isVerificationPending?: boolean;
 }) {
+  if (isVerificationPending) {
+    return (
+      <Card className="flex flex-col gap-4 p-6 text-center">
+        <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
+          <Clock className="size-6" aria-hidden />
+        </div>
+        <h3 className="font-display text-lg font-bold text-foreground">
+          Dépôt de garantie en cours de vérification
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Votre preuve de versement de garantie a bien été transmise et est en cours de validation
+          par nos équipes. Vos retraits seront automatiquement débloqués dès confirmation.
+        </p>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Link
+            href="/client/operations"
+            className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground transition hover:opacity-90"
+          >
+            Suivre mes opérations
+          </Link>
+          <Link
+            href="/client/dashboard"
+            className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted"
+          >
+            Retour au tableau de bord
+          </Link>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="flex flex-col gap-4 p-6 text-center">
       <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400">

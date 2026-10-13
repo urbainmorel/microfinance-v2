@@ -1,16 +1,18 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Lock, ShieldCheck, Smartphone } from "lucide-react";
+import { AlertTriangle, Clock, Lock, ShieldCheck, Smartphone } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { useIdempotentCommand } from "@/components/client/use-idempotent-command";
 import { PinBlockingCard } from "@/components/operations/guarantee-pin-card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { invokeClientCommand } from "@/lib/client-command";
 import { formatFcfa } from "@/lib/format";
 import { useSupabase } from "@/lib/hooks/use-supabase";
+import { cn } from "@/lib/utils";
 
 type Props = {
   open: boolean;
@@ -21,6 +23,7 @@ type Props = {
   remainingGuarantee: number;
   freeSavings: number;
   requestId?: string;
+  isVerificationPending?: boolean;
   onProceedToDeposit: () => void;
 };
 
@@ -29,7 +32,15 @@ function GuaranteeNotice({
   guaranteeRequired,
   guaranteeBlocked,
   remainingGuarantee,
-}: Pick<Props, "loanAmount" | "guaranteeRequired" | "guaranteeBlocked" | "remainingGuarantee">) {
+  isVerificationPending,
+}: Pick<
+  Props,
+  | "loanAmount"
+  | "guaranteeRequired"
+  | "guaranteeBlocked"
+  | "remainingGuarantee"
+  | "isVerificationPending"
+>) {
   return (
     <>
       <div className="rounded-2xl border border-warning/30 bg-warning/10 p-4 text-xs leading-5 text-foreground">
@@ -41,8 +52,9 @@ function GuaranteeNotice({
           {loanAmount
             ? `Votre prêt de ${formatFcfa(loanAmount)} est bien crédité sur votre compte.`
             : "Vos fonds de prêt sont bien crédités sur votre compte."}{" "}
-          Conformément aux conditions de votre contrat, vous devez verser le dépôt de garantie avant
-          de pouvoir effectuer un retrait.
+          {isVerificationPending
+            ? "Votre justificatif de dépôt de garantie a bien été envoyé et est actuellement en cours de vérification par nos services. Vos retraits seront débloqués dès sa validation."
+            : "Conformément aux conditions de votre contrat, vous devez verser le dépôt de garantie avant de pouvoir effectuer un retrait."}
         </p>
       </div>
 
@@ -92,6 +104,7 @@ function ModalActionButtons({
   canBlockFromSavings,
   freeSavings,
   hasRequest,
+  isVerificationPending,
   onDeposit,
   onStartPin,
   onClose,
@@ -100,10 +113,29 @@ function ModalActionButtons({
   canBlockFromSavings: boolean;
   freeSavings: number;
   hasRequest: boolean;
+  isVerificationPending?: boolean;
   onDeposit: () => void;
   onStartPin: () => void;
   onClose: () => void;
 }) {
+  if (isVerificationPending) {
+    return (
+      <div className="flex flex-col gap-2.5 pt-2">
+        <Link
+          href="/client/operations"
+          onClick={onClose}
+          className={cn(buttonVariants({ variant: "accent" }), "w-full gap-2 font-bold")}
+        >
+          <Clock className="size-4" aria-hidden />
+          Suivre mes opérations en cours
+        </Link>
+        <Button type="button" variant="ghost" onClick={onClose} className="w-full">
+          Fermer
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2.5 pt-2">
       <Button type="button" variant="accent" onClick={onDeposit} className="w-full gap-2">
@@ -196,6 +228,7 @@ export function GuaranteeWithdrawalReminderModal({
   remainingGuarantee,
   freeSavings,
   requestId,
+  isVerificationPending,
   onProceedToDeposit,
 }: Props) {
   const blocker = useSavingsBlocker(requestId, onOpenChange);
@@ -211,8 +244,16 @@ export function GuaranteeWithdrawalReminderModal({
     <Modal
       open={open}
       onOpenChange={handleOpenChange}
-      title="Dépôt de garantie obligatoire"
-      description="Pour débloquer vos retraits, vous devez constituer votre « dépôt de garantie »."
+      title={
+        isVerificationPending
+          ? "Dépôt de garantie en cours de vérification"
+          : "Dépôt de garantie obligatoire"
+      }
+      description={
+        isVerificationPending
+          ? "Votre versement a bien été reçu et est en cours de validation par nos services."
+          : "Pour débloquer vos retraits, vous devez constituer votre « dépôt de garantie »."
+      }
       className="max-w-lg"
     >
       <div className="flex flex-col gap-5">
@@ -221,6 +262,7 @@ export function GuaranteeWithdrawalReminderModal({
           guaranteeRequired={guaranteeRequired}
           guaranteeBlocked={guaranteeBlocked}
           remainingGuarantee={remainingGuarantee}
+          isVerificationPending={isVerificationPending}
         />
 
         {blocker.pinMode ? (
@@ -239,6 +281,7 @@ export function GuaranteeWithdrawalReminderModal({
             canBlockFromSavings={canBlockFromSavings}
             freeSavings={freeSavings}
             hasRequest={Boolean(requestId)}
+            isVerificationPending={isVerificationPending}
             onDeposit={() => {
               onOpenChange(false);
               onProceedToDeposit();

@@ -4,6 +4,7 @@ import { OperationModal } from "@/components/client/modals/operation-modal";
 import { WithdrawalChoiceModal } from "@/components/client/modals/withdrawal-choice-modal";
 import { KycRequiredModal } from "@/components/kyc/kyc-required-modal";
 import { GuaranteeWithdrawalReminderModal } from "@/components/operations/guarantee-withdrawal-reminder-modal";
+import { usePendingGuaranteeDeposit } from "@/lib/hooks/use-pending-guarantee-deposit";
 
 import type { QuickActionType } from "./modals/types";
 import type { ActiveLoanState } from "@/lib/hooks/use-active-loan";
@@ -50,6 +51,7 @@ export function QuickActionModals({
   kycStatus?: string;
   loan?: ActiveLoanState;
 }) {
+  const { data: pendingDeposit } = usePendingGuaranteeDeposit();
   const p = extractModalLoanProps(loan);
   const formAction = active !== "withdraw" ? active : null;
 
@@ -66,6 +68,7 @@ export function QuickActionModals({
         remainingGuarantee={p.remainingGuarantee}
         freeSavings={p.freeSavings}
         requestId={p.requestId}
+        isVerificationPending={Boolean(pendingDeposit)}
         onProceedToDeposit={() => setActive("deposit-guarantee")}
       />
 

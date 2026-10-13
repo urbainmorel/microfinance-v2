@@ -185,7 +185,11 @@ export default function OperationDetailPage() {
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["client-operations"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["client-operations"] }),
+        queryClient.invalidateQueries({ queryKey: ["pending-guarantee-deposit"] }),
+        queryClient.invalidateQueries({ queryKey: ["active-loan-status"] }),
+      ]);
       router.replace("/client/operations");
     },
     onError: (error) =>

@@ -96,10 +96,14 @@ function DepositProofFields({ form }: Pick<DepositFieldsProps, "form">) {
 
       <FormField
         id="deposit-reference"
-        label="Référence / ID de transaction Mobile Money"
-        required
+        label={`Référence / ID de transaction Mobile Money${watch("motif") === "GUARANTEE" ? " (facultatif)" : ""}`}
+        required={watch("motif") !== "GUARANTEE"}
         autoComplete="off"
-        placeholder="Ex: PP240911.1234.A01234 ou CI2409..."
+        placeholder={
+          watch("motif") === "GUARANTEE"
+            ? "Facultatif (ex: PP240911.1234.A01234)"
+            : "Ex: PP240911.1234.A01234 ou CI2409..."
+        }
         error={errors.reference?.message}
         {...register("reference")}
       />

@@ -38,6 +38,19 @@ function requireElectronicReference(
   }
 }
 
+function requireDepositReference(
+  value: { paymentMethod: string; reference?: string; motif: string },
+  context: z.RefinementCtx,
+) {
+  if (value.motif !== "GUARANTEE" && value.paymentMethod !== "CASH" && !value.reference?.trim()) {
+    context.addIssue({
+      code: "custom",
+      path: ["reference"],
+      message: "La référence est requise pour un paiement électronique",
+    });
+  }
+}
+
 export const depositRequestSchema = z
   .object({
     amount: amountSchema,
@@ -52,7 +65,7 @@ export const depositRequestSchema = z
     certified: z.boolean().refine(Boolean, "Vous devez certifier l'authenticité du justificatif"),
     pin: pinSchema,
   })
-  .superRefine(requireElectronicReference);
+  .superRefine(requireDepositReference);
 
 export type DepositRequestInput = z.infer<typeof depositRequestSchema>;
 

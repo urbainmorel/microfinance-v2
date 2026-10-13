@@ -260,6 +260,7 @@ export function DepositRequestForm({
           queryClient.invalidateQueries({ queryKey: ["client-operations"] }),
           queryClient.invalidateQueries({ queryKey: ["wallet"] }),
           queryClient.invalidateQueries({ queryKey: ["active-loan-status"] }),
+          queryClient.invalidateQueries({ queryKey: ["pending-guarantee-deposit"] }),
         ]);
         setRequestId(result.id);
       }

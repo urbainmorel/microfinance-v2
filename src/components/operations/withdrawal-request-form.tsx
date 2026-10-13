@@ -28,6 +28,7 @@ import { Card } from "@/components/ui/card";
 import { FormStepper } from "@/components/ui/form-stepper";
 import { ClientCommandError, invokeClientCommand } from "@/lib/client-command";
 import { useActiveLoan } from "@/lib/hooks/use-active-loan";
+import { usePendingGuaranteeDeposit } from "@/lib/hooks/use-pending-guarantee-deposit";
 import { useSupabase } from "@/lib/hooks/use-supabase";
 import { withdrawalRequestSchema, type WithdrawalRequestInput } from "@/lib/schemas/operations";
 
@@ -182,6 +183,7 @@ function useWithdrawalAction(
   withdrawableAmount: number,
   remainingGuarantee: number,
   form?: UseFormReturn<WithdrawalRequestInput>,
+  isVerificationPending?: boolean,
 ) {
   const supabase = useSupabase();
   const queryClient = useQueryClient();
@@ -197,6 +199,7 @@ function useWithdrawalAction(
       Number(values.amount),
       withdrawableAmount,
       remainingGuarantee,
+      isVerificationPending,
     );
     if (guaranteeErr) {
       setServerError(guaranteeErr);
@@ -258,6 +261,8 @@ export function WithdrawalRequestForm({
   onSwitchType?: () => void;
 }) {
   const { data: loan } = useActiveLoan();
+  const { data: pendingDeposit } = usePendingGuaranteeDeposit();
+  const isVerificationPending = Boolean(pendingDeposit);
   const g = extractGuaranteeState(loan);
   const form = useForm<WithdrawalRequestInput>({
     resolver: zodResolver(withdrawalRequestSchema),
@@ -268,12 +273,18 @@ export function WithdrawalRequestForm({
     g.withdrawableAmount,
     g.remainingGuarantee,
     form,
+    isVerificationPending,
   );
 
   if (requestId) return <RequestSuccess title="Demande de retrait envoyée" reference={requestId} />;
 
   if (g.hasPendingGuarantee) {
-    return <GuaranteeBlockedWithdrawalNotice remainingGuarantee={g.remainingGuarantee} />;
+    return (
+      <GuaranteeBlockedWithdrawalNotice
+        remainingGuarantee={g.remainingGuarantee}
+        isVerificationPending={isVerificationPending}
+      />
+    );
   }
 
   return (

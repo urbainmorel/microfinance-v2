@@ -89,6 +89,20 @@ describe("référence des paiements électroniques", () => {
     if (!result.success) expect(result.error.issues[0]?.path).toEqual(["reference"]);
   });
 
+  it("autorise un dépôt de garantie Mobile Money sans référence", () => {
+    expect(
+      depositRequestSchema.safeParse({
+        amount: 10_000,
+        motif: "GUARANTEE",
+        paymentMethod: "MOBILE_MONEY",
+        reference: "",
+        proof,
+        certified: true,
+        pin: "123456",
+      }).success,
+    ).toBe(true);
+  });
+
   it("autorise un dépôt en espèces sans référence", () => {
     expect(
       depositRequestSchema.safeParse({
