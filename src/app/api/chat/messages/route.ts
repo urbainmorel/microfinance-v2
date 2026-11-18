@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
@@ -13,7 +14,8 @@ export async function GET(req: Request) {
     }
 
     const supabase = await createSupabaseServerClient();
-    const { data: conv } = await supabase
+    const adminClient = createSupabaseAdminClient();
+    const { data: conv } = await adminClient
       .from("support_conversations")
       .select("id, status, session_id, user_id")
       .eq("id", conversationId)
@@ -39,7 +41,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
-    const { data: messages, error } = await supabase
+    const { data: messages, error } = await adminClient
       .from("support_messages")
       .select("id, sender_type, sender_name, content, created_at")
       .eq("conversation_id", conversationId)

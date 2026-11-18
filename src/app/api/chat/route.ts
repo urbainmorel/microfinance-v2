@@ -107,7 +107,7 @@ async function generateAiAnswer(params: {
   }
 
   const outcome = await postAiResponseAtomically(
-    supabase,
+    adminClient,
     convId,
     settings.botName,
     aiResult.content,
