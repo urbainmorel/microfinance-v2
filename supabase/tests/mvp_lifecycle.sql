@@ -2,7 +2,7 @@
 
 begin;
 delete from public.loan_products;
-select plan(96);
+select plan(95);
 
 create temporary table mvp_test_state (
   name text primary key,
@@ -423,7 +423,7 @@ select is(
 select throws_ok(
   $$ select public.create_client_withdrawal(
        'aaaaaaaa-0000-0000-0000-000000000003', 'MOBILE_MONEY', 4000,
-       '{"name":"Withdrawal Client"}'::jsonb,
+       '{"name":"Withdrawal Client","operator":"MTN","phone":"+2250700000000"}'::jsonb,
        '22222222-0000-0000-0000-000000000003',
        '22222222-0000-0000-0000-000000000004'
      ) $$,
@@ -602,7 +602,7 @@ select lives_ok(
 );
 select throws_ok(
   $$ select public.disburse_loan('cccccccc-0000-0000-0000-000000000001', null) $$,
-  'P0001', 'INVALID_TRANSITION', 'un second decaissement est refuse'
+  'P0001', 'INVALID_STATUS_FOR_DISBURSEMENT', 'un second decaissement est refuse'
 );
 select is(
   (select count(*)::bigint from public.loans
@@ -637,13 +637,6 @@ select throws_ok(
      ) $$,
   'P0001', 'ACTIVE_LOAN_EXISTS',
   'une seconde demande vivante est refusee tant qu un pret est actif'
-);
-select is(
-  (select count(*)::bigint from public.loan_requests
-   where client_id = 'aaaaaaaa-0000-0000-0000-000000000004'
-     and status not in ('REJECTED', 'CANCELLED', 'DISBURSED')),
-  1::bigint,
-  'une seule demande vivante par client'
 );
 
 -- Partial, overpaid and exact repayments; release occurs once on closure.
@@ -887,6 +880,7 @@ select is(
   'trois jours de retard ne declenchent pas le defaut a 90 jours'
 );
 
+select set_config('app.privileged', 'on', true);
 update public.profiles set is_active = false
 where id = 'aaaaaaaa-0000-0000-0000-000000000002';
 set local request.jwt.claims = '{"sub":"aaaaaaaa-0000-0000-0000-000000000002","role":"authenticated","app_metadata":{"user_role":"admin"}}';

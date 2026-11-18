@@ -1,6 +1,6 @@
 begin;
 delete from public.loan_products;
-select plan(3);
+select plan(4);
 
 insert into auth.users (id, email, raw_user_meta_data)
 values ('12121212-1212-1212-1212-121212121212', 'snapshot@test.dev', '{"firstname":"Snapshot","lastname":"Client"}');
