@@ -2,7 +2,7 @@
 
 begin;
 delete from public.loan_products;
-select plan(95);
+select plan(96);
 
 create temporary table mvp_test_state (
   name text primary key,
@@ -519,8 +519,8 @@ select lives_ok(
 select is(
   (select status::text from public.loan_requests
    where id = 'cccccccc-0000-0000-0000-000000000001'),
-  'GUARANTEE_PENDING',
-  'une garantie partielle place la demande en attente'
+  'ACCEPTED',
+  'une garantie partielle laisse la demande acceptee en attente de garantie'
 );
 select is(
   (select blocked_guarantee from public.wallets
@@ -568,12 +568,17 @@ select lives_ok(
      ) $$,
   'le depot complete la garantie'
 );
+select set_config('request.jwt.claims', json_build_object(
+  'sub', 'aaaaaaaa-0000-0000-0000-000000000004', 'role', 'authenticated',
+  'app_metadata', json_build_object('user_role', 'client'))::text, true);
 select is(
-  (select status::text from public.loan_requests
-   where id = 'cccccccc-0000-0000-0000-000000000001'),
-  'GUARANTEE_COMPLETE',
-  'la demande passe a garantie complete'
+  public.get_active_loan_status() ->> 'displayState',
+  '6',
+  'garantie complete et contrat signe : la demande est prete au decaissement'
 );
+select set_config('request.jwt.claims', json_build_object(
+  'sub', 'aaaaaaaa-0000-0000-0000-000000000002', 'role', 'authenticated',
+  'app_metadata', json_build_object('user_role', 'admin'))::text, true);
 select is(
   (select guarantee_blocked_partial from public.loan_requests
    where id = 'cccccccc-0000-0000-0000-000000000001'),
@@ -618,26 +623,27 @@ select is(
   'le decaissement interne credite une seule fois le wallet'
 );
 
-insert into public.loan_requests (
-  id, client_id, product_id, amount, duration_months, purpose,
-  requested_disbursement_method, status, approved_amount,
-  guarantee_required, guarantee_blocked_partial
-) values (
-  'cccccccc-0000-0000-0000-000000000003',
-  'aaaaaaaa-0000-0000-0000-000000000004',
-  'bbbbbbbb-0000-0000-0000-000000000001',
-  20000, 2, 'Garantie concurrente interdite', 'INTERNAL', 'ACCEPTED',
-  20000, 2000, 0
-);
 select throws_ok(
-  $$ select public.process_guarantee_blocking(
-       'aaaaaaaa-0000-0000-0000-000000000004',
+  $$ insert into public.loan_requests (
+       id, client_id, product_id, amount, duration_months, purpose,
+       requested_disbursement_method, status, approved_amount,
+       guarantee_required, guarantee_blocked_partial
+     ) values (
        'cccccccc-0000-0000-0000-000000000003',
-       '33333333-0000-0000-0000-000000000010',
-       '33333333-0000-0000-0000-000000000011'
+       'aaaaaaaa-0000-0000-0000-000000000004',
+       'bbbbbbbb-0000-0000-0000-000000000001',
+       20000, 2, 'Garantie concurrente interdite', 'INTERNAL', 'ACCEPTED',
+       20000, 2000, 0
      ) $$,
   'P0001', 'ACTIVE_LOAN_EXISTS',
-  'une autre garantie est interdite tant qu un pret est actif'
+  'une seconde demande vivante est refusee tant qu un pret est actif'
+);
+select is(
+  (select count(*)::bigint from public.loan_requests
+   where client_id = 'aaaaaaaa-0000-0000-0000-000000000004'
+     and status not in ('REJECTED', 'CANCELLED', 'DISBURSED')),
+  1::bigint,
+  'une seule demande vivante par client'
 );
 
 -- Partial, overpaid and exact repayments; release occurs once on closure.

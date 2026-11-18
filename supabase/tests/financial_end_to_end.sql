@@ -236,8 +236,8 @@ select is(
 select is(
   (select status::text from public.loan_requests
    where id = (select id from financial_e2e_state where name = 'request')),
-  'GUARANTEE_COMPLETE',
-  'la demande atteint le statut pret au decaissement'
+  'ACCEPTED',
+  'la demande reste acceptee pendant la phase de garantie'
 );
 select is(
   (select blocked_guarantee from public.wallets

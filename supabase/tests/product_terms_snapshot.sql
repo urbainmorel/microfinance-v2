@@ -24,8 +24,12 @@ insert into public.loan_requests (
 
 select is((select product_terms ->> 'interestRate' from public.loan_requests
   where id = '14141414-1414-1414-1414-141414141414'), '12.000', 'le taux est figé');
-update public.loan_products set interest_rate = 14.4
-where id = '13131313-1313-1313-1313-131313131313';
+select throws_ok(
+  $$ update public.loan_products set interest_rate = 14.4
+     where id = '13131313-1313-1313-1313-131313131313' $$,
+  '22023', 'PRODUCT_REVISION_REQUIRED',
+  'un produit déjà utilisé ne peut pas changer de conditions'
+);
 select is((select product_terms ->> 'interestRate' from public.loan_requests
   where id = '14141414-1414-1414-1414-141414141414'), '12.000', 'le produit ne réécrit pas la demande');
 select throws_ok(
