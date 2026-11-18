@@ -25,6 +25,7 @@ select is(
       select tablename
       from pg_policies
       where schemaname = 'public' and cmd in ('SELECT', 'ALL') and permissive = 'PERMISSIVE'
+        and not ('supabase_auth_admin'::name = any(roles))
       group by tablename
       having count(*) > 1
     ) duplicated

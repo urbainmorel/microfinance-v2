@@ -36,10 +36,13 @@ select throws_ok(
        '{"name":"Dave"}'::jsonb) $$,
   NULL, NULL, 'impossible d''engager deux fois la même somme (solde insuffisant)');
 
--- ── Eve (agent de caisse) exécute ─────────────────────────────────────────────
+-- ── Eve (administratrice) exécute ─────────────────────────────────────────────
+select set_config('app.privileged', 'on', true);
+update public.profiles set role = 'admin', is_active = true
+  where id = '55555555-5555-5555-5555-555555555555';
 select set_config('request.jwt.claims', json_build_object(
   'sub', '55555555-5555-5555-5555-555555555555', 'role', 'authenticated',
-  'app_metadata', json_build_object('user_role', 'agent_caisse'))::text, true);
+  'app_metadata', json_build_object('user_role', 'admin'))::text, true);
 
 select public.settle_withdrawal(
   (select id from public.withdrawal_requests where client_id = '44444444-4444-4444-4444-444444444444' limit 1),
@@ -78,7 +81,7 @@ select is((select reserved_amount from public.wallets where client_id = '6666666
 
 select set_config('request.jwt.claims', json_build_object(
   'sub', '55555555-5555-5555-5555-555555555555', 'role', 'authenticated',
-  'app_metadata', json_build_object('user_role', 'agent_caisse'))::text, true);
+  'app_metadata', json_build_object('user_role', 'admin'))::text, true);
 select public.settle_withdrawal(
   (select id from public.withdrawal_requests where client_id = '66666666-6666-6666-6666-666666666666' limit 1),
   'REJECT', '55555555-5555-5555-5555-555555555555', NULL, 'test rejet');

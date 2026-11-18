@@ -54,7 +54,7 @@ insert into financial_e2e_state (name, id)
 values (
   'deposit_cancel',
   public.create_deposit_request(
-    'e2e00000-0000-4000-8000-000000000001', 2000, 'FREE_SAVINGS', 'CASH',
+    'e2e00000-0000-4000-8000-000000000001', 2000, 'FREE_SAVINGS', 'MOBILE_MONEY',
     'E2E-DEP-CANCEL',
     'e2e00000-0000-4000-8000-000000000001/deposit-cancel.pdf',
     'e2e00000-0000-4000-8000-000000000101',
@@ -86,7 +86,7 @@ insert into financial_e2e_state (name, id)
 values (
   'deposit_confirm',
   public.create_deposit_request(
-    'e2e00000-0000-4000-8000-000000000001', 30000, 'FREE_SAVINGS', 'CASH',
+    'e2e00000-0000-4000-8000-000000000001', 30000, 'FREE_SAVINGS', 'MOBILE_MONEY',
     'E2E-DEP-CONFIRM',
     'e2e00000-0000-4000-8000-000000000001/deposit-confirm.pdf',
     'e2e00000-0000-4000-8000-000000000105',

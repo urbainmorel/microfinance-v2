@@ -12,11 +12,12 @@ insert into public.loan_products (
   100000, 500000, 6, 12, 1, 'CONSTANT_INSTALLMENT'
 );
 insert into public.loan_requests (
-  id, client_id, product_id, amount, duration_months, requested_disbursement_method, status
+  id, client_id, product_id, amount, duration_months, requested_disbursement_method, status, created_at
 ) values (
   '55555555-0000-0000-0000-000000000002',
   '55555555-5555-5555-5555-555555555555',
-  '55555555-0000-0000-0000-000000000001', 100000, 6, 'INTERNAL', 'DISBURSED'
+  '55555555-0000-0000-0000-000000000001', 100000, 6, 'INTERNAL', 'DISBURSED',
+  now() - interval '1 day'
 );
 insert into public.loans (
   id, request_id, client_id, total_amount, remaining_principal,

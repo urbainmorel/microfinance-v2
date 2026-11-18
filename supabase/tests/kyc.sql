@@ -22,7 +22,7 @@ select set_config('request.jwt.claims', json_build_object(
 
 -- Étape profil.
 select public.save_kyc_profile(
-  '{"birth_date":"1990-05-10","country":"CI","city":"Abidjan","profession":"Commerçante","monthly_income_estimate":250000}'::jsonb);
+  '{"birth_date":"1990-05-10","country":"CI","city":"Abidjan","address":"Cocody","phone":"+2250700000000","profession":"Commerçante","monthly_income_estimate":250000}'::jsonb);
 select is((select profession from public.profiles where id = auth.uid()), 'Commerçante', 'profession sauvegardée');
 select is((select monthly_income_estimate from public.profiles where id = auth.uid()), 250000::bigint, 'revenu sauvegardé');
 
@@ -35,12 +35,12 @@ select is((select city from public.profiles where id = auth.uid()), 'Abidjan', '
 select public.save_kyc_financials('{"income_source":"Commerce","momo_operator":"MTN","momo_number":"+2250700000000"}'::jsonb);
 select is((select momo_operator from public.kyc_financials where client_id = auth.uid()), 'MTN', 'infos financières upsert');
 
--- Soumission refusée tant qu'aucune pièce n'est téléversée (SQLSTATE P0001).
-select throws_ok('select public.submit_kyc()', 'P0001');
+-- Soumission refusée tant qu'aucune pièce n'est téléversée (SQLSTATE 22023).
+select throws_ok('select public.submit_kyc()', '22023', 'KYC_DOCUMENTS_INCOMPLETE');
 
 -- Recto seulement : le verso reste obligatoire pour une CNI.
 select public.finalize_kyc_document('ID_FRONT', auth.uid()::text || '/ID_FRONT');
-select throws_ok('select public.submit_kyc()', 'P0001');
+select throws_ok('select public.submit_kyc()', '22023', 'KYC_DOCUMENTS_INCOMPLETE');
 
 -- Unicité (client_id, doc_type) : une seule pièce par type et par client.
 select throws_ok(
@@ -57,7 +57,7 @@ select is((select kyc_status from public.profiles where id = auth.uid()), 'PENDI
 select set_config('request.jwt.claims', json_build_object(
   'sub', '88888888-8888-8888-8888-888888888888', 'role', 'authenticated',
   'app_metadata', json_build_object('user_role', 'client'))::text, true);
-select public.save_kyc_profile('{"id_type":"PASSPORT","id_number":"P-999"}'::jsonb);
+select public.save_kyc_profile('{"birth_date":"1992-01-01","country":"CI","city":"Abidjan","address":"Cocody","phone":"+2250700000001","profession":"Commerçant","monthly_income_estimate":200000,"id_type":"PASSPORT","id_number":"P-999"}'::jsonb);
 select public.finalize_kyc_document('ID_FRONT', auth.uid()::text || '/ID_FRONT');
 select lives_ok('select public.submit_kyc()', 'soumission acceptée (passeport sans verso)');
 

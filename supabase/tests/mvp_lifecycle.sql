@@ -313,7 +313,7 @@ insert into mvp_test_state (name, id)
 values (
   'deposit',
   public.create_deposit_request(
-    'aaaaaaaa-0000-0000-0000-000000000001', 5000, 'FREE_SAVINGS', 'CASH',
+    'aaaaaaaa-0000-0000-0000-000000000001', 5000, 'FREE_SAVINGS', 'MOBILE_MONEY',
     'DEP-001', 'aaaaaaaa-0000-0000-0000-000000000001/deposit-proof.pdf',
     '11111111-0000-0000-0000-000000000001',
     '11111111-0000-0000-0000-000000000002'
@@ -321,7 +321,7 @@ values (
 );
 select is(
   public.create_deposit_request(
-    'aaaaaaaa-0000-0000-0000-000000000001', 5000, 'FREE_SAVINGS', 'CASH',
+    'aaaaaaaa-0000-0000-0000-000000000001', 5000, 'FREE_SAVINGS', 'MOBILE_MONEY',
     'DEP-001', 'aaaaaaaa-0000-0000-0000-000000000001/deposit-proof.pdf',
     '11111111-0000-0000-0000-000000000001',
     '11111111-0000-0000-0000-000000000002'
@@ -360,7 +360,7 @@ insert into mvp_test_state (name, id)
 values (
   'deposit_cancel',
   public.create_deposit_request(
-    'aaaaaaaa-0000-0000-0000-000000000001', 2000, 'FREE_SAVINGS', 'CASH',
+    'aaaaaaaa-0000-0000-0000-000000000001', 2000, 'FREE_SAVINGS', 'MOBILE_MONEY',
     'DEP-CANCEL', 'aaaaaaaa-0000-0000-0000-000000000001/deposit-cancel.pdf',
     '11111111-0000-0000-0000-000000000003',
     '11111111-0000-0000-0000-000000000004'
@@ -555,7 +555,7 @@ insert into mvp_test_state (name, id)
 values (
   'guarantee_deposit',
   public.create_deposit_request(
-    'aaaaaaaa-0000-0000-0000-000000000004', 9000, 'GUARANTEE', 'CASH',
+    'aaaaaaaa-0000-0000-0000-000000000004', 9000, 'GUARANTEE', 'MOBILE_MONEY',
     'GAR-001', 'aaaaaaaa-0000-0000-0000-000000000004/guarantee-proof.pdf',
     '33333333-0000-0000-0000-000000000002',
     '33333333-0000-0000-0000-000000000003'

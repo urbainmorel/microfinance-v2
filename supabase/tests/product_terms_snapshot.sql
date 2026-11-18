@@ -12,7 +12,7 @@ insert into public.loan_products (
   interest_rate, interest_method, processing_fee_flat, late_penalty_rate
 ) values (
   '13131313-1313-1313-1313-131313131313', 'Snapshot V1', 10000, 200000,
-  3, 12, 12, 'CONSTANT_INSTALLMENT', 500, 0.1
+  3, 12, 12, 'CONSTANT_INSTALLMENT', 0, 0.1
 );
 insert into public.loan_requests (
   id, client_id, product_id, amount, duration_months, purpose, status
