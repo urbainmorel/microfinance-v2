@@ -131,7 +131,7 @@ select isnt(
   'authenticated ne peut pas réclamer des notifications'
 );
 select isnt(
-  has_function_privilege('authenticated', 'public.create_loan_request(uuid,uuid,bigint,integer,text,bigint,text,jsonb,uuid,uuid)', 'EXECUTE'),
+  has_function_privilege('authenticated', 'public.create_loan_request(uuid,uuid,uuid,bigint,integer,text,bigint,text,jsonb,uuid)', 'EXECUTE'),
   true,
   'authenticated ne peut pas contourner l''Edge Function de demande de prêt'
 );

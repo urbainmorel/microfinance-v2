@@ -175,7 +175,7 @@ select ok(
 select ok(
   not has_function_privilege(
     'authenticated',
-    'public.create_loan_request(uuid,uuid,bigint,integer,text,bigint,text,jsonb,uuid,uuid)',
+    'public.create_loan_request(uuid,uuid,uuid,bigint,integer,text,bigint,text,jsonb,uuid)',
     'EXECUTE'
   ),
   'authenticated ne peut pas executer create_loan_request'
@@ -183,7 +183,7 @@ select ok(
 select ok(
   has_function_privilege(
     'service_role',
-    'public.create_loan_request(uuid,uuid,bigint,integer,text,bigint,text,jsonb,uuid,uuid)',
+    'public.create_loan_request(uuid,uuid,uuid,bigint,integer,text,bigint,text,jsonb,uuid)',
     'EXECUTE'
   ),
   'service_role peut executer create_loan_request'
