@@ -10,9 +10,18 @@ select is(
 select is(
   (select count(*)::integer from public.loan_products
    where is_active and interest_method = 'CONSTANT_INSTALLMENT'
-     and guarantee_rate = 10 and mandatory_savings_rate = 5 and late_penalty_rate = 0.03),
+     and mandatory_savings_rate = 5 and late_penalty_rate = 0.03
+     and (
+       (name = 'Prêt Essentiel' and guarantee_rate = 10 and interest_rate = 8.5
+         and min_amount = 100000 and max_amount = 500000
+         and min_duration_months = 6 and max_duration_months = 12)
+       or
+       (name = 'Prêt Croissance' and guarantee_rate = 5 and interest_rate = 5.0
+         and min_amount = 1000000 and max_amount = 5000000
+         and min_duration_months = 12 and max_duration_months = 60)
+     )),
   2,
-  'les deux produits actifs appliquent les paramètres métier initiaux'
+  'les deux produits actifs appliquent les conditions confirmées'
 );
 
 select throws_ok(
