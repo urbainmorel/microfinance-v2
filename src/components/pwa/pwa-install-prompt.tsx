@@ -1,10 +1,13 @@
 "use client";
 
-import { Download, MoreVertical, Plus, Share, X } from "lucide-react";
+import { Check, Download, Ellipsis, MoreVertical, Share, SquarePlus, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Modal } from "@/components/ui/modal";
+
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 const DISMISS_KEY = "azari_pwa_install_dismissed_until";
 const DISMISS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -21,16 +24,13 @@ function isStandalone(): boolean {
   return window.matchMedia("(display-mode: standalone)").matches || nav.standalone === true;
 }
 
-function getDeviceInfo(): { isMobile: boolean; isIos: boolean; isSafari: boolean } {
+function getDeviceInfo(): { isMobile: boolean; isIos: boolean } {
   const ua = window.navigator.userAgent;
   const isIpadOs = /macintosh/i.test(ua) && window.navigator.maxTouchPoints > 1;
-  const isIos = /iphone|ipad|ipod/i.test(ua) || isIpadOs;
-  const isSafari = /safari/i.test(ua) && !/crios|fxios|chrome|android|edgios/i.test(ua);
 
   return {
     isMobile: /android|iphone|ipad|ipod/i.test(ua) || isIpadOs,
-    isIos,
-    isSafari,
+    isIos: /iphone|ipad|ipod/i.test(ua) || isIpadOs,
   };
 }
 
@@ -42,45 +42,67 @@ function isDismissed(): boolean {
   }
 }
 
-function IosInstructions({ isSafari }: { isSafari: boolean }) {
+function InstructionStep({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="flex flex-col gap-4 text-sm text-foreground">
-      {!isSafari ? (
-        <p className="rounded-xl bg-muted p-3 text-muted-foreground">
-          Ouvrez d&apos;abord cette page dans Safari pour pouvoir l&apos;ajouter à l&apos;écran
-          d&apos;accueil.
-        </p>
-      ) : null}
+    <li className="flex items-start gap-4 rounded-2xl border border-border bg-muted/40 p-4">
+      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent">
+        <Icon className="size-6" aria-hidden />
+      </span>
+      <div className="min-w-0">
+        <p className="text-base font-bold text-foreground">{title}</p>
+        <p className="mt-1 text-base leading-6 text-muted-foreground">{children}</p>
+      </div>
+    </li>
+  );
+}
+
+function IosInstructions() {
+  return (
+    <div className="flex flex-col gap-4 text-foreground">
+      <p className="text-base leading-6 text-muted-foreground">
+        L&apos;installation fonctionne sur iPhone dans <strong>Safari</strong> comme dans{" "}
+        <strong>Chrome</strong>.
+      </p>
       <ol className="flex flex-col gap-3">
-        <li className="flex items-start gap-3">
-          <Share className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
-          <span>
-            Touchez le bouton <strong>Partager</strong> dans la barre du navigateur.
-          </span>
-        </li>
-        <li className="flex items-start gap-3">
-          <Plus className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
-          <span>
-            Choisissez <strong>Sur l&apos;écran d&apos;accueil</strong>, puis confirmez avec{" "}
-            <strong>Ajouter</strong>.
-          </span>
-        </li>
+        <InstructionStep icon={Share} title="1. Touchez Partager">
+          Touchez l&apos;icône <strong>Partager</strong> de votre navigateur.
+        </InstructionStep>
+        <InstructionStep icon={Ellipsis} title="2. Touchez « En voir plus »">
+          Faites défiler le menu et touchez <strong>En voir plus</strong>.
+        </InstructionStep>
+        <InstructionStep icon={SquarePlus} title="3. Ajoutez à l'écran d'accueil">
+          Touchez <strong>Sur l&apos;écran d&apos;accueil</strong>, puis confirmez avec{" "}
+          <strong>Ajouter</strong>.
+        </InstructionStep>
       </ol>
+      <p className="flex items-center gap-2 rounded-xl bg-accent/10 px-4 py-3 text-base font-semibold text-accent">
+        <Check className="size-5 shrink-0" aria-hidden />
+        Azari apparaîtra comme une application sur votre téléphone.
+      </p>
     </div>
   );
 }
 
 function AndroidInstructions() {
   return (
-    <div className="flex flex-col gap-4 text-sm text-foreground">
-      <p>Ouvrez le menu de votre navigateur, puis choisissez :</p>
-      <div className="flex items-start gap-3">
-        <MoreVertical className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
-        <p>
-          <strong>Installer l&apos;application</strong> ou{" "}
+    <div className="flex flex-col gap-4 text-foreground">
+      <p className="text-base leading-6 text-muted-foreground">
+        Ouvrez le menu de votre navigateur, puis choisissez :
+      </p>
+      <ul className="flex flex-col gap-3">
+        <InstructionStep icon={MoreVertical} title="Menu du navigateur">
+          Touchez <strong>Installer l&apos;application</strong> ou{" "}
           <strong>Ajouter à l&apos;écran d&apos;accueil</strong>.
-        </p>
-      </div>
+        </InstructionStep>
+      </ul>
     </div>
   );
 }
@@ -92,18 +114,18 @@ function InstallPill({ onInstall, onDismiss }: { onInstall: () => void; onDismis
         <button
           type="button"
           onClick={onInstall}
-          className="inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 text-sm font-semibold text-foreground transition hover:bg-muted"
+          className="inline-flex min-h-11 items-center gap-2.5 rounded-full px-4 text-base font-bold text-foreground transition hover:bg-muted"
         >
-          <Download className="size-4 shrink-0 text-accent" aria-hidden />
+          <Download className="size-5 shrink-0 text-accent" aria-hidden />
           <span>Installer l&apos;application</span>
         </button>
         <button
           type="button"
           onClick={onDismiss}
           aria-label="Masquer l'invite d'installation"
-          className="grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
         >
-          <X className="size-3.5" aria-hidden />
+          <X className="size-4" aria-hidden />
         </button>
       </div>
     </div>
@@ -114,12 +136,10 @@ function InstallInstructionsModal({
   open,
   onOpenChange,
   isIos,
-  isSafari,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isIos: boolean;
-  isSafari: boolean;
 }) {
   return (
     <Modal
@@ -128,7 +148,7 @@ function InstallInstructionsModal({
       title="Installer l'application"
       description="Ajoutez Azari à votre écran d'accueil pour y accéder comme une application."
     >
-      {isIos ? <IosInstructions isSafari={isSafari} /> : <AndroidInstructions />}
+      {isIos ? <IosInstructions /> : <AndroidInstructions />}
     </Modal>
   );
 }
@@ -139,7 +159,7 @@ export function PwaInstallPrompt() {
   const [visible, setVisible] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
-  const [device, setDevice] = useState({ isIos: false, isSafari: true });
+  const [device, setDevice] = useState({ isIos: false });
 
   useEffect(() => {
     if (isAdmin || isStandalone() || isDismissed()) return;
@@ -148,7 +168,7 @@ export function PwaInstallPrompt() {
     if (!info.isMobile) return;
 
     const showTimer = window.setTimeout(() => {
-      setDevice({ isIos: info.isIos, isSafari: info.isSafari });
+      setDevice({ isIos: info.isIos });
       setVisible(true);
     }, 0);
 
@@ -212,7 +232,6 @@ export function PwaInstallPrompt() {
         open={instructionsOpen}
         onOpenChange={setInstructionsOpen}
         isIos={device.isIos}
-        isSafari={device.isSafari}
       />
     </>
   );
