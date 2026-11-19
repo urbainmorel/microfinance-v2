@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 
 import { verifySameOrigin } from "@/lib/chatbot/csrf";
 import { checkRateLimit, getClientIp } from "@/lib/chatbot/rate-limiter";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 interface TicketPayload {
   conversationId?: string | null;
+  sessionId?: string | null;
   clientName: string;
   clientPhone: string;
   clientEmail?: string | null;
@@ -32,6 +34,7 @@ function parseTicketPayload(body: Record<string, unknown>): TicketPayload | null
 
   return {
     conversationId: typeof body.conversationId === "string" ? body.conversationId : null,
+    sessionId: parseTrimmedString(body.sessionId, 100),
     clientName,
     clientPhone,
     clientEmail: parseTrimmedString(body.clientEmail, 150),
@@ -43,10 +46,45 @@ function parseTicketPayload(body: Record<string, unknown>): TicketPayload | null
   };
 }
 
-async function saveTicket(payload: TicketPayload): Promise<string | null> {
+/**
+ * La RPC SECURITY DEFINER n'est exécutable que par le service_role (décision D24).
+ * Comme elle contourne la RLS, l'appartenance de la conversation est vérifiée ici :
+ * un visiteur anonyme doit fournir le sessionId de la conversation, un client
+ * authentifié doit en être le propriétaire.
+ */
+async function resolveOwnedConversationId(params: {
+  conversationId: string | null;
+  sessionId: string | null;
+}): Promise<string | null> {
+  if (!params.conversationId) return null;
+
+  const adminClient = createSupabaseAdminClient();
+  const { data: conv } = await adminClient
+    .from("support_conversations")
+    .select("id, user_id, session_id")
+    .eq("id", params.conversationId)
+    .maybeSingle();
+
+  if (!conv) return null;
+
   const supabase = await createSupabaseServerClient();
-  const { data: ticketId, error: rpcErr } = await supabase.rpc("create_support_ticket_atomic", {
-    p_conversation_id: payload.conversationId || null,
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData.user?.id;
+
+  const isOwner = userId
+    ? conv.user_id === userId
+    : Boolean(params.sessionId) && conv.session_id === params.sessionId;
+
+  return isOwner ? conv.id : null;
+}
+
+async function saveTicket(
+  payload: TicketPayload,
+  conversationId: string | null,
+): Promise<string | null> {
+  const adminClient = createSupabaseAdminClient();
+  const { data: ticketId, error: rpcErr } = await adminClient.rpc("create_support_ticket_atomic", {
+    p_conversation_id: conversationId,
     p_client_name: payload.clientName,
     p_client_phone: payload.clientPhone,
     p_client_email: payload.clientEmail || null,
@@ -86,7 +124,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const ticketId = await saveTicket(payload);
+    const conversationId = await resolveOwnedConversationId({
+      conversationId: payload.conversationId || null,
+      sessionId: payload.sessionId || null,
+    });
+    const ticketId = await saveTicket(payload, conversationId);
     if (!ticketId) {
       return NextResponse.json(
         { error: "Impossible d'enregistrer votre demande pour le moment." },

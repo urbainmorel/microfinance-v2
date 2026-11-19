@@ -3,6 +3,7 @@
 import { CheckCircle2 } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
+import { FormError } from "@/components/auth/form-error";
 import { Modal } from "@/components/ui/modal";
 
 export interface SubmitData {
@@ -163,11 +164,7 @@ function TicketForm({
 
   return (
     <div className="space-y-4">
-      {err ? (
-        <div role="alert" className="rounded-lg bg-red-50 p-2 text-xs text-red-600">
-          {err}
-        </div>
-      ) : null}
+      <FormError message={err} />
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <FormInputs

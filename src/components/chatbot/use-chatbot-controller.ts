@@ -128,11 +128,17 @@ export function useChatbotController() {
   });
 
   const handleTicketSubmit = async (data: SubmitData) => {
-    await fetch("/api/support/ticket", {
+    const res = await fetch("/api/support/ticket", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, conversationId }),
+      body: JSON.stringify({ ...data, conversationId, sessionId }),
     });
+
+    if (!res.ok) {
+      const errData = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new Error(errData.error || "Impossible d'enregistrer votre demande.");
+    }
+
     setConversationStatus("ticket_created");
   };
 
