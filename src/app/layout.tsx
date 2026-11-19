@@ -1,6 +1,7 @@
 import { DM_Sans, Manrope } from "next/font/google";
 
 import { ChatbotWidget } from "@/components/chatbot/chatbot-widget-client";
+import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 
 import { Providers } from "./providers";
@@ -39,6 +40,9 @@ export const metadata: Metadata = {
     shortcut: ["/favicon.ico"],
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Azari Microfinance" },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
@@ -73,6 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ChatbotWidget />
         </Providers>
         <ServiceWorkerRegistration />
+        <PwaInstallPrompt />
       </body>
     </html>
   );
