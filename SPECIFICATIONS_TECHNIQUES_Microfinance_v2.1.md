@@ -74,7 +74,7 @@ Le `proxy.ts` lit le rôle depuis le claim du jeton (`app_metadata.user_role`) s
 | **Schéma Zod** | `{ operator: z.string(), phone: z.string().regex(/^\+?[0-9]{8,15}$/), holder: z.string().min(2), amount: z.number().int().positive() }` |
 | **Validation** | **PIN** vérifié par `verify-pin`. |
 | **Création + réservation** | Appel unique et atomique de la RPC `create_withdrawal(...)` : elle réserve le montant **si** `free_savings + disbursed_loan − reserved_amount ≥ amount`, puis insère la demande (`status='PENDING'`). Sinon elle échoue (solde disponible insuffisant). |
-| **Info client** | Le formulaire affiche : *« Votre retrait sera traité entre 8h et 19h. »* |
+| **Info client** | Le formulaire affiche : *« Votre retrait Mobile Money sera traité 24h/24, sous 24 heures maximum. »* |
 
 #### Écran 6 — Demande de remboursement (`/client/repay/request`)
 | Élément | Spécification |
@@ -615,18 +615,20 @@ END; $$;
 ```sql
 CREATE OR REPLACE FUNCTION settle_withdrawal(p_request UUID, p_action TEXT, p_agent UUID, p_ref TEXT DEFAULT NULL, p_reason TEXT DEFAULT NULL)
 RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE r withdrawal_requests; v_from_loan BIGINT; v_hour INT;
+DECLARE r withdrawal_requests; v_from_loan BIGINT; v_hour INT; v_start INT; v_end INT;
 BEGIN
   UPDATE withdrawal_requests SET status = 'PROCESSING'
    WHERE id = p_request AND status = 'PENDING' RETURNING * INTO r;
   IF NOT FOUND THEN RAISE EXCEPTION 'Demande déjà traitée ou introuvable'; END IF;
 
   IF p_action = 'EXECUTE' THEN
-    -- Plage horaire autorisée : 8h–19h, heure locale (Africa/Abidjan, UTC+0, zone XOF canonique).
+    -- Traitement disponible 24h/24 (plage paramétrable via app_settings).
+    SELECT withdrawal_window_start, withdrawal_window_end INTO v_start, v_end
+      FROM app_settings WHERE id;
     v_hour := EXTRACT(HOUR FROM now() AT TIME ZONE 'Africa/Abidjan');
-    IF v_hour < 8 OR v_hour >= 19 THEN
+    IF NOT withdrawal_hour_open(v_hour, v_start, v_end) THEN
       UPDATE withdrawal_requests SET status = 'PENDING' WHERE id = p_request; -- remis en file
-      RAISE EXCEPTION 'Traitement des retraits autorisé uniquement entre 8h et 19h';
+      RAISE EXCEPTION 'Traitement des retraits momentanément indisponible';
     END IF;
 
     -- Débit : d'abord le prêt décaissé disponible, puis l'épargne libre ; on lève la réservation.

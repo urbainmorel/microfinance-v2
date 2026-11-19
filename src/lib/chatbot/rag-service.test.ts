@@ -68,7 +68,11 @@ describe("buildSystemPrompt - Limites de prêt et transfert", () => {
     expect(prompt).toContain("Ne cite jamais une méthode qu'elle n'a pas demandée");
     expect(prompt).toContain("RÉCEPTION DES FONDS DE PRÊT ET RETRAITS");
     expect(prompt).toContain("Ne dis jamais qu'un retrait en espèces en agence");
+    expect(prompt).toContain("disponible 24h/24");
+    expect(prompt).toContain("Après signature du contrat et décaissement");
+    expect(prompt).toContain("aucun retrait, y compris de l'épargne libre");
     expect(prompt).toContain("sous 24 heures maximum");
+    expect(prompt).toContain("24 à 48 heures ouvrées");
   });
 });
 

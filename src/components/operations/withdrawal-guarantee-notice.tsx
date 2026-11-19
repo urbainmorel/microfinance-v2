@@ -14,7 +14,6 @@ export function extractGuaranteeState(loan?: ActiveLoanState | null) {
     remainingGuarantee: remaining,
     withdrawableAmount: withdrawable,
     hasPendingGuarantee: hasPending,
-    totalAmount: loan?.totalAmount ?? 0,
   };
 }
 
@@ -37,6 +36,38 @@ export function checkWithdrawalGuarantee(
   return null;
 }
 
+function GuaranteeVerificationPendingNotice() {
+  return (
+    <Card className="flex flex-col gap-4 p-6 text-center">
+      <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
+        <Clock className="size-6" aria-hidden />
+      </div>
+      <h3 className="font-display text-lg font-bold text-foreground">
+        Dépôt de garantie en cours de vérification
+      </h3>
+      <p className="text-sm text-muted-foreground">
+        Votre preuve de versement de garantie a bien été transmise et est en cours de validation par
+        nos équipes. Vos retraits, y compris depuis votre épargne libre, seront automatiquement
+        débloqués dès confirmation.
+      </p>
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:justify-center">
+        <Link
+          href="/client/operations"
+          className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground transition hover:opacity-90"
+        >
+          Suivre mes opérations
+        </Link>
+        <Link
+          href="/client/dashboard"
+          className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted"
+        >
+          Retour au tableau de bord
+        </Link>
+      </div>
+    </Card>
+  );
+}
+
 export function GuaranteeBlockedWithdrawalNotice({
   remainingGuarantee,
   isVerificationPending,
@@ -44,36 +75,7 @@ export function GuaranteeBlockedWithdrawalNotice({
   remainingGuarantee: number;
   isVerificationPending?: boolean;
 }) {
-  if (isVerificationPending) {
-    return (
-      <Card className="flex flex-col gap-4 p-6 text-center">
-        <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
-          <Clock className="size-6" aria-hidden />
-        </div>
-        <h3 className="font-display text-lg font-bold text-foreground">
-          Dépôt de garantie en cours de vérification
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Votre preuve de versement de garantie a bien été transmise et est en cours de validation
-          par nos équipes. Vos retraits seront automatiquement débloqués dès confirmation.
-        </p>
-        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:justify-center">
-          <Link
-            href="/client/operations"
-            className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground transition hover:opacity-90"
-          >
-            Suivre mes opérations
-          </Link>
-          <Link
-            href="/client/dashboard"
-            className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted"
-          >
-            Retour au tableau de bord
-          </Link>
-        </div>
-      </Card>
-    );
-  }
+  if (isVerificationPending) return <GuaranteeVerificationPendingNotice />;
 
   return (
     <Card className="flex flex-col gap-4 p-6 text-center">
@@ -84,9 +86,10 @@ export function GuaranteeBlockedWithdrawalNotice({
         Dépôt de garantie requis pour retirer
       </h3>
       <p className="text-sm text-muted-foreground">
-        Votre prêt est crédité sur votre compte, mais son retrait est conditionné par la
-        constitution du dépôt de garantie obligatoire de{" "}
-        <strong className="text-foreground">{formatFcfa(remainingGuarantee)}</strong>.
+        Votre prêt est crédité sur votre wallet, mais aucun retrait n&apos;est possible tant que le
+        dépôt de garantie obligatoire de{" "}
+        <strong className="text-foreground">{formatFcfa(remainingGuarantee)}</strong> n&apos;est pas
+        confirmé. Cette règle s&apos;applique aussi à votre épargne libre.
       </p>
       <div className="flex flex-col gap-1.5 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3.5 text-left text-xs leading-5 text-foreground">
         <div className="flex items-center gap-2 font-bold text-emerald-600 dark:text-emerald-400">
@@ -116,29 +119,5 @@ export function GuaranteeBlockedWithdrawalNotice({
         </Link>
       </div>
     </Card>
-  );
-}
-
-export function LoanGuaranteeReserveWarning({
-  withdrawableAmount,
-  totalAmount,
-  remainingGuarantee,
-}: {
-  withdrawableAmount: number;
-  totalAmount: number;
-  remainingGuarantee: number;
-}) {
-  return (
-    <div className="rounded-2xl border border-accent/30 bg-finance-soft/50 p-4 text-xs leading-5 text-foreground">
-      <p className="font-bold text-accent">
-        Attention : fonds de prêt en réserve de dépôt de garantie
-      </p>
-      <p className="mt-0.5 text-muted-foreground">
-        Seule votre épargne libre de{" "}
-        <strong className="text-foreground">{formatFcfa(withdrawableAmount)}</strong> est
-        actuellement retirable. Votre prêt de {formatFcfa(totalAmount)} sera débloqué après le
-        versement du dépôt de garantie ({formatFcfa(remainingGuarantee)}).
-      </p>
-    </div>
   );
 }

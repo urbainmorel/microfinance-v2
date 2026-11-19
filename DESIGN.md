@@ -370,7 +370,7 @@ Deux scénarios, un même composant récapitulatif + PIN :
 Chaque flux = formulaire → **certification + PIN** → création d'une **demande** (aucun mouvement comptable côté client) → suivi par statut (§9.4).
 
 - **Dépôt** (`PRD §13.1`) : montant, motif (`Épargne libre` / `Dépôt de garantie` / `Remboursement anticipé`), mode de paiement, référence, **preuve** (§8.2). Statut initial `En attente de confirmation`.
-- **Retrait Mobile Money** (`PRD §13.2`) : opérateur, numéro, titulaire, montant → `create_withdrawal` **réserve** le montant atomiquement si le disponible suffit (`Specs §A Écran 5`). **Bannière info obligatoire** : « Votre retrait sera traité entre 8h et 19h. » (`PRD §13.6`).
+- **Retrait Mobile Money** (`PRD §13.2`) : opérateur, numéro, titulaire, montant → `create_withdrawal` **réserve** le montant atomiquement si le disponible suffit (`Specs §A Écran 5`). **Bannière info obligatoire** : « Votre retrait Mobile Money sera traité 24h/24, sous 24 heures maximum. » (`PRD §13.6`).
 - **Virement bancaire** (`PRD §13.3`) : banque, pays, titulaire, compte, code banque/IBAN, montant, motif ; accent **bleu** ; délai 24–48 h.
 - **Remboursement** (`PRD §13.4`) : préchargement du prêt actif + échéances dues + pénalités ; borne max = total dû + pénalités ; preuve + PIN.
 - **Annulation d'une demande** (`PRD §13.7`) : possible tant que `PENDING`/`ENVOYÉE` ; `AlertDialog` (encre) + PIN ; réintègre le réservé le cas échéant.
@@ -447,7 +447,7 @@ Chaque écran à données prévoit explicitement (TanStack Query, `Specs §A`) :
 - **Erreur** : `Alert` doré + phrase claire + `Réessayer`. **Jamais de rouge.** Les erreurs de validation Zod s'affichent sous le champ (`FormMessage`) en **doré/encre + icône**, jamais couleur seule (§17).
 - **Offline / obsolète** (PWA, §16) : bannière discrète « Dernière mise à jour à HH:MM » pour le solde/historique/statut de prêt (données sensibles, jamais servies « fraîches » depuis un cache obsolète sans indicateur, `PRD` cohérence). Les actions indisponibles hors-ligne (retrait, virement, demande de prêt) → **CTA grisé + message court**, jamais masqué.
 - **Verrouillage PIN** (§8.1) : écran dédié après 5 échecs, CTA réinitialisation OTP.
-- **Hors plage horaire** (retrait) : la demande reste possible ; l'exécution est côté agent (8h–19h). Le formulaire l'indique via la bannière info (§11.5).
+- **Hors plage horaire** (retrait) : la demande reste possible ; l'exécution est côté agent, 24h/24 (plage paramétrable). Le formulaire l'indique via la bannière info (§11.5).
 
 ---
 
@@ -525,7 +525,7 @@ Les fichiers `.dc.html` sont des **prototypes haute-fidélité statiques** (cont
 | PIN & anti-forçage | §4.3, §4.4 | §D.1 |
 | Dépôt / retrait / remboursement | §13 | §A Écrans 4–6, §D.3–6 |
 | Garantie | §12 | §A Écran 7 |
-| Plage horaire 8h–19h | §13.6 | §D.5 |
+| Traitement des retraits 24h/24 et délais Mobile Money 24 h / virement 24–48 h ouvrées | §13.6 | §D.5 |
 | Clôture / libération | §14 | §D.9, §F |
 | Notifications / emails | §15 | §B.12–13 |
 | Back-office | §16–18 | §A, §C |

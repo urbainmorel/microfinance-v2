@@ -360,10 +360,8 @@ La libération de la garantie et de l'épargne obligatoire s'exécute dans la m�
 
 ### 11.2 Retraits Mobile Money
 
-- soumission disponible 24 h/24 ;
-- exécution du lundi au samedi, de 8 h à 19 h dans le fuseau du pays ;
-- demande reçue avant 17 h : objectif de traitement le jour même ;
-- demande reçue après 17 h : prochain jour ouvré ;
+- soumission et traitement disponibles 24 h/24 ;
+- délai communiqué : 24 heures maximum ;
 - réserve créée dès la demande ;
 - annulation client autorisée tant que `PENDING` ;
 - rejet ou annulation libérant obligatoirement la réserve.

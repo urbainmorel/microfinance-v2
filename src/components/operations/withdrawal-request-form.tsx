@@ -17,7 +17,6 @@ import {
   checkWithdrawalGuarantee,
   extractGuaranteeState,
   GuaranteeBlockedWithdrawalNotice,
-  LoanGuaranteeReserveWarning,
 } from "@/components/operations/withdrawal-guarantee-notice";
 import {
   getWithdrawalRecipient,
@@ -114,7 +113,7 @@ function WithdrawalWizard({
     <div className="flex flex-col gap-4">
       <div className="rounded-2xl border border-border bg-muted px-4 py-3 text-sm text-foreground">
         {isMomo
-          ? "Traitement par un agent entre 8 h et 19 h. Le montant est réservé dès l’envoi."
+          ? "Traitement sous 24 heures maximum. Le montant est réservé dès l’envoi."
           : "Exécution sous 24 à 48 heures ouvrées. Le montant est réservé dès l’envoi."}
       </div>
       <FormStepper steps={WITHDRAWAL_STEPS} currentStep={step} />
@@ -139,42 +138,24 @@ function WithdrawalWizard({
 function WithdrawalFormContainer({
   form,
   isMomo,
-  hasPendingGuarantee,
-  withdrawableAmount,
-  totalAmount,
-  remainingGuarantee,
   serverError,
   onSwitchType,
   submit,
 }: {
   form: UseFormReturn<WithdrawalRequestInput>;
   isMomo: boolean;
-  hasPendingGuarantee: boolean;
-  withdrawableAmount: number;
-  totalAmount: number;
-  remainingGuarantee: number;
   serverError: string | null;
   onSwitchType?: () => void;
   submit: (values: WithdrawalRequestInput) => Promise<void>;
 }) {
-  const showWarning = hasPendingGuarantee && withdrawableAmount > 0;
   return (
-    <div className="flex flex-col gap-4">
-      {showWarning ? (
-        <LoanGuaranteeReserveWarning
-          withdrawableAmount={withdrawableAmount}
-          totalAmount={totalAmount}
-          remainingGuarantee={remainingGuarantee}
-        />
-      ) : null}
-      <WithdrawalWizard
-        form={form}
-        isMomo={isMomo}
-        onSwitchType={onSwitchType}
-        serverError={serverError}
-        submit={submit}
-      />
-    </div>
+    <WithdrawalWizard
+      form={form}
+      isMomo={isMomo}
+      onSwitchType={onSwitchType}
+      serverError={serverError}
+      submit={submit}
+    />
   );
 }
 
@@ -291,10 +272,6 @@ export function WithdrawalRequestForm({
     <WithdrawalFormContainer
       form={form}
       isMomo={type === "MOBILE_MONEY"}
-      hasPendingGuarantee={g.hasPendingGuarantee}
-      withdrawableAmount={g.withdrawableAmount}
-      totalAmount={g.totalAmount}
-      remainingGuarantee={g.remainingGuarantee}
       serverError={serverError}
       onSwitchType={onSwitchType}
       submit={submit}

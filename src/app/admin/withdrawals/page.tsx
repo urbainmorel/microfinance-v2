@@ -40,7 +40,7 @@ export default function AdminWithdrawalsPage() {
       <AdminPageHeader
         eyebrow="Caisse"
         title="File des retraits"
-        description="Exécutez les retraits entre 8 h et 19 h avec la référence remise par l’opérateur ou la banque."
+        description="Exécutez les retraits à tout moment (service 24h/24) avec la référence remise par l’opérateur ou la banque."
       />
       {query.isPending ? <AdminLoading /> : null}
       {query.isError ? <AdminError message={query.error.message} /> : null}

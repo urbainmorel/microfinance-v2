@@ -427,7 +427,7 @@ Champs : banque, pays, titulaire, numéro de compte, code banque (si nécessaire
 À l'exécution effective d'un retrait ou virement, le système débite le portefeuille dans l'ordre suivant : d'abord le **prêt décaissé disponible** (jusqu'à épuisement), puis l'**épargne libre**. Le **montant réservé** est diminué du même montant. Ainsi, le solde disponible reflète toujours exactement ce que le client peut engager.
 
 ### 13.6 Plage horaire de traitement des retraits
-Le traitement (exécution) des retraits et virements par les agents n'est possible qu'entre **8h00 et 19h00** (heure locale de la microfinance). Toute tentative d'exécution hors de ce créneau est refusée par le système. Le client peut soumettre une demande à tout moment ; le formulaire l'informe explicitement : *« Votre retrait sera traité entre 8h et 19h. »* La plage horaire est **paramétrable** par l'administrateur (§16.7).
+Le traitement des retraits et virements est disponible **24h/24**. Le client peut soumettre une demande à tout moment. Les délais communiqués sont de **24 heures maximum pour Mobile Money** et de **24 à 48 heures ouvrées pour le virement bancaire**. La plage horaire reste **paramétrable** par l'administrateur (§16.7).
 
 ### 13.7 Annulation d'une demande par le client
 **Conditions :** la demande (dépôt, retrait, virement, remboursement) doit être au statut `PENDING` / `ENVOYÉE`.
@@ -552,7 +552,7 @@ La protection des données personnelles est une exigence du projet, intégrée d
 - Interfaces client multilingues (fr, en) ; back-office FR.
 - Protection des données et politique de conservation (§20).
 - Contrainte d'un seul prêt actif par client.
-- Plage horaire de traitement des retraits (8h–19h).
+- Disponibilité du traitement des retraits (24h/24) et délais (Mobile Money 24 h max, virement 24–48 h ouvrées).
 
 ### 21.2 Hors périmètre applicatif (processus internes de la microfinance)
 Les contrôles suivants relèvent du fonctionnement interne de l'institution et **ne sont pas modélisés dans l'application** :

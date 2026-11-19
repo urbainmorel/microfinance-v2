@@ -48,7 +48,7 @@ const ERROR_MESSAGES: Record<ClientCommandErrorCode, string> = {
   INSUFFICIENT_FUNDS: "Votre solde disponible est insuffisant.",
   GUARANTEE_REQUIRED: "Le retrait de votre prêt exige la constitution préalable de la garantie.",
   ALREADY_PROCESSED: "Cette opération a déjà été enregistrée.",
-  OUTSIDE_WINDOW: "Les retraits sont traités uniquement entre 8 h et 19 h.",
+  OUTSIDE_WINDOW: "Le traitement des retraits est momentanément indisponible. Réessayez plus tard.",
 };
 
 export class ClientCommandError extends Error {

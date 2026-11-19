@@ -20,7 +20,7 @@ validées à 100 % le 2026-08-20. Le détail normatif se trouve dans `docs/busin
 | D4 | Stratégie de test | **Vitest + Playwright** | Vitest = comptable/amortissement/arrondi (unitaire) ; Playwright = E2E des parcours | PRD §22 |
 | D5 | Modèle d’accès V1 | **Deux rôles : `client` et `admin`** | Le chef d’agence est l’unique opérateur interne et cumule toutes les actions du back-office ; voir ADR 0001 | ADR 0001 |
 | D6 | Échéancier de référence | **Synthétique dès le Lot 6b** | Ex. 100 000 FCFA / 12 mois / annuités ; les règles définitives sont validées par ADR 0002 | PRD §22, ADR 0002 |
-| D7 | Fuseau plage 8h–19h | **Fuseau dérivé du pays UMOA** | `Africa/Porto-Novo`, `Ouagadougou`, `Abidjan`, `Bissau`, `Bamako`, `Niamey`, `Dakar` ou `Lome` | Règles métier §1 |
+| D7 | Fuseau de la plage de retrait | **Fuseau dérivé du pays UMOA** | `Africa/Porto-Novo`, `Ouagadougou`, `Abidjan`, `Bissau`, `Bamako`, `Niamey`, `Dakar` ou `Lome` | Règles métier §1 |
 | D8 | Version Tailwind | **Tailwind v3 (épinglé)** | `create-next-app` livre Tailwind v4 (config CSS-first). On épingle **v3** pour réutiliser tel quel le bloc `:root` HSL de DESIGN §4.3 (convention `hsl(var(--x))`) et `tailwind.config.ts`/`theme.extend`. Sert l'invariant « une seule source des tokens » ; chemin Shadcn le plus éprouvé. Stabilité > nouveauté (système financier). Appliqué au Lot 0. | DESIGN §4.3 |
 | D9 | Versions socle | **Next.js 16.2 · React 19.2 · Node ≥ 20** | Versions résolues par le scaffold (App Router, RSC). `tsconfig` strict + extras (`noUncheckedIndexedAccess`, `noImplicitOverride`). Appliqué au Lot 0. | Specs §2.2 |
 | D10 | Gestionnaire de paquets | **pnpm** (`pnpm-lock.yaml`) | npm bloquait de façon répétée en résolution/reify sur cette machine (réseau ~25 KiB/s instable, cache volumineux, SAT des peers React 19). pnpm — store persistant/reprise, hardlinks, peers permissifs — fiabilise l'install. `.npmrc` : `strict-peer-dependencies=false`, faible `network-concurrency`, timeouts longs. Appliqué au Lot 0. | — |
@@ -165,11 +165,11 @@ sur réseau correct ; voir mémoire `local-dev-setup`).
 **Objectif :** la mécanique de réservation et la plage horaire. `PRD §13.2, §13.3, §13.5-7` · `Specs §D.4-5`.
 
 - `create_withdrawal` : **réserve** le montant atomiquement si disponible ≥ montant ; sinon échoue.
-- Client : formulaires MM (`/client/withdraw/momo`) + virement bancaire (accent bleu) + **bannière 8h–19h**.
+- Client : formulaires MM (`/client/withdraw/momo`) + virement bancaire (accent bleu) + **bannière 24h/24**.
 - Agent : file ; `settle_withdrawal` — **EXECUTE** (débit `disbursed_loan` puis `free_savings`, lève la réservation, contrôle plage horaire) / **REJECT** / **CANCEL** (réintègre le réservé).
 - Annulation client d'une demande `PENDING` (`PRD §13.7`) + PIN.
 
-**Fait quand :** on ne peut pas engager deux fois la même somme ; une exécution hors 8h–19h est refusée ; un rejet restitue exactement le réservé.
+**Fait quand :** on ne peut pas engager deux fois la même somme ; le traitement est ouvert 24h/24 (plage paramétrable) ; un rejet restitue exactement le réservé.
 
 ---
 
