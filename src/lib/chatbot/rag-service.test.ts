@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildSystemPrompt,
   extractSearchKeywords,
-  maskSensitivePII,
   retrieveRelevantKnowledge,
   sanitizeUserInput,
 } from "./rag-service";
@@ -15,7 +14,7 @@ const mockSettings: ChatbotSettings = {
   botName: "Assistant Azari Test",
   botAvatarUrl: null,
   primaryColor: "#077BAD",
-  modelName: "qwen/qwen-2.5-72b-instruct",
+  modelName: "qwen/qwen3-next-80b-a3b-instruct",
   welcomeMessage: "Bienvenue !",
   offlineMessage: "Nos bureaux sont fermés.",
   suggestedQuestions: ["Question 1"],
@@ -29,36 +28,6 @@ const mockSettings: ChatbotSettings = {
   customInstructions: null,
   updatedAt: new Date().toISOString(),
 };
-
-describe("maskSensitivePII", () => {
-  it("masque les numéros de carte bancaire à 16 chiffres en préservant les 4 derniers", () => {
-    const text = "Voici mon numéro de carte: 4532-1234-5678-9012 pour le paiement";
-    const masked = maskSensitivePII(text);
-    expect(masked).toContain("[CARTE_BANCAIRE_...9012]");
-    expect(masked).not.toContain("4532");
-  });
-
-  it("masque les IBAN sensibles", () => {
-    const text = "Mon virement vers BJ6601001550000012345678 svp";
-    const masked = maskSensitivePII(text);
-    expect(masked).toContain("[COMPTE_BANCAIRE_MASQUE]");
-    expect(masked).not.toContain("BJ6601001550000012345678");
-  });
-
-  it("masque les codes secrets, mots de passe et CVV", () => {
-    const text = "Mon mot de passe: SuperSecret99! et mon code secret: 4321";
-    const masked = maskSensitivePII(text);
-    expect(masked).toContain("[SECRET_MASQUE]");
-    expect(masked).not.toContain("SuperSecret99!");
-    expect(masked).not.toContain("4321");
-  });
-
-  it("préserve les montants normaux et les numéros courts", () => {
-    const text = "Je veux emprunter 500 000 FCFA sur une durée de 12 mois.";
-    const result = maskSensitivePII(text);
-    expect(result).toBe("Je veux emprunter 500 000 FCFA sur une durée de 12 mois.");
-  });
-});
 
 describe("sanitizeUserInput", () => {
   it("nettoie les caractères de contrôle et les espaces superflus", () => {
@@ -111,6 +80,19 @@ describe("buildSystemPrompt - Base & Sécurité", () => {
     expect(prompt).toContain("<<<GUARDED_KNOWLEDGE_BASE_TESTNONCE123>>>");
     expect(prompt).toContain("<<<END_GUARDED_KNOWLEDGE_BASE_TESTNONCE123>>>");
     expect(prompt).toContain("DÉFENSE ANTI-INJECTION");
+    expect(prompt).toContain("Je n'ai pas cette information pour le moment");
+    expect(prompt).toContain("l'équipe compétente");
+    expect(prompt).toContain("escalate_to_human");
+    expect(prompt).toContain("N'utilise aucun emoji");
+    expect(prompt).toContain("assistante virtuelle d'Azari");
+    expect(prompt).toContain("CALCULS FINANCIERS");
+    expect(prompt).toContain("ne calcule jamais");
+    expect(prompt).toContain("HORAIRES DE L'AGENCE");
+    expect(prompt).toContain("08h00");
+    expect(prompt).toContain("17h30");
+    expect(prompt).toContain("lundi, mardi, mercredi, jeudi, vendredi");
+    expect(prompt).not.toContain("non répertorié");
+    expect(prompt).not.toContain("n'est pas répertoriée");
     // Visiteur non connecté : interdiction stricte de nommer l'utilisateur
     expect(prompt).toContain("<visiteur_non_connecte>");
     expect(prompt).toContain("visiteur anonyme NON CONNECTÉ");

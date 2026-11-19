@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isWithinBusinessHours } from "@/lib/chatbot/hand-off-service";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -9,7 +10,7 @@ export async function GET() {
     const { data: row, error } = await supabase
       .from("chatbot_settings")
       .select(
-        "bot_name, bot_avatar_url, primary_color, welcome_message, offline_message, suggested_questions, is_agent_online, financial_disclaimer",
+        "bot_name, bot_avatar_url, primary_color, welcome_message, offline_message, suggested_questions, is_agent_online, financial_disclaimer, business_hours_start, business_hours_end, business_days",
       )
       .eq("id", true)
       .single();
@@ -41,7 +42,15 @@ export async function GET() {
       welcomeMessage: row.welcome_message,
       offlineMessage: row.offline_message,
       suggestedQuestions: Array.isArray(row.suggested_questions) ? row.suggested_questions : [],
-      isAgentOnline: Boolean(row.is_agent_online),
+      // Un conseiller n'est réellement joignable que si le service est activé
+      // ET que nous sommes dans les horaires d'ouverture de l'agence.
+      isAgentOnline:
+        Boolean(row.is_agent_online) &&
+        isWithinBusinessHours({
+          businessHoursStart: row.business_hours_start,
+          businessHoursEnd: row.business_hours_end,
+          businessDays: row.business_days,
+        }),
       financialDisclaimer: row.financial_disclaimer,
     });
   } catch (err: unknown) {

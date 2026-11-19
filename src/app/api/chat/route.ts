@@ -13,8 +13,12 @@ import { verifySameOrigin } from "@/lib/chatbot/csrf";
 import { executeChatCompletion } from "@/lib/chatbot/openrouter";
 import {
   buildSystemPrompt,
+  fixCommonFrenchAgreements,
+  mentionsMissingInformation,
   RESPONSE_LENGTH_CONFIG,
   retrieveRelevantKnowledge,
+  sanitizeAssistantFormatting,
+  sanitizeMissingInformationReply,
   sanitizeUserInput,
   type ClientContext,
 } from "@/lib/chatbot/rag-service";
@@ -102,15 +106,23 @@ async function generateAiAnswer(params: {
     maxTokens,
   });
 
-  if (aiResult.toolCall?.name === "escalate_to_human") {
-    return handleAiEscalation(supabase, convId, aiResult, settings);
+  const safeContent = fixCommonFrenchAgreements(
+    sanitizeAssistantFormatting(sanitizeMissingInformationReply(aiResult.content)),
+  );
+  const safeResult = { ...aiResult, content: safeContent };
+
+  if (
+    safeResult.toolCall?.name === "escalate_to_human" ||
+    mentionsMissingInformation(safeContent)
+  ) {
+    return handleAiEscalation(supabase, convId, safeResult, settings);
   }
 
   const outcome = await postAiResponseAtomically(
     adminClient,
     convId,
     settings.botName,
-    aiResult.content,
+    safeContent,
   );
   if (outcome.inLiveChat) {
     return NextResponse.json({
@@ -124,7 +136,7 @@ async function generateAiAnswer(params: {
   return NextResponse.json({
     conversationId: convId,
     status: outcome.status,
-    content: aiResult.content,
+    content: safeContent,
   });
 }
 

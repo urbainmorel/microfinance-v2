@@ -29,30 +29,30 @@ const mockSettings: ChatbotSettings = {
 };
 
 describe("hand-off-service", () => {
-  it("valide les heures ouvrées en semaine", () => {
-    // Mercredi 10h00 (Mercredi = 3)
-    const wednesdayMorning = new Date("2026-10-07T10:00:00");
+  it("valide les heures ouvrées en semaine (heure d'Abidjan)", () => {
+    // Mercredi 10h00 UTC = 10h00 à Abidjan (Mercredi = 3)
+    const wednesdayMorning = new Date("2026-10-07T10:00:00Z");
     expect(isWithinBusinessHours(mockSettings, wednesdayMorning)).toBe(true);
   });
 
   it("rejette les heures hors créneaux d'ouverture", () => {
-    // Mercredi 07h00 (avant ouverture)
-    const wednesdayEarly = new Date("2026-10-07T07:00:00");
+    // Mercredi 07h00 UTC = 07h00 à Abidjan (avant ouverture)
+    const wednesdayEarly = new Date("2026-10-07T07:00:00Z");
     expect(isWithinBusinessHours(mockSettings, wednesdayEarly)).toBe(false);
 
-    // Mercredi 19h00 (après fermeture)
-    const wednesdayLate = new Date("2026-10-07T19:00:00");
+    // Mercredi 19h00 UTC = 19h00 à Abidjan (après fermeture)
+    const wednesdayLate = new Date("2026-10-07T19:00:00Z");
     expect(isWithinBusinessHours(mockSettings, wednesdayLate)).toBe(false);
   });
 
   it("rejette le week-end", () => {
-    // Dimanche 12h00
-    const sunday = new Date("2026-10-11T12:00:00");
+    // Dimanche 12h00 UTC = 12h00 à Abidjan
+    const sunday = new Date("2026-10-11T12:00:00Z");
     expect(isWithinBusinessHours(mockSettings, sunday)).toBe(false);
   });
 
   it("aiguille vers le Live Chat si l'agent est en ligne et dans les heures ouvrées", () => {
-    const wednesdayMorning = new Date("2026-10-07T10:00:00");
+    const wednesdayMorning = new Date("2026-10-07T10:00:00Z");
     expect(canConnectLiveAgent(mockSettings, wednesdayMorning)).toBe(true);
 
     const routing = evaluateHandOffRouting(mockSettings, wednesdayMorning);
@@ -61,7 +61,7 @@ describe("hand-off-service", () => {
 
   it("aiguille vers la demande de rappel si l'agent est absent ou hors horaires", () => {
     const offlineSettings = { ...mockSettings, isAgentOnline: false };
-    const wednesdayMorning = new Date("2026-10-07T10:00:00");
+    const wednesdayMorning = new Date("2026-10-07T10:00:00Z");
 
     expect(canConnectLiveAgent(offlineSettings, wednesdayMorning)).toBe(false);
 

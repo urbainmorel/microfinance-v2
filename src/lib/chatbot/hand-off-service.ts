@@ -1,26 +1,34 @@
 import type { ChatbotSettings } from "./types";
 
 /**
+ * Horloge de l'agence : Africa/Abidjan est à UTC+0 toute l'année (pas d'heure d'été).
+ * On ne dépend donc pas du fuseau du serveur, qui peut différer (UTC+1 en local, UTC en CI).
+ */
+function getAbidjanDayAndTime(date: Date): { dayNumber: number; time: string } {
+  // getUTCDay(): 0 = Dimanche, 1 = Lundi ... 6 = Samedi
+  const jsDay = date.getUTCDay();
+  const pad = (value: number) => value.toString().padStart(2, "0");
+
+  return {
+    dayNumber: jsDay === 0 ? 7 : jsDay,
+    time: `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}`,
+  };
+}
+
+/**
  * Vérifie si la date/heure actuelle se situe dans les plages d'ouverture de l'agence.
  */
 export function isWithinBusinessHours(
   settings: Pick<ChatbotSettings, "businessHoursStart" | "businessHoursEnd" | "businessDays">,
   date = new Date(),
 ): boolean {
-  // getDay(): 0 = Dimanche, 1 = Lundi ... 6 = Samedi
-  const jsDay = date.getDay();
-  const dayNumber = jsDay === 0 ? 7 : jsDay; // Convertit Dimanche en 7
+  const { dayNumber, time } = getAbidjanDayAndTime(date);
 
   if (!settings.businessDays.includes(dayNumber)) {
     return false;
   }
 
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
-  const currentTime = `${hours}:${minutes}:${seconds}`;
-
-  return currentTime >= settings.businessHoursStart && currentTime <= settings.businessHoursEnd;
+  return time >= settings.businessHoursStart && time <= settings.businessHoursEnd;
 }
 
 /**

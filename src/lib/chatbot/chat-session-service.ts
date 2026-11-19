@@ -23,7 +23,7 @@ const DEFAULT_SETTINGS = {
   botName: "Assistant Virtuel",
   botAvatarUrl: null,
   primaryColor: "#077BAD",
-  modelName: "qwen/qwen-2.5-72b-instruct",
+  modelName: "qwen/qwen3-next-80b-a3b-instruct",
   welcomeMessage: "Bonjour !",
   offlineMessage: "Conseillers indisponibles.",
   suggestedQuestions: [] as string[],
@@ -204,9 +204,16 @@ export async function handleAiEscalation(
 ) {
   const db = getAdminOrFallback(supabase);
   const routing = evaluateHandOffRouting(settings);
-  const responseText = aiResult.content
-    ? `${aiResult.content}\n\n${routing.message}`
-    : routing.message;
+  // En mode rappel, le message du modèle contient déjà la phrase humaine
+  // (« Je transmets votre préoccupation… ») : inutile d'ajouter le message
+  // d'indisponibilité, qui ferait doublon. En live chat, on ajoute la mise
+  // en relation pour que le client sache qu'un conseiller arrive.
+  const responseText =
+    routing.mode === "live_chat"
+      ? aiResult.content
+        ? `${aiResult.content}\n\n${routing.message}`
+        : routing.message
+      : aiResult.content || routing.message;
 
   if (routing.mode === "live_chat") {
     await db
@@ -240,14 +247,16 @@ export async function getRecentHistory(
   convId: string,
 ): Promise<ChatMessage[]> {
   const db = getAdminOrFallback(supabase);
+  // Les 8 messages les plus récents, puis remis dans l'ordre chronologique :
+  // sans cela, le modèle perd le contexte dès que la conversation dépasse 8 messages.
   const { data: msgRows } = await db
     .from("support_messages")
     .select("sender_type, content")
     .eq("conversation_id", convId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(8);
 
-  return (msgRows || []).map((m) => ({
+  return (msgRows || []).reverse().map((m) => ({
     role: m.sender_type === "user" ? "user" : "assistant",
     content: m.content,
   }));

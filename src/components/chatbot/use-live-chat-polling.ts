@@ -30,8 +30,12 @@ export function useLiveChatPolling(params: LiveChatPollingParams) {
       if (!res.ok) return null;
       return (await res.json()) as { status: string; messages: DisplayMessage[] };
     },
-    enabled: isOpen && Boolean(conversationId) && isLiveChat,
+    // Chargé dès l'ouverture pour restaurer l'historique, puis rafraîchi
+    // périodiquement uniquement quand un conseiller a la main.
+    enabled: isOpen && Boolean(conversationId),
     refetchInterval: isOpen && isLiveChat ? 3000 : false,
+    refetchOnWindowFocus: isLiveChat,
+    staleTime: isLiveChat ? 0 : Number.POSITIVE_INFINITY,
   });
 
   useEffect(() => {

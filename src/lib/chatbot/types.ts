@@ -100,8 +100,14 @@ export interface EscalateToHumanArgs {
  */
 export const AVAILABLE_LLM_MODELS = [
   {
+    id: "qwen/qwen3-next-80b-a3b-instruct",
+    name: "Qwen3 Next 80B (Recommandé - Rapide & naturel)",
+    category: "Qwen",
+    cost: "Très économique",
+  },
+  {
     id: "qwen/qwen-2.5-72b-instruct",
-    name: "Qwen 2.5 72B (Recommandé - Équilibré & Puissant)",
+    name: "Qwen 2.5 72B (Ancien modèle - Plus lent)",
     category: "Qwen",
     cost: "Très économique",
   },

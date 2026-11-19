@@ -25,7 +25,7 @@ function parseSettings(row: Record<string, unknown>): ChatbotSettings {
     botName: strVal(row.bot_name, "Assistant Azari"),
     botAvatarUrl: (row.bot_avatar_url as string) || null,
     primaryColor: strVal(row.primary_color, "#077BAD"),
-    modelName: strVal(row.model_name, "qwen/qwen-2.5-72b-instruct"),
+    modelName: strVal(row.model_name, "qwen/qwen3-next-80b-a3b-instruct"),
     welcomeMessage: strVal(
       row.welcome_message,
       "Bonjour ! Comment puis-je vous renseigner sur nos offres de crédit et d'épargne ?",
