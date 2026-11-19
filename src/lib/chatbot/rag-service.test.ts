@@ -65,6 +65,7 @@ describe("buildSystemPrompt - Limites de prêt et transfert", () => {
     expect(prompt).toContain("Je ne peux pas répondre à cette question");
     expect(prompt).toContain("DÉPÔT DE GARANTIE — MOYENS DE PAIEMENT");
     expect(prompt).toContain("Ne mentionne pas spontanément le virement bancaire");
+    expect(prompt).toContain("Ne cite jamais une méthode qu'elle n'a pas demandée");
   });
 });
 
