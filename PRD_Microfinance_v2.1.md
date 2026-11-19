@@ -403,6 +403,7 @@ L'absence de demande active (ou dernière demande `REJECTED`/`CANCELLED`, ou der
 ### 13.2 Demande de retrait Mobile Money
 **Côté client :** opérateur, numéro, titulaire, montant. Validation par **Code PIN**.
 - À la soumission, le système **réserve** le montant : il l'ajoute au montant réservé **si et seulement si** le solde disponible (`épargne libre + prêt décaissé disponible − montant réservé`) est suffisant. La réservation et la création de la demande sont atomiques.
+- **Prérequis garantie :** tant que le dépôt de garantie obligatoire d'un prêt n'est pas confirmé, aucun retrait n'est possible, y compris depuis l'épargne libre.
 - Statut : `Demande envoyée`.
 
 **Côté agent :** vérification du solde et du numéro.

@@ -362,6 +362,7 @@ La libération de la garantie et de l'épargne obligatoire s'exécute dans la m�
 
 - soumission et traitement disponibles 24 h/24 ;
 - délai communiqué : 24 heures maximum ;
+- tant que le dépôt de garantie obligatoire n'est pas confirmé, aucun retrait n'est possible, y compris depuis l'épargne libre ;
 - réserve créée dès la demande ;
 - annulation client autorisée tant que `PENDING` ;
 - rejet ou annulation libérant obligatoirement la réserve.
