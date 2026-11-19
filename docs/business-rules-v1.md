@@ -89,12 +89,12 @@ Une action sensible exige une session active, une réauthentification et un moti
 
 La V1 contient exactement deux produits :
 
-| Produit         | Valeurs initiales recommandées                 | Paramétrable |
-| --------------- | ---------------------------------------------- | ------------ |
-| Prêt Essentiel  | 50 000–300 000 FCFA, 3–6 mois, 1 %/mois        | Oui          |
-| Prêt Croissance | 100 000–1 500 000 FCFA, 6–12 mois, 1,25 %/mois | Oui          |
+| Produit         | Conditions actives (D26)                                   | Paramétrable |
+| --------------- | ---------------------------------------------------------- | ------------ |
+| Prêt Essentiel  | 100 000–500 000 FCFA, 6–12 mois, 8,5 %/an, garantie 10 %   | Oui          |
+| Prêt Croissance | 1 000 000–5 000 000 FCFA, 12–60 mois, 5 %/an, garantie 5 % | Oui          |
 
-Les valeurs initiales servent à amorcer le pilote. Les valeurs effectivement actives sont celles de la version publiée du produit.
+Les valeurs effectivement actives sont celles de la version publiée du produit ; la révision en cours fait foi.
 
 ### 3.2 Paramètres modifiables
 
@@ -105,7 +105,7 @@ Les valeurs initiales servent à amorcer le pilote. Les valeurs effectivement ac
 - durée minimum ;
 - durée maximum ;
 - liste des durées permises ;
-- taux périodique ;
+- taux annuel ;
 - frais de dossier fixes et proportionnels ;
 - frais de gestion fixes et proportionnels ;
 - assurance, uniquement lorsqu'elle est réellement applicable ;

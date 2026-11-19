@@ -39,6 +39,7 @@ validées à 100 % le 2026-08-20. Le détail normatif se trouve dans `docs/busin
 | D23 | Dossier KYC pendant l'instruction | **Immuable dès `PENDING`** | Le client ne peut plus modifier ses données d'identité une fois le dossier soumis ; l'admin rouvre via `INFO_REQUESTED` pour une correction | PRD §4.3, Spécs §B |
 | D24 | Privilèges du chatbot | **Moindre privilège** | `support_*` et les RPC `SECURITY DEFINER` du support ne sont plus exécutables par `anon` ; le serveur passe par le service-role | Spécs §C |
 | D25 | Surcharges de RPC | **Une seule signature par action financière** | Toute évolution de signature doit supprimer l'ancienne surcharge (`drop function`) | Spécs §B.6 |
+| D26 | Conditions des produits | **Prêt Essentiel 8,5 %/an, garantie 10 % ; Prêt Croissance 5 %/an, garantie 5 %** | Taux annuels stockés dans `loan_products.interest_rate`, convertis en mensuel dans les calculs ; révision produit dédiée | Règles métier §3 |
 
 ---
 
