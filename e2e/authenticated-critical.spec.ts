@@ -21,7 +21,13 @@ function hasCredentials(
   return Boolean(credentials.email && credentials.password);
 }
 
-async function login(page: Page, credentials: { email: string; password: string }) {
+const clientPin = process.env.E2E_CLIENT_PIN ?? "2468";
+
+async function login(
+  page: Page,
+  credentials: { email: string; password: string },
+  options?: { pin?: string },
+) {
   await page.goto("/auth/login");
   await page.getByLabel("Adresse email").fill(credentials.email);
   await page.getByLabel("Mot de passe", { exact: true }).fill(credentials.password);
@@ -30,6 +36,16 @@ async function login(page: Page, credentials: { email: string; password: string 
     page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 30_000 }),
     page.getByRole("button", { name: "Se connecter" }).click(),
   ]);
+
+  // Un client neuf est redirigé vers /auth/set-pin avant d'accéder à son espace.
+  if (options?.pin && new URL(page.url()).pathname === "/auth/set-pin") {
+    await page.getByLabel("Code PIN", { exact: true }).fill(options.pin);
+    await page.getByLabel("Confirmer le code PIN", { exact: true }).fill(options.pin);
+    await Promise.all([
+      page.waitForURL((url) => !url.pathname.startsWith("/auth/set-pin"), { timeout: 30_000 }),
+      page.getByRole("button", { name: "Enregistrer mon code PIN" }).click(),
+    ]);
+  }
 }
 
 async function expectRoute(page: Page, path: string, heading: string) {
@@ -48,17 +64,19 @@ test.describe("navigation client authentifiée", () => {
   );
 
   test("parcourt les opérations critiques sans aucune soumission financière", async ({ page }) => {
-    await login(page, clientCredentials as { email: string; password: string });
+    await login(page, clientCredentials as { email: string; password: string }, {
+      pin: clientPin,
+    });
 
     await expectRoute(page, "/client/dashboard", "Client");
-    await expectRoute(page, "/client/deposit/request", "Faire un dépôt");
+    await expectRoute(page, "/client/deposit/request", "Déposer une épargne");
     await expectRoute(page, "/client/withdraw/momo", "Retrait Mobile Money");
     await expectRoute(page, "/client/withdraw/bank", "Virement bancaire");
     await expectRoute(page, "/client/loans/request", "Demander un prêt");
-    await expectRoute(page, "/client/loans", "Mes prêts");
+    await expectRoute(page, "/client/loans", "Mon prêt");
     await expectRoute(page, "/client/repay/request", "Rembourser mon prêt");
     await expectRoute(page, "/client/savings", "Mon épargne");
-    await expectRoute(page, "/client/operations", "Mes opérations");
+    await expectRoute(page, "/client/operations", "Historiques");
     await expectRoute(page, "/client/notifications", "Notifications");
     await expectRoute(page, "/client/profile", "Profil");
   });
