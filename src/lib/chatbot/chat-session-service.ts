@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { TRANSFER_TO_TEAM_REPLY } from "@/lib/chatbot/chatbot-messages";
 import { evaluateHandOffRouting } from "@/lib/chatbot/hand-off-service";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -196,6 +197,13 @@ export async function handleForcedEscalation(
   });
 }
 
+function withTransferNotice(content: string, fallback: string): string {
+  const trimmed = content.trim();
+  if (!trimmed) return fallback;
+  if (/transmet|équipe compétente/i.test(trimmed)) return trimmed;
+  return `${trimmed}\n\n${TRANSFER_TO_TEAM_REPLY}`;
+}
+
 export async function handleAiEscalation(
   supabase: SupabaseClientInstance,
   convId: string,
@@ -204,16 +212,10 @@ export async function handleAiEscalation(
 ) {
   const db = getAdminOrFallback(supabase);
   const routing = evaluateHandOffRouting(settings);
-  // En mode rappel, le message du modèle contient déjà la phrase humaine
-  // (« Je transmets votre préoccupation… ») : inutile d'ajouter le message
-  // d'indisponibilité, qui ferait doublon. En live chat, on ajoute la mise
-  // en relation pour que le client sache qu'un conseiller arrive.
-  const responseText =
-    routing.mode === "live_chat"
-      ? aiResult.content
-        ? `${aiResult.content}\n\n${routing.message}`
-        : routing.message
-      : aiResult.content || routing.message;
+  // Le message du modèle contient déjà la phrase de transfert. On l'ajoute
+  // uniquement s'il ne l'a pas formulée, sans jamais annoncer un conseiller
+  // en ligne ni une mise en relation directe.
+  const responseText = withTransferNotice(aiResult.content, routing.message);
 
   if (routing.mode === "live_chat") {
     await db

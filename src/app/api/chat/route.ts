@@ -9,7 +9,10 @@ import {
   verifyOrInitConversation,
   type SupabaseClientInstance,
 } from "@/lib/chatbot/chat-session-service";
+import { sanitizeHandoffClaims } from "@/lib/chatbot/chatbot-messages";
 import { verifySameOrigin } from "@/lib/chatbot/csrf";
+import { getLoanAmountLimitReply } from "@/lib/chatbot/loan-amount-guard";
+import { getOffTopicReply } from "@/lib/chatbot/off-topic-guard";
 import { executeChatCompletion } from "@/lib/chatbot/openrouter";
 import {
   buildSystemPrompt,
@@ -82,6 +85,34 @@ async function postAiResponseAtomically(
   return { inLiveChat: false, status: "bot" };
 }
 
+async function replyWithStaticMessage(
+  convId: string,
+  botName: string,
+  content: string,
+): Promise<Response> {
+  const outcome = await postAiResponseAtomically(
+    createSupabaseAdminClient(),
+    convId,
+    botName,
+    content,
+  );
+
+  if (outcome.inLiveChat) {
+    return NextResponse.json({
+      conversationId: convId,
+      status: outcome.status,
+      content: null,
+      inLiveChat: true,
+    });
+  }
+
+  return NextResponse.json({
+    conversationId: convId,
+    status: outcome.status,
+    content,
+  });
+}
+
 async function generateAiAnswer(params: {
   supabase: SupabaseClientInstance;
   convId: string;
@@ -107,7 +138,9 @@ async function generateAiAnswer(params: {
   });
 
   const safeContent = fixCommonFrenchAgreements(
-    sanitizeAssistantFormatting(sanitizeMissingInformationReply(aiResult.content)),
+    sanitizeAssistantFormatting(
+      sanitizeHandoffClaims(sanitizeMissingInformationReply(aiResult.content)),
+    ),
   );
   const safeResult = { ...aiResult, content: safeContent };
 
@@ -236,6 +269,16 @@ export async function POST(req: Request) {
         content: null,
         inLiveChat: true,
       });
+    }
+
+    const offTopicReply = getOffTopicReply(cleanMessage);
+    if (offTopicReply) {
+      return await replyWithStaticMessage(convId, settings.botName, offTopicReply);
+    }
+
+    const amountLimitReply = getLoanAmountLimitReply(cleanMessage);
+    if (amountLimitReply) {
+      return await replyWithStaticMessage(convId, settings.botName, amountLimitReply);
     }
 
     return await generateAiAnswer({ supabase, convId, cleanMessage, settings, clientContext });

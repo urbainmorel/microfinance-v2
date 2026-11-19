@@ -5,13 +5,13 @@ export const ESCALATE_TOOL = {
   function: {
     name: "escalate_to_human",
     description:
-      "Transférer la conversation à un conseiller humain ou initier une demande de rappel si le client le demande expressément, ou si sa question est complexe, sensible, litigieuse ou nécessite une étude personnalisée.",
+      "Transmettre la demande à l'équipe compétente si le client demande expressément un conseiller, ou si sa question est complexe, sensible, litigieuse ou nécessite une étude personnalisée. Ne jamais annoncer qu'un conseiller est en ligne ni promettre une mise en relation directe.",
     parameters: {
       type: "object",
       properties: {
         reason: {
           type: "string",
-          description: "Motif succinct du transfert vers un conseiller humain",
+          description: "Motif succinct du transfert vers l'équipe compétente",
         },
         summary: {
           type: "string",

@@ -1,3 +1,5 @@
+import { TRANSFER_TO_TEAM_REPLY } from "./chatbot-messages";
+
 import type { ChatbotSettings } from "./types";
 
 /**
@@ -13,6 +15,23 @@ function getAbidjanDayAndTime(date: Date): { dayNumber: number; time: string } {
     dayNumber: jsDay === 0 ? 7 : jsDay,
     time: `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}`,
   };
+}
+
+const DAY_NAMES = ["", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+
+export function formatBusinessHours(
+  settings: Pick<ChatbotSettings, "businessDays" | "businessHoursStart" | "businessHoursEnd">,
+): string {
+  const days = [...settings.businessDays]
+    .sort((a, b) => a - b)
+    .map((day) => DAY_NAMES[day])
+    .filter(Boolean);
+  const formatTime = (value: string) => value.slice(0, 5).replace(":", "h");
+
+  if (days.length === 0) return "Les horaires de l'agence ne sont pas renseignés.";
+  return `L'agence est ouverte ${days.join(", ")} de ${formatTime(
+    settings.businessHoursStart,
+  )} à ${formatTime(settings.businessHoursEnd)} (heure d'Abidjan).`;
 }
 
 /**
@@ -66,8 +85,7 @@ export function evaluateHandOffRouting(
   if (isAvailable) {
     return {
       mode: "live_chat",
-      message:
-        "Un conseiller de notre équipe est en ligne. Je vous mets en relation directe, veuillez patienter un instant...",
+      message: TRANSFER_TO_TEAM_REPLY,
     };
   }
 

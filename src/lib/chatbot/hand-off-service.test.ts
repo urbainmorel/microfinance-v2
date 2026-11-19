@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { TRANSFER_TO_TEAM_REPLY } from "./chatbot-messages";
 import {
   canConnectLiveAgent,
   evaluateHandOffRouting,
@@ -51,12 +52,14 @@ describe("hand-off-service", () => {
     expect(isWithinBusinessHours(mockSettings, sunday)).toBe(false);
   });
 
-  it("aiguille vers le Live Chat si l'agent est en ligne et dans les heures ouvrées", () => {
+  it("ne prétend jamais qu'un conseiller est en ligne, même s'il est disponible", () => {
     const wednesdayMorning = new Date("2026-10-07T10:00:00Z");
     expect(canConnectLiveAgent(mockSettings, wednesdayMorning)).toBe(true);
 
     const routing = evaluateHandOffRouting(mockSettings, wednesdayMorning);
     expect(routing.mode).toBe("live_chat");
+    expect(routing.message).toBe(TRANSFER_TO_TEAM_REPLY);
+    expect(routing.message).not.toMatch(/en ligne|mise en relation/i);
   });
 
   it("aiguille vers la demande de rappel si l'agent est absent ou hors horaires", () => {

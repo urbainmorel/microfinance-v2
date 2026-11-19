@@ -52,6 +52,20 @@ describe("sanitizeUserInput", () => {
   });
 });
 
+describe("buildSystemPrompt - Limites de prêt et transfert", () => {
+  it("inscrit les limites de prêt et l'interdiction d'annoncer un conseiller en ligne", () => {
+    const prompt = buildSystemPrompt({ settings: mockSettings, matchedItems: [] });
+
+    expect(prompt).toContain("MONTANTS DE PRÊT DISPONIBLES");
+    expect(prompt).toContain("montant maximum disponible est de");
+    expect(prompt).toContain("montant minimum disponible est de");
+    expect(prompt).toContain("ne dis jamais qu'un conseiller est en ligne");
+    expect(prompt).not.toMatch(/Un conseiller de notre équipe est en ligne/i);
+    expect(prompt).toContain("HORS SUJET");
+    expect(prompt).toContain("Je ne peux pas répondre à cette question");
+  });
+});
+
 describe("buildSystemPrompt - Base & Sécurité", () => {
   it("génère un prompt complet avec fiches de connaissances et règles de sécurité pour un visiteur anonyme", () => {
     const matchedItems: KnowledgeItem[] = [
@@ -80,7 +94,7 @@ describe("buildSystemPrompt - Base & Sécurité", () => {
     expect(prompt).toContain("<<<GUARDED_KNOWLEDGE_BASE_TESTNONCE123>>>");
     expect(prompt).toContain("<<<END_GUARDED_KNOWLEDGE_BASE_TESTNONCE123>>>");
     expect(prompt).toContain("DÉFENSE ANTI-INJECTION");
-    expect(prompt).toContain("Je n'ai pas cette information pour le moment");
+    expect(prompt).toContain("Je ne dispose pas encore");
     expect(prompt).toContain("l'équipe compétente");
     expect(prompt).toContain("escalate_to_human");
     expect(prompt).toContain("N'utilise aucun emoji");

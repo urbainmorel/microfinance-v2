@@ -24,7 +24,6 @@ export function ChatbotWidget() {
           onEscalate={ctrl.handleEscalate}
           isThinking={ctrl.isThinking}
           botName={botName}
-          isAgentOnline={isOnline}
           suggestedQuestions={questions}
           financialDisclaimer={disclaimer}
           conversationStatus={ctrl.conversationStatus}
@@ -50,7 +49,7 @@ export function ChatbotWidget() {
             className={`absolute -right-0.5 -top-0.5 size-3.5 rounded-full border-2 border-card ${
               isOnline ? "animate-pulse bg-emerald-500" : "bg-accent-soft"
             }`}
-            title={isOnline ? "Conseillers en ligne" : "Assistant IA disponible"}
+            title="Assistance Azari"
           />
         </button>
       </div>

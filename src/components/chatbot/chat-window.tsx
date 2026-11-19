@@ -15,7 +15,6 @@ interface ChatWindowProps {
   onEscalate: () => void;
   isThinking?: boolean;
   botName?: string;
-  isAgentOnline?: boolean;
   suggestedQuestions?: string[];
   financialDisclaimer?: string;
   conversationStatus?: string;
@@ -50,17 +49,26 @@ function trapTabKey(event: KeyboardEvent, panel: HTMLDivElement) {
 
 function ChatWindowHeader({
   botName,
-  isLiveChat,
-  isAgentOnline,
+  conversationStatus,
   onEscalate,
   onClose,
 }: {
   botName: string;
-  isLiveChat: boolean;
-  isAgentOnline: boolean;
+  conversationStatus: string;
   onEscalate: () => void;
   onClose: () => void;
 }) {
+  const isAgentActive = conversationStatus === "agent_active";
+  const isWaitingAgent = conversationStatus === "waiting_agent";
+  const isLiveChat = isAgentActive || isWaitingAgent;
+
+  const statusLabel = isAgentActive
+    ? "Conseiller en direct"
+    : isWaitingAgent
+      ? "Demande transmise"
+      : "Assistance Azari";
+  const dotClass = isAgentActive ? "animate-pulse bg-emerald-500" : "bg-accent";
+
   return (
     <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3.5 sm:rounded-t-2xl">
       <div className="flex items-center gap-3">
@@ -70,21 +78,9 @@ function ChatWindowHeader({
         <div className="min-w-0">
           <h2 className="truncate font-display text-sm font-bold text-foreground">{botName}</h2>
           <div className="flex items-center gap-1.5">
-            <span
-              className={`size-2 rounded-full ${
-                isLiveChat
-                  ? "animate-pulse bg-emerald-500"
-                  : isAgentOnline
-                    ? "bg-emerald-500"
-                    : "bg-accent"
-              }`}
-            />
+            <span className={`size-2 rounded-full ${dotClass}`} />
             <span className="truncate text-[11px] font-medium text-muted-foreground">
-              {isLiveChat
-                ? "Conseiller en direct"
-                : isAgentOnline
-                  ? "Conseillers en ligne"
-                  : "Assistance auto"}
+              {statusLabel}
             </span>
           </div>
         </div>
@@ -121,14 +117,10 @@ export function ChatWindow({
   onEscalate,
   isThinking = false,
   botName = "Assistant Azari",
-  isAgentOnline = false,
   suggestedQuestions = [],
   financialDisclaimer = "",
   conversationStatus = "bot",
 }: ChatWindowProps) {
-  const isLiveChat =
-    conversationStatus === "waiting_agent" || conversationStatus === "agent_active";
-
   const windowRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -167,8 +159,7 @@ export function ChatWindow({
     >
       <ChatWindowHeader
         botName={botName}
-        isLiveChat={isLiveChat}
-        isAgentOnline={isAgentOnline}
+        conversationStatus={conversationStatus}
         onEscalate={onEscalate}
         onClose={onClose}
       />
@@ -177,10 +168,10 @@ export function ChatWindow({
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center gap-2 border-b border-emerald-500/20 bg-emerald-50/70 px-4 py-2 text-xs text-emerald-800"
+          className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2 text-xs text-muted-foreground"
         >
-          <span className="size-2 animate-ping rounded-full bg-emerald-500" aria-hidden="true" />
-          <span>Mise en relation en cours avec un agent de crédit…</span>
+          <span className="size-2 rounded-full bg-accent" aria-hidden="true" />
+          <span>Votre demande a été transmise à l&apos;équipe compétente.</span>
         </div>
       ) : null}
 
