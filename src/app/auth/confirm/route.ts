@@ -37,6 +37,26 @@ function applyNoStoreHeaders(response: NextResponse): void {
   response.headers.set("Expires", "0");
 }
 
+/**
+ * Netlify exécute les routes dans une fonction dont `request.url` peut porter
+ * l'URL de déploiement (`<deploy>--site.netlify.app`). Les redirections doivent
+ * rester sur l'origine canonique configurée, jamais sur cette URL interne.
+ */
+function applicationOrigin(request: NextRequest): string {
+  const configured = process.env.APP_URL?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (configured) {
+    try {
+      const url = new URL(configured);
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        return url.origin;
+      }
+    } catch {
+      // Repli sur l'origine de la requête si la variable est invalide.
+    }
+  }
+  return request.nextUrl.origin;
+}
+
 function applyCookies(
   response: NextResponse,
   cookies: { name: string; value: string; options: CookieOptions }[],
@@ -57,7 +77,7 @@ function redirectToVerificationFailure(request: NextRequest): NextResponse {
   // PKCE ou un token_hash sont validés auprès de Supabase avant d'afficher
   // le message de succès.
   const errorResponse = NextResponse.redirect(
-    new URL("/auth/login?error=verification_failed", request.url),
+    new URL("/auth/login?error=verification_failed", applicationOrigin(request)),
   );
   applyNoStoreHeaders(errorResponse);
   return errorResponse;
@@ -102,6 +122,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const token = searchParams.get("token");
   const type = (searchParams.get("type") ?? "signup") as EmailOtpType;
   const next = searchParams.get("next");
+  const origin = applicationOrigin(request);
 
   if (!code && !token_hash && !token) {
     return redirectToVerificationFailure(request);
@@ -133,7 +154,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Pour une réinitialisation de mot de passe ou un flux avec next explicite autre que l'inscription
   if (type === "recovery" || (next && type !== "signup")) {
     const targetPath = await determineRedirectPath(supabase, next);
-    const response = NextResponse.redirect(new URL(targetPath, request.url));
+    const response = NextResponse.redirect(new URL(targetPath, origin));
     applyCookies(response, cookiesToSet);
     applyNoStoreHeaders(response);
     return response;
@@ -146,7 +167,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.warn("Erreur lors de la déconnexion post-vérification:", err);
   }
 
-  const loginUrl = new URL("/auth/login?verified=true", request.url);
+  const loginUrl = new URL("/auth/login?verified=true", origin);
   if (email) {
     loginUrl.searchParams.set("email", email);
   }

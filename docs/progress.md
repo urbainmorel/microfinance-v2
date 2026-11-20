@@ -410,4 +410,5 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Le contenu du modèle de confirmation a été allégé : doctype HTML5 sans référence HTTP, suppression du SVG inline et des caractères invisibles du pré-header, ajout de l'adresse destinataire et d'un bloc de conseil sécurité plus lisible.
 - Le SMTP Supabase Auth a été basculé vers Resend avec l'expéditeur `noreply@mail.azari-microfinance.site`. Le Return-Path devient `rsend.mail.azari-microfinance.site`, aligné sur le domaine expéditeur, ce qui supprime la règle `HEADER_FROM_DIFFERENT_DOMAINS`. Brevo reste utilisé pour les notifications métier.
 - Test réel après bascule : confirmation reçue, DKIM `d=mail.azari-microfinance.site`, SPF Resend valide, SpamCheck Postmark à -0,8/5 et aucun signalement de domaine d'enveloppe différent.
-- Tests Vitest ajoutés sur l'absence de vérification sans jeton, le rejet du fragment d'URL et le contrat du modèle de confirmation.
+- Les redirections de `/auth/confirm` utilisent désormais `APP_URL` comme origine canonique, afin de ne jamais renvoyer vers l'URL de deploy preview Netlify.
+- Tests Vitest ajoutés sur l'absence de vérification sans jeton, le rejet du fragment d'URL, l'origine canonique et le contrat du modèle de confirmation.
