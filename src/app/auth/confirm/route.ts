@@ -43,7 +43,11 @@ function applyNoStoreHeaders(response: NextResponse): void {
  * rester sur l'origine canonique configurée, jamais sur cette URL interne.
  */
 function applicationOrigin(request: NextRequest): string {
-  const configured = process.env.APP_URL?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim();
+  const configured =
+    process.env.APP_URL?.trim() ||
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    // Netlify expose l'URL canonique du site dans `URL` à l'exécution.
+    process.env.URL?.trim();
   if (configured) {
     try {
       const url = new URL(configured);
