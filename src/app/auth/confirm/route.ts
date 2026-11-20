@@ -51,22 +51,31 @@ function applicationOrigin(request: NextRequest): string {
   if (configured) {
     try {
       const url = new URL(configured);
-      if (url.protocol === "http:" || url.protocol === "https:") {
+      // Ne jamais ancrer les redirections sur l'hôte interne Netlify.
+      if (
+        (url.protocol === "http:" || url.protocol === "https:") &&
+        !url.hostname.endsWith(".netlify.app")
+      ) {
         return url.origin;
       }
     } catch {
-      // Repli sur l'origine de la requête si la variable est invalide.
+      // Repli ci-dessous si la variable est invalide.
     }
   }
 
-  // Dernier repli de production : l'environnement des fonctions Netlify ne
-  // garantit pas la présence des variables ci-dessus et `request.url` porte
-  // alors l'hôte interne `*.netlify.app`.
-  if (process.env.NODE_ENV === "production") {
-    return "https://azari-microfinance.site";
+  const requestOrigin = request.nextUrl.origin;
+  try {
+    const hostname = new URL(requestOrigin).hostname;
+    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".local")) {
+      return requestOrigin;
+    }
+  } catch {
+    // Repli canonique ci-dessous.
   }
 
-  return request.nextUrl.origin;
+  // L'environnement des fonctions Netlify ne garantit pas les variables
+  // ci-dessus et `request.url` porte alors l'hôte interne `*.netlify.app`.
+  return "https://azari-microfinance.site";
 }
 
 function applyCookies(

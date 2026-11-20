@@ -150,11 +150,10 @@ describe("GET /auth/confirm - erreurs et fallback hash", () => {
     );
   });
 
-  it("retombe sur l'origine canonique de production si aucun environnement n'est disponible", async () => {
-    vi.stubEnv("APP_URL", "");
+  it("ignore un APP_URL Netlify et retombe sur l'origine canonique", async () => {
+    vi.stubEnv("APP_URL", "https://main--azari-microfinance.netlify.app");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "");
     vi.stubEnv("URL", "");
-    vi.stubEnv("NODE_ENV", "production");
     const request = new NextRequest(
       "https://6b0026a043c217baf0921ac1--azari-microfinance.netlify.app/auth/confirm",
     );
