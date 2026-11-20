@@ -149,6 +149,23 @@ describe("GET /auth/confirm - erreurs et fallback hash", () => {
       "https://azari-microfinance.site/auth/login?error=verification_failed",
     );
   });
+
+  it("retombe sur l'origine canonique de production si aucun environnement n'est disponible", async () => {
+    vi.stubEnv("APP_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "");
+    vi.stubEnv("URL", "");
+    vi.stubEnv("NODE_ENV", "production");
+    const request = new NextRequest(
+      "https://6b0026a043c217baf0921ac1--azari-microfinance.netlify.app/auth/confirm",
+    );
+    const response = await GET(request);
+    vi.unstubAllEnvs();
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://azari-microfinance.site/auth/login?error=verification_failed",
+    );
+  });
 });
 
 describe("GET /auth/confirm - sécurité et résilience", () => {

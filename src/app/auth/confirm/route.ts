@@ -58,6 +58,14 @@ function applicationOrigin(request: NextRequest): string {
       // Repli sur l'origine de la requête si la variable est invalide.
     }
   }
+
+  // Dernier repli de production : l'environnement des fonctions Netlify ne
+  // garantit pas la présence des variables ci-dessus et `request.url` porte
+  // alors l'hôte interne `*.netlify.app`.
+  if (process.env.NODE_ENV === "production") {
+    return "https://azari-microfinance.site";
+  }
+
   return request.nextUrl.origin;
 }
 
