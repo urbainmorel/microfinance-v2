@@ -130,7 +130,8 @@ function LoginForm() {
   const urlStatus = useMemo(() => resolveUrlStatus(searchParams), [searchParams]);
 
   const serverError = submissionError ?? urlStatus.errorMessage;
-  const successMessage = submissionError ? null : urlStatus.successMessage;
+  const successMessage =
+    submissionError || urlStatus.errorMessage ? null : urlStatus.successMessage;
 
   const {
     register,

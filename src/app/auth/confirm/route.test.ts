@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -96,14 +98,26 @@ describe("GET /auth/confirm - erreurs et fallback hash", () => {
     expect(response.headers.get("location")).toContain("/auth/login?error=verification_failed");
   });
 
-  it("renvoie la page HTML de fallback si aucun token ni code n'est fourni", async () => {
+  it("ne revendique jamais une vérification quand aucun token ni code n'est fourni", async () => {
     const request = new NextRequest("http://localhost:3000/auth/confirm");
     const response = await GET(request);
 
-    expect(response.status).toBe(200);
-    const html = await response.text();
-    expect(html).toContain("Confirmation de votre compte en cours");
-    expect(html).toContain("/auth/login?verified=true");
+    expect(response.status).toBe(307);
+    const location = response.headers.get("location") ?? "";
+    expect(location).toContain("/auth/login?error=verification_failed");
+    expect(location).not.toContain("verified=true");
+    expect(mockVerifyOtp).not.toHaveBeenCalled();
+    expect(mockExchangeCodeForSession).not.toHaveBeenCalled();
+  });
+
+  it("ne traite pas un fragment d'URL comme une preuve de vérification", async () => {
+    const request = new NextRequest("http://localhost:3000/auth/confirm#type=signup");
+    const response = await GET(request);
+
+    expect(response.status).toBe(307);
+    const location = response.headers.get("location") ?? "";
+    expect(location).toContain("error=verification_failed");
+    expect(location).not.toContain("verified=true");
   });
 });
 
@@ -195,5 +209,19 @@ describe("GET /auth/confirm - sécurité et résilience", () => {
 
     expect(response.headers.get("cache-control")).toContain("no-store");
     expect(response.headers.get("pragma")).toBe("no-cache");
+  });
+});
+
+describe("modèle de confirmation", () => {
+  it("envoie un lien token_hash vérifié côté serveur, jamais ConfirmationURL", async () => {
+    const html = await readFile(
+      new URL("../../../../supabase/templates/confirmation.html", import.meta.url),
+      "utf8",
+    );
+
+    expect(html).toContain(
+      "{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=signup",
+    );
+    expect(html).not.toContain("{{ .ConfirmationURL }}");
   });
 });

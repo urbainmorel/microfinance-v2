@@ -51,54 +51,16 @@ function applyCookies(
   });
 }
 
-function renderHashFallbackHtml(): string {
-  return `<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <title>Vérification du compte...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: #090d16;
-      color: #ffffff;
-    }
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid rgba(255,255,255,0.15);
-      border-top-color: #077bad;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 16px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
-</head>
-<body>
-  <div class="spinner"></div>
-  <p style="font-size: 14px; opacity: 0.85;">Confirmation de votre compte en cours...</p>
-  <script>
-    (function() {
-      var hash = window.location.hash || '';
-      if (hash.indexOf('error') !== -1) {
-        window.location.replace('/auth/login?error=verification_failed');
-      } else if (hash.indexOf('access_token') !== -1 || hash.indexOf('refresh_token') !== -1 || hash.indexOf('type=signup') !== -1) {
-        window.location.replace('/auth/login?verified=true');
-      } else {
-        window.location.replace('/auth/login');
-      }
-    })();
-  </script>
-</body>
-</html>`;
+function redirectToVerificationFailure(request: NextRequest): NextResponse {
+  // Un fragment d'URL (#access_token, #type=signup) n'est jamais reçu par le
+  // serveur : il ne peut donc jamais prouver une vérification. Seuls un code
+  // PKCE ou un token_hash sont validés auprès de Supabase avant d'afficher
+  // le message de succès.
+  const errorResponse = NextResponse.redirect(
+    new URL("/auth/login?error=verification_failed", request.url),
+  );
+  applyNoStoreHeaders(errorResponse);
+  return errorResponse;
 }
 
 async function verifyAuthSession(
@@ -142,11 +104,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const next = searchParams.get("next");
 
   if (!code && !token_hash && !token) {
-    const htmlResponse = new NextResponse(renderHashFallbackHtml(), {
-      headers: { "Content-Type": "text/html; charset=utf-8" },
-    });
-    applyNoStoreHeaders(htmlResponse);
-    return htmlResponse;
+    return redirectToVerificationFailure(request);
   }
 
   const cookiesToSet: { name: string; value: string; options: CookieOptions }[] = [];
@@ -169,11 +127,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const { success, email } = await verifyAuthSession(supabase, { code, token_hash, token, type });
   if (!success) {
-    const errorResponse = NextResponse.redirect(
-      new URL("/auth/login?error=verification_failed", request.url),
-    );
-    applyNoStoreHeaders(errorResponse);
-    return errorResponse;
+    return redirectToVerificationFailure(request);
   }
 
   // Pour une réinitialisation de mot de passe ou un flux avec next explicite autre que l'inscription

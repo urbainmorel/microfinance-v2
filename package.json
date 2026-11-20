@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "clean:next-types": "node scripts/clean-next-types.mjs",
+    "auth:templates:apply": "node scripts/apply-supabase-auth-templates.mjs",
     "pretypecheck": "node scripts/clean-next-types.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",

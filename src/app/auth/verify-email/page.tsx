@@ -17,13 +17,21 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     let active = true;
     async function continueIfVerified() {
+      const pendingEmail = window.sessionStorage
+        .getItem("pending-verification-email")
+        ?.trim()
+        .toLowerCase();
       const supabase = createSupabaseBrowserClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (active && user?.email_confirmed_at) {
+      const sessionEmail = user?.email?.trim().toLowerCase();
+      const matchesPendingEmail = Boolean(pendingEmail) && sessionEmail === pendingEmail;
+      if (active && user?.email_confirmed_at && matchesPendingEmail) {
         window.sessionStorage.removeItem("pending-verification-email");
-        router.replace("/auth/login?verified=true");
+        const params = new URLSearchParams({ verified: "true" });
+        if (sessionEmail) params.set("email", sessionEmail);
+        router.replace(`/auth/login?${params.toString()}`);
         router.refresh();
       }
     }
