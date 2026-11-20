@@ -7,6 +7,8 @@
   PNPM_VERSION = "11"
   NETLIFY_NEXT_SKEW_PROTECTION = "true"
   APP_URL = "https://azari-microfinance.site"
+  # Inlinée au build par Next : disponible aussi dans les routes serveur.
+  NEXT_PUBLIC_APP_URL = "https://azari-microfinance.site"
   NETLIFY_FEEDBACK_DISABLED = "true"
   NETLIFY_DRAWER = "false"
 
