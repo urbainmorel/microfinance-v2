@@ -412,3 +412,14 @@ Ce journal suit les livraisons réalisées sur la branche `codex/finalisation-co
 - Test réel après bascule : confirmation reçue, DKIM `d=mail.azari-microfinance.site`, SPF Resend valide, SpamCheck Postmark à -0,8/5 et aucun signalement de domaine d'enveloppe différent.
 - Les redirections de `/auth/confirm` utilisent désormais `APP_URL` comme origine canonique, afin de ne jamais renvoyer vers l'URL de deploy preview Netlify.
 - Tests Vitest ajoutés sur l'absence de vérification sans jeton, le rejet du fragment d'URL, l'origine canonique et le contrat du modèle de confirmation.
+
+## 2026-11-21
+
+### Send Email Hook Supabase Auth — Resend principal, Brevo secours
+
+- Activation du Send Email Hook Supabase Auth sur `/api/auth/send-email-hook`, avec vérification Standard Webhooks et budget de réponse inférieur à 5 secondes.
+- Resend reste le fournisseur principal ; Brevo bascule automatiquement en secours sur erreur réseau, timeout, quota ou réponse 5xx.
+- Les secrets fournisseurs et le secret du hook sont stockés dans `public.auth_email_settings`, accessible uniquement au rôle `service_role`.
+- Les modèles versionnés de `supabase/templates` sont utilisés pour la confirmation, la récupération, le changement d'e-mail, l'invitation et le lien magique ; les notifications de sécurité et la réauthentification disposent d'un rendu dédié.
+- Les modèles Auth sont inclus dans le bundle serverless via `outputFileTracingIncludes`.
+- Tests Vitest ajoutés sur la signature Standard Webhooks, le rendu des emails et la bascule Resend vers Brevo.

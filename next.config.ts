@@ -50,6 +50,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  // Les modèles Auth sont lus à l'exécution par le Send Email Hook.
+  outputFileTracingIncludes: {
+    "/api/auth/send-email-hook": ["./supabase/templates/*.html"],
+  },
   // Désactive la transformation serveur d'images pour préserver le quota gratuit Netlify
   images: {
     unoptimized: true,
